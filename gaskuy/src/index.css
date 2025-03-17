@@ -17,3 +17,11 @@
         overflow-x: hidden;
     }
 }
+
+.input-box-auth {
+    @apply w-full flex justify-between gap-3 text-sm text-black bg-white rounded-[10px] px-4 py-2 mb-4 mt-3 border border-slate-200 outline-none;
+}
+
+.btn-auth {
+    @apply w-full text-sm font-medium text-white bg-[#335540] shadow-lg shadow-emerald-800/5 p-[10px] rounded-[10px] my-1 hover:bg-[#AAEEC4] hover:text-[#335540];
+}

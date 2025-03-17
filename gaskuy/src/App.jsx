@@ -61,4 +61,16 @@ const App = () => {
   )
 }
 
-export default App
+export default App;
+
+const Root = () => {
+  // Check if token existed in local storage
+  const isAuthenticated = !!localStorage.getItem("token");
+
+  // Redirected to home if authenticated, otherwise to home 
+  return isAuthenticated ? (
+    <Navigate to="/home" />
+  ) : (
+    <Navigate to="/home" />
+  );
+};
