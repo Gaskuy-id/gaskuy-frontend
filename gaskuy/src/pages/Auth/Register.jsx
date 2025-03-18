@@ -56,8 +56,8 @@ const Register = () => {
 
   return (
     <div className='flex min-h-screen'>
-      <div className='w-[80%] h-auto hidden lg:flex items-center justify-start bg-gray-200'>
-        <img src={registerMobil} alt='Register' className='w-full' />
+      <div className='w-[875px] h-auto hidden lg:flex items-center justify-start bg-gray-200'>
+        <img src={registerMobil} alt='Register' className='w-[886px] h-[909px]' />
       </div>
 
       <div className='w-full lg:w-3/4 flex flex-col justify-center text-center p-10 lg:-ml-10 bg-white shadow-lg rounded-[30px]'>
