@@ -87,7 +87,7 @@ const Login = () => {
               </form>
             </div>
           </div>
-          <div className='flex justify-center mt-6'>
+          <div className='flex justify-center mt-8'>
             <img src={loginMobil} alt="Login Illustration" className='w-full max-w-[1920px] h-auto' />
         </div>
       </div>
