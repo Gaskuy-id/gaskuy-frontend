@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Input from '../../components/inputs/input';
+import Input from '../../components/inputs/Input';
 import { validateEmail } from '../../utils/helper';
+import API from '../../utils/api';
 import registerMobil from '../../assets/images/registermobil.png';
 
 const Register = () => {
@@ -52,6 +53,18 @@ const Register = () => {
     setError("");
 
     // Register API Call
+    try {
+      const res = await API.post("/users/register", {
+        name: fullName,
+        email: email,
+        password: password,
+        phone: phoneNumber,
+        domicile: address,
+      });
+      setError(res.data.message);
+    } catch (error) {
+      setError(error.response?.data?.message || "Registration failed");
+    }
   };
 
   return (
