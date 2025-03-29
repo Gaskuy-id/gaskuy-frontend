@@ -55,13 +55,14 @@ const Register = () => {
     // Register API Call
     try {
       const res = await API.post("/users/register", {
-        name: fullName,
+        fullName: fullName,
         email: email,
         password: password,
-        phone: phoneNumber,
-        domicile: address,
+        phoneNumber: phoneNumber,
+        address: address
       });
       setError(res.data.message);
+      navigate("/login")
     } catch (error) {
       setError(error.response?.data?.message || "Registration failed");
     }

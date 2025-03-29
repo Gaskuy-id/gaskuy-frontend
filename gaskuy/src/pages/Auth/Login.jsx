@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../components/inputs/Input';
 import { validateEmail } from '../../utils/helper'
 import loginMobil from '../../assets/images/mobil.jpg';
+import API from "../../utils/api"
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -29,6 +30,16 @@ const Login = () => {
     setError("");
 
     // Login API Call
+    try {
+      const res = await API.post("/users/login", {
+        email: email,
+        password: password
+      });
+      localStorage.setItem("token", res.data.token);
+      setError(res.data.message);
+    } catch (error) {
+      setError(error.response?.data?.message || "Login failed");
+    }
   }
   
   return (
