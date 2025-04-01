@@ -36,6 +36,15 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
+  const editProfile = async () => {
+    try {
+      const res = await API.put("/users/edit", editUser);
+      setUser(res.data.user)
+    } catch (error) {
+      console.log("Error updating profile:", error)
+    }
+  }
+
   return (
     <div className="bg-white flex justify-center items-center min-h-screen">
       <Popup isOpen={isEditing} onClose={() => setIsEditing(false)}>
@@ -48,7 +57,7 @@ const Profile = () => {
             <CompactInput 
               value={editUser.fullName} 
               onChange={ ({target}) =>
-                setEditUser(({prev}) => ({...prev, fullName: target.value}))
+                setEditUser((prev) => ({...prev, fullName: target.value}))
               } 
               placeholder = "Nama Lengkap"
               label = "Nama Lengkap"
@@ -56,7 +65,7 @@ const Profile = () => {
             <CompactInput 
               value={editUser.email} 
               onChange={ ({target}) =>
-                setEditUser(({prev}) => ({...prev, email: target.value}))
+                setEditUser((prev) => ({...prev, email: target.value}))
               } 
               placeholder = "Email"
               label = "Email"
@@ -64,7 +73,7 @@ const Profile = () => {
             <CompactInput 
               value={editUser.phoneNumber} 
               onChange={ ({target}) =>
-                setEditUser(({prev}) => ({...prev, phoneNumber: target.value}))
+                setEditUser((prev) => ({...prev, phoneNumber: target.value}))
               } 
               placeholder = "No. Telepon"
               label = "No. Telepon"
@@ -72,14 +81,14 @@ const Profile = () => {
             <CompactInput 
               value={editUser.address} 
               onChange={ ({target}) =>
-                setEditUser(({prev}) => ({...prev, address: target.value}))
+                setEditUser((prev) => ({...prev, address: target.value}))
               } 
               placeholder = "Alamat"
               label = "Alamat"
             />
           </form>
           <div className="flex justify-end mx-4 my-6">
-            <button className="bg-green-800 text-white px-10 py-2">
+            <button className="bg-green-800 text-white px-10 py-2" onClick={editProfile}>
               Edit
             </button>
           </div>
