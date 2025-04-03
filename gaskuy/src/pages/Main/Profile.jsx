@@ -1,36 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { createPortal } from 'react-dom';
 import API from "../../utils/api";
 import imagePlaceholder from "../../assets/images/userImagePlaceholder.webp"
 import { Popup } from "../../components/Popup"
-import Input from "../../components/inputs/Input";
 import CompactInput from "../../components/inputs/CompactInput";
-import XSymbol from "../../assets/images/x-symbol.png"
+import { ImCross } from "react-icons/im";
 import FileUpload from "../../components/inputs/FileUpload";
 
 const Profile = () => {
   const [user, setUser] = useState({
-    fullName: 'Uchihawarizmi',
-    email: 'Uchihawarizmi',
-    phoneNumber: '08123456789',
-    address: 'Earth',
-    image: null
+    fullName: 'User Full Name',
+    email: 'User Email',
+    phoneNumber: 'User Phone Number',
+    address: 'User Address',
+    image: imagePlaceholder 
   });
-  const [ imageSrc, setImageSrc ] = useState(imagePlaceholder);
   const [ isEditing, setIsEditing ] = useState(false)
-  const [ editUser, setEditUser ] = useState({...user, image: null})
+  const [ editUser, setEditUser ] = useState({...user, image: []})
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await API.get("/users/profile");
         const { data } = res 
-        setUser(data);
-        setEditUser({...data, image: null});
-        if(res.data.image){
-          setImageSrc(`http://localhost:5000${res.data.image}`)
+
+        if(data.image){
+          const image =`http://localhost:5000${data.image}`
+          setUser({...data, image: image})
+          setEditUser({...data, image: Array.from([image])});
+        } else {
+          setUser((prev) => ({...data, image: prev.image}))
+          setEditUser((prev) => ({...data, image: prev.image}));
         }
-        } catch (error) {
+
+      } catch (error) {
         console.error("Error fetching profile:", error);
       }
     }; 
@@ -39,8 +41,8 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    console.log(editUser)
-  }, [editUser])
+    console.log(user)
+  }, [user])
 
   const editProfile = async () => {
     try {
@@ -49,9 +51,12 @@ const Profile = () => {
       formData.append("email", editUser.email);
       formData.append("phoneNumber", editUser.phoneNumber);
       formData.append("address", editUser.address);
-      formData.append("image", editUser.image);
-      const res = await API.put("/users/edit", editUser, {headers: {"Content-Type" : "multipart/form-data"}});
-      setUser(res.data.user)
+      formData.append("image", editUser.image.length > 0 ? editUser.image[0] : null);
+      const res = await API.put("/users/edit", formData, {headers: {"Content-Type" : "multipart/form-data"}});
+      const newData = res.data.user
+      const newImage = newData.image ? `http://localhost:5000${newData.image}` : imagePlaceholder
+      setUser({...newData, image: newImage})
+      setIsEditing(false)
     } catch (error) {
       console.log("Error updating profile:", error)
     }
@@ -63,16 +68,17 @@ const Profile = () => {
         <div className="w-xl rounded-xl p-2 bg-white">
           <div className="flex flex-row">
             <h1 className="mx-4 my-6 grow text-2xl font-sans font-bold">Edit data profil</h1>
-            <button className="cursor-pointer mx-4 my-6" onClick={() => setIsEditing(false)}><img src={XSymbol}/></button>
+            <ImCross className="mx-4 my-6 cursor-pointer" onClick={() => setIsEditing(false)} />
           </div>
           <form>
             <div className="flex flex-col mx-4 my-2 px-3 py-1 rounded-md border-solid border-2 border-gray-300 bg-gray-100 gap-0">
               <label className='text-sm text-gray-500'>Foto profil</label>
               <FileUpload
-                file={editUser.image}
-                onChangeFile={ (newFile) =>
+                files={editUser.image}
+                setFiles={ (newFile) =>
                  setEditUser((prev) => ({...prev, image: newFile}))
                 }
+                isMultiple={false}
               />
             </div>
             <CompactInput 
@@ -129,7 +135,7 @@ const Profile = () => {
         <img
           alt="Profile picture of a person"
           className="rounded-full h-36 w-36 object-cover mb-6"
-          src={imageSrc}
+          src={user.image}
         />
         <div className="text-left w-full">
           <div className="mb-4">
