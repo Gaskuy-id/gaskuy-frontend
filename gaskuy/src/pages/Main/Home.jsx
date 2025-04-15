@@ -146,7 +146,7 @@ const Home = () => {
               </div>
 
               {/* Jumlah Penumpang */}
-              <div className="md:col-span-2 max-w-[163px]">
+              <div className="md:col-span-1">
                 <label className="block mb-1 text-[15px]">
                   Jumlah penumpang
                 </label>
