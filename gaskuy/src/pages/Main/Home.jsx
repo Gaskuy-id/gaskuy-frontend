@@ -97,10 +97,10 @@ const Home = () => {
 
       {/* Field Pemesanan Section */}
       <section className="w-full bg-white font-poppins px-4 mt-[-20px] md:mt-[-15px] relative z-10">
-        <div className="bg-white rounded-xl shadow-[4px_4px_20px_12px_rgba(0,0,0,0.1)] w-full max-w-[960px] mx-auto px-6 py-6 md:px-8 md:py-7 mb-10">
+        <div className="bg-white rounded-xl shadow-[4px_4px_20px_12px_rgba(0,0,0,0.1)] w-full max-w-[940px] mx-auto px-6 py-6 md:px-8 md:py-7 mb-10">
           <h3 className="text-[20px] mb-4 text-black">Tipe Layanan:</h3>
           {/* Radio Button Tipe Layanan */}
-          <div className="flex gap-8 mb-6">
+          <div className="flex gap-8 mb-7 ">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
@@ -108,7 +108,7 @@ const Home = () => {
                 value="dengan"
                 checked={tipeLayanan === "dengan"}
                 onChange={() => setTipeLayanan("dengan")}
-                className="w-7 h-7 appearance-none border border-black rounded-full checked:bg-[#9CE0B6] focus:outline-none cursor-pointer"
+                className="w-7 h-7 appearance-none border border-black rounded-full checked:bg-[#9CE0B6] transition focus:outline-none cursor-pointer"
               />
               <span className="text-[16px] text-black">Dengan Sopir</span>
             </label>
@@ -120,7 +120,7 @@ const Home = () => {
                 value="tanpa"
                 checked={tipeLayanan === "tanpa"}
                 onChange={() => setTipeLayanan("tanpa")}
-                className="w-7 h-7 appearance-none border border-black rounded-full checked:bg-[#9CE0B6] focus:outline-none cursor-pointer"
+                className="w-7 h-7 appearance-none border border-black rounded-full checked:bg-[#9CE0B6] transition focus:outline-none cursor-pointer"
               />
               <span className="text-[16px] text-black">Tanpa Sopir</span>
             </label>
@@ -172,7 +172,7 @@ const Home = () => {
             </div>
 
             {/* Baris 2: Tanggal & Waktu serta Tombol Cari */}
-            <div className="mt-5 grid grid-cols-1 md:grid-cols-5 gap-5">
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-5">
               {/* Tanggal Mulai */}
               <div>
                 <label className="block mb-1 text-[15px]">Tanggal mulai</label>
@@ -251,7 +251,7 @@ const Home = () => {
               <div className="flex items-end justify-end">
                 <button
                   onClick={handleCari}
-                  className="bg-[#9CE0B6] text-black hover:bg-black hover:text-white font-semibold px-6 py-2 rounded-xl cursor-pointer mr-2"
+                  className="text-[15px] bg-[#9CE0B6] text-black hover:bg-black hover:text-white transition font-semibold px-6 py-2 rounded-xl cursor-pointer mr-2"
                 >
                   Cari
                 </button>
