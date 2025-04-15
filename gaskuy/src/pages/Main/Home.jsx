@@ -86,7 +86,7 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="w-full h-[300px] md:h-[310px] overflow-hidden mt-6">
+        <div className="hidden md:block w-full h-[310px] overflow-hidden mt-6">
           <img
             src={headerHero}
             alt="Header Hero"
