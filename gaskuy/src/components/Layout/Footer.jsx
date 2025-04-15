@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 
 const Footer = () => {
   return (
-    <div className="w-full font-poppins bg-white text-base">
+    <div id="footer" className="w-full font-poppins bg-white text-base">
       {/* Bar Hijau */}
       <div className="bg-[#335540] text-white text-center py-3 text-sm mb-2 px-4">
         Ayo rental mobil di Gasskuy ● Cepat, mudah, terpercaya, harga bersaing ●

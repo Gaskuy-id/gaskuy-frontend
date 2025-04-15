@@ -53,15 +53,32 @@ const Navbar = () => {
             hidden md:flex md:items-center md:gap-4 text-[#101010] font-medium
           `}
         >
-          {["Home", "Contact Us", "Booking"].map((item, idx) => (
-            <Link
-              key={idx}
-              to={`/${item.toLowerCase().replace(/\s/g, "-")}`}
-              className="min-w-[90px] text-center transition duration-200 hover:font-bold"
-            >
-              {item}
-            </Link>
-          ))}
+          {["Home", "Contact Us", "Booking"].map((item, idx) => {
+            const isContact = item === "Contact Us";
+
+            const handleClick = (e) => {
+              if (isContact) {
+                e.preventDefault();
+                const footer = document.getElementById("footer");
+                if (footer) {
+                  footer.scrollIntoView({ behavior: "smooth" });
+                }
+              }
+            };
+
+            return (
+              <Link
+                key={idx}
+                to={
+                  isContact ? "#" : `/${item.toLowerCase().replace(/\s/g, "-")}`
+                }
+                onClick={handleClick}
+                className="min-w-[90px] text-center transition duration-200 hover:font-bold"
+              >
+                {item}
+              </Link>
+            );
+          })}
 
           <Link to="/login">
             <button className="bg-[#101010] text-white px-6 py-2 rounded-full hover:bg-[#67F49F] hover:text-black transition cursor-pointer">
@@ -85,16 +102,34 @@ const Navbar = () => {
           gap-3 px-6 py-4 text-[#101010] font-medium md:hidden overflow-hidden
         `}
             >
-              {["Home", "Contact Us", "Booking"].map((item, idx) => (
-                <Link
-                  key={idx}
-                  to={`/${item.toLowerCase().replace(/\s/g, "-")}`}
-                  className="min-w-[110px] text-center transition duration-300 hover:font-bold"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item}
-                </Link>
-              ))}
+              {["Home", "Contact Us", "Booking"].map((item, idx) => {
+                const isContact = item === "Contact Us";
+
+                const handleClick = (e) => {
+                  if (isContact) {
+                    e.preventDefault();
+                    const footer = document.getElementById("footer");
+                    if (footer) {
+                      footer.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }
+                };
+
+                return (
+                  <Link
+                    key={idx}
+                    to={
+                      isContact
+                        ? "#"
+                        : `/${item.toLowerCase().replace(/\s/g, "-")}`
+                    }
+                    onClick={handleClick}
+                    className="min-w-[90px] text-center transition duration-200 hover:font-bold"
+                  >
+                    {item}
+                  </Link>
+                );
+              })}
 
               <Link to="/login" onClick={() => setIsOpen(false)}>
                 <button className="bg-[#101010] text-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition cursor-pointer">
