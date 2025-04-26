@@ -15,6 +15,13 @@ import snackMinumanImg from "../../assets/images/snackMinuman.png";
 import asuransiImg from "../../assets/images/asuransiPerjalanan.png";
 import daruratImg from "../../assets/images/darurat24Jam.png";
 import avatarImg from "../../assets/images/avatarImg.png";
+import mitsubishiLogo from "../../assets/images/mitsubishi.png";
+import hyundaiLogo from "../../assets/images/hyundai.png";
+import hondaLogo from "../../assets/images/honda.png";
+import kiaLogo from "../../assets/images/kia.png";
+import toyotaLogo from "../../assets/images/toyota.png";
+import whatsappImg from "../../assets/images/whatsapp.png";
+import circleVector from "../../assets/images/circleVector.svg";
 
 import { Icon } from "@iconify/react";
 
@@ -40,6 +47,18 @@ const Home = () => {
     });
     // ini belum diimplementasiin backendnya
   };
+
+  // Whatsapp
+  const WHATSAPP_PHONE = "6281392610510";
+
+  const MESSAGE_LINES = [
+    "Halo Min Gasskuy! 👋",
+    "Saya [Nama Anda]. Mau tanya nih tentang [hal yang ingin ditanyakan].",
+    "Kalau bisa, tolong [hal yang ingin dibantu].",
+    "Terima kasih banyak! 😊",
+  ];
+
+  const encodedMessage = encodeURIComponent(MESSAGE_LINES.join("\n"));
 
   return (
     <Layout>
@@ -503,7 +522,9 @@ const Home = () => {
                 />
                 <div>
                   <p className="text-[16px] font-semibold">Gus Akira Nakai</p>
-                  <p className="text-[14px] text-[#818181]">CEO RAUH-Welt BEGRIFF</p>
+                  <p className="text-[14px] text-[#818181]">
+                    CEO RAUH-Welt BEGRIFF
+                  </p>
                 </div>
               </div>
             </div>
@@ -521,11 +542,101 @@ const Home = () => {
                 />
                 <div>
                   <p className="text-[16px] font-semibold">Asep Teripang</p>
-                  <p className="text-[14px] text-[#818181]">GAM Special Forces</p>
+                  <p className="text-[14px] text-[#818181]">
+                    GAM Special Forces
+                  </p>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Section Partner */}
+      <section className="w-full bg-white font-poppins py-16 px-4 md:px-0">
+        <div id="contact" className="max-w-[980px] mx-auto text-center">
+          {/* Judul dengan highlight */}
+          <h2 className="text-[30px] md:text-[30px] font-semibold leading-tight">
+            <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+              Partner
+            </span>{" "}
+            Kami
+          </h2>
+
+          {/* Logo Partner */}
+          <div className="flex flex-wrap justify-center items-center gap-16 mt-5.5">
+            <img
+              src={mitsubishiLogo}
+              alt="Mitsubishi"
+              className="h-21 md:h-21 ml-1"
+            />
+            <img
+              src={hyundaiLogo}
+              alt="Hyundai"
+              className="h-25 md:h-25 ml-4"
+            />
+            <img src={hondaLogo} alt="Honda" className="h-36 md:h-36 ml-5" />
+            <img src={kiaLogo} alt="kia" className="h-30 md:h-30" />
+            <img src={toyotaLogo} alt="Toyota" className="h-9 md:h-9" />
+          </div>
+        </div>
+      </section>
+
+      {/* Section Kontak Kami */}
+      <section className="w-full bg-white font-poppins py-2 px-4 md:px-0">
+        <div className="max-w-[965px] mx-auto">
+          <div className="bg-[#171717] rounded-3xl shadow-[4px_4px_20px_12px_rgba(0,0,0,0.1)] p-8 flex flex-col md:flex-row items-center">
+            {/* Kiri: teks + vector */}
+            <div className="md:w-2/3 text-white h-68">
+              <h2 className=" text-[38px] font-bold text-[#A9ECC2]">
+                Kontak Kami
+              </h2>
+              <p className="text-[28px]">
+                Mempunyai Masalah Dalam{" "}
+                <span className="text-[#AAEEC4]">Pemesanan?</span>
+              </p>
+              <p className="text-[28px] text-[#AAEEC4]">Hubungi kami disini</p>
+
+              {/* SVG circles */}
+              <div className="mt-5">
+                <img
+                  src={circleVector}
+                  alt="Vector circles"
+                  className="w-[34.5rem] h-auto"
+                />
+              </div>
+            </div>
+
+            {/* Kanan: WhatsApp */}
+            <div className="mt-8 md:mt-0 md:w-1/3 flex flex-col items-center">
+              <img
+                src={whatsappImg}
+                alt="WhatsApp"
+                className="w-51 h-52 ml-14 opacity-[96%]"
+              />
+              <a
+                href={`https://web.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedMessage}`}
+                target="WhatsApp"
+                rel="noopener noreferrer"
+                className="ml-14 mt-4 inline-block bg-[#0CC333] text-white text-[15px] font-semibold px-5.5 py-2 rounded-full hover:bg-white hover:text-black transition"
+              >
+                Kirim via WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Punchline */}
+      <section className="w-full bg-white font-poppins mt-14 mb-10 px-4 md:px-0">
+        <div className="max-w-[980px] mx-auto text-center">
+          <h2 className="text-[25px] md:text-[25px] font-medium italic leading-tight">
+          ~ Cepat, Mudah, Terpercaya, 
+            <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+              Gasskuy
+            </span>{" "}
+             ~
+          </h2>
         </div>
       </section>
     </Layout>
