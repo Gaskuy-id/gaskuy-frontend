@@ -5,6 +5,17 @@ import smallCar from "../../assets/images/smallCar.png";
 import penumpang from "../../assets/images/penumpang.png";
 import tanggal from "../../assets/images/tanggal.png";
 import jam from "../../assets/images/jam.png";
+import iconMoney from "../../assets/images/iconMoney.png";
+import iconCS from "../../assets/images/iconCS.png";
+import iconTrust from "../../assets/images/iconTrust.png";
+import iconShield from "../../assets/images/iconShield.png";
+import iconCert from "../../assets/images/iconCert.png";
+
+import tourGuideImg from "../../assets/images/tourGuide.png";
+import snackMinumanImg from "../../assets/images/snackMinuman.png";
+import asuransiImg from "../../assets/images/asuransiPerjalanan.png";
+import daruratImg from "../../assets/images/darurat24Jam.png";
+
 import { Icon } from "@iconify/react";
 
 const Home = () => {
@@ -260,6 +271,195 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Section Alasan Kenapa Harus Sewa di Gaskuy */}
+      <section className="w-full bg-white text-black font-poppins py-6 px-4 md:px-0">
+        <div className="max-w-[940px] mx-auto text-center">
+          {/* Judul dengan highlight */}
+          <h2 className="text-[30px] md:text-[30px] font-semibold leading-tight">
+            <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+              Alasan
+            </span>{" "}
+            Kenapa{" "}
+            <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+              Harus Sewa
+            </span>{" "}
+            di GassKuy
+          </h2>
+
+          {/* Grid / Flex items */}
+          <div className="flex flex-wrap justify-center gap-x-20 gap-y-11 mt-12">
+            {/* iconMoney */}
+            <div className="w-[200px] flex flex-col items-center text-center">
+              <img
+                src={iconMoney}
+                alt="Harga Terjangkau"
+                className="w-30 h-30 mb-4.5"
+              />
+              <p className="font-normal font-size:xl">
+                Harga lebih terjangkau dibanding yang lain
+              </p>
+            </div>
+
+            {/* iconCS */}
+            <div className="w-[220px] flex flex-col items-center text-center">
+              <img
+                src={iconCS}
+                alt="Customer Service"
+                className="w-30 h-30 mb-4.5 ml-8"
+              />
+              <p className="font-normal font-size:xl ml-2">
+                Customer service 24 jam penuh
+              </p>
+              </div>
+
+            {/* iconTrust */}
+            <div className="w-[240px] flex flex-col items-center text-center mt-1">
+              <img
+                src={iconTrust}
+                alt="Terpercaya"
+                className="w-28 h-28 mb-5.5"
+              />
+              <p className="font-normal font-size:xl">
+                Sudah dipercaya oleh 20 ribu lebih orang dari 15 negara
+              </p>
+            </div>
+
+            {/* iconShield */}
+            <div className="w-[260px] flex flex-col items-center text-center">
+              <img
+                src={iconShield}
+                alt="Mobil Prima"
+                className="w-23 h-29 mb-4 ml-8"
+              />
+              <p className="font-normal font-size:xl ml-6">
+                Mobil selalu dalam keadaan prima dan rutin perawatan
+              </p>
+            </div>
+
+            {/* iconCert */}
+            <div className="w-[290px] flex flex-col items-center text-center">
+              <img
+                src={iconCert}
+                alt="Driver Bersertifikat"
+                className="w-29 h-23 mb-4 mr-15 mt-4"
+              />
+              <p className="font-normal font-size:xl mr-14 mt-2.5">
+                Driver bersertifikat resmi dan professional
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Layanan dan Fasilitas di Gaskuy */}
+      <section className="w-full bg-white text-black font-poppins py-16 px-4 md:px-0">
+        <div className="max-w-[740px] mx-auto">
+          {/* Judul dengan highlight */}
+          <h2 className="text-[30px] md:text-[30px] font-semibold leading-tight text-center">
+            <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+              Layanan
+            </span>{" "}
+            dan Fasilitas Kami
+          </h2>
+
+          {/* Daftar kartu layanan */}
+          <div className="flex flex-col gap-6 mt-8">
+            {/* Kartu 1 */}
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <img
+                  src={tourGuideImg}
+                  alt="Tour Guide"
+                  className="w-[94%] h-[85%] object-cover rounded-xl ml-6"
+                />
+              </div>
+              <div className="w-full md:w-2/3 p-6">
+                <h3 className="text-[22px] font-semibold mb-2 ml-4">
+                  Layanan <span className="text-[#3BB280]">Tour Guide</span>{" "}
+                  Gratis
+                </h3>
+                <p className="text-[17px] text-black leading-relaxed font-light ml-4 text-justify">
+                  Biar perjalanan makin seru, kami sediakan tour guide gratis
+                  yang siap ngajak keliling tempat-tempat terbaik dan kasih info
+                  menarik seputar destinasi yang kamu kunjungi.
+                </p>
+              </div>
+            </div>
+
+            {/* Kartu 2 */}
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <img
+                  src={snackMinumanImg}
+                  alt="Snack dan Minuman"
+                  className="w-[94%] h-[85%] object-cover rounded-xl ml-6"
+                />
+              </div>
+              <div className="w-full md:w-2/3 p-6">
+                <h3 className="text-[22px] font-semibold mb-2 ml-4">
+                  Gratis{" "}
+                  <span className="text-[#3BB280]">Snack dan Minuman</span>
+                </h3>
+                <p className="text-[17px] text-black leading-relaxed font-light ml-4 text-justify">
+                  Biar perjalanan tetap nyaman, kami kasih snack dan minuman
+                  gratis buat nemenin kamu di jalan. Jadi, gak perlu khawatir
+                  kalau tiba-tiba kamu lapar atau haus tapi jauh dari
+                  supermarket.
+                </p>
+              </div>
+            </div>
+
+            {/* Kartu 3 */}
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <img
+                  src={asuransiImg}
+                  alt="Asuransi Perjalanan"
+                  className="w-[94%] h-[85%] object-cover rounded-xl ml-6"
+                />
+              </div>
+              <div className="w-full md:w-2/3 p-6">
+                <h3 className="text-[22px] font-semibold mb-2 ml-4">
+                  Asuransi Perjalanan{" "}
+                  <span className="text-[#3BB280]">Penuh</span>
+                </h3>
+                <p className="text-[17px] text-black leading-relaxed font-light ml-4 text-justify">
+                  Jalan-jalan jadi lebih tenang dengan asuransi perjalanan yang
+                  siap melindungi dari hal-hal tak terduga. Nikmati pengalaman
+                  rental mobil tanpa ribet dan tanpa khawatir!
+                </p>
+              </div>
+            </div>
+
+            {/* Kartu 4 */}
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <img
+                  src={daruratImg}
+                  alt="Layanan Darurat 24 Jam"
+                  className="w-[94%] h-[85%] object-cover rounded-xl ml-6"
+                />
+              </div>
+              <div className="w-full md:w-2/3 p-6">
+                <h3 className="text-[22px] font-semibold mb-2 ml-4">
+                  Layanan Darurat{" "}
+                  <span className="text-[#3BB280]">24 Jam Penuh</span>
+                </h3>
+                <p className="text-[17px] text-black leading-relaxed font-light ml-4 text-justify">
+                  Kalau ada kendala di jalan, kami selalu siap bantu! Dengan
+                  layanan bantuan darurat 24/7, kamu bisa tenang karena ada tim
+                  yang siap menolong kapan pun dan di mana pun.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    {/* Section Testimoni */}
+    {/* Buat Code disini */}
+
     </Layout>
   );
 };
