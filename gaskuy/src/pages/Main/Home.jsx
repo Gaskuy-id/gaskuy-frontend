@@ -10,11 +10,11 @@ import iconCS from "../../assets/images/iconCS.png";
 import iconTrust from "../../assets/images/iconTrust.png";
 import iconShield from "../../assets/images/iconShield.png";
 import iconCert from "../../assets/images/iconCert.png";
-
 import tourGuideImg from "../../assets/images/tourGuide.png";
 import snackMinumanImg from "../../assets/images/snackMinuman.png";
 import asuransiImg from "../../assets/images/asuransiPerjalanan.png";
 import daruratImg from "../../assets/images/darurat24Jam.png";
+import avatarImg from "../../assets/images/avatarImg.png";
 
 import { Icon } from "@iconify/react";
 
@@ -311,7 +311,7 @@ const Home = () => {
               <p className="font-normal font-size:xl ml-2">
                 Customer service 24 jam penuh
               </p>
-              </div>
+            </div>
 
             {/* iconTrust */}
             <div className="w-[240px] flex flex-col items-center text-center mt-1">
@@ -353,7 +353,7 @@ const Home = () => {
       </section>
 
       {/* Section Layanan dan Fasilitas di Gaskuy */}
-      <section className="w-full bg-white text-black font-poppins py-16 px-4 md:px-0">
+      <section className="w-full bg-white text-black font-poppins py-14 px-4 md:px-0">
         <div className="max-w-[740px] mx-auto">
           {/* Judul dengan highlight */}
           <h2 className="text-[30px] md:text-[30px] font-semibold leading-tight text-center">
@@ -366,7 +366,7 @@ const Home = () => {
           {/* Daftar kartu layanan */}
           <div className="flex flex-col gap-6 mt-8">
             {/* Kartu 1 */}
-            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_40px_0px_rgba(0,0,0,0.1)] overflow-hidden h-68">
               <div className="w-full md:w-1/2 flex items-center justify-center">
                 <img
                   src={tourGuideImg}
@@ -388,7 +388,7 @@ const Home = () => {
             </div>
 
             {/* Kartu 2 */}
-            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_40px_0px_rgba(0,0,0,0.1)] overflow-hidden h-68">
               <div className="w-full md:w-1/2 flex items-center justify-center">
                 <img
                   src={snackMinumanImg}
@@ -411,7 +411,7 @@ const Home = () => {
             </div>
 
             {/* Kartu 3 */}
-            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_40px_0px_rgba(0,0,0,0.1)] overflow-hidden h-68">
               <div className="w-full md:w-1/2 flex items-center justify-center">
                 <img
                   src={asuransiImg}
@@ -433,7 +433,7 @@ const Home = () => {
             </div>
 
             {/* Kartu 4 */}
-            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_60px_12px_rgba(0,0,0,0.1)] overflow-hidden h-68">
+            <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-[0px_0px_40px_0px_rgba(0,0,0,0.1)] overflow-hidden h-68">
               <div className="w-full md:w-1/2 flex items-center justify-center">
                 <img
                   src={daruratImg}
@@ -457,9 +457,77 @@ const Home = () => {
         </div>
       </section>
 
-    {/* Section Testimoni */}
-    {/* Buat Code disini */}
+      {/* Section Testimoni */}
+      <section className="w-full bg-white text-black font-poppins py-6 px-4 md:px-0">
+        <div className="max-w-[940px] mx-auto">
+          {/* Judul dengan highlight */}
+          <h2 className="text-[30px] md:text-[30px] font-semibold text-center leading-tight">
+            <span>Apa </span>
+            <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+              Kata
+            </span>
+            <span> Mereka</span>
+          </h2>
 
+          {/* Grid Testimoni */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            {/* Testimonial Card */}
+            <div className="bg-white rounded-xl shadow-[0px_0px_40px_0px_rgba(0,0,0,0.1)] p-6">
+              <p className="text-[15px] text-black leading-relaxed text-justify">
+                Ada tour guide gratis bikin perjalanan makin mudah, seru dan
+                informatif. Recommended!
+              </p>
+              <div className="flex items-center gap-4 mt-6">
+                <img
+                  src={avatarImg}
+                  alt="Avatar Pelanggan"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <p className="text-[16px] font-semibold">Ambarawa</p>
+                  <p className="text-[14px] text-[#818181]">CEO Jombang</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-[0px_0px_40px_0px_rgba(0,0,0,0.1)] p-6">
+              <p className="text-[15px] text-black leading-relaxed text-justify">
+                Pelayanannya luar biasa! Mobil bersih, nyaman, dan adminnya
+                sangat responsif. Mantap!
+              </p>
+              <div className="flex items-center gap-4 mt-6">
+                <img
+                  src={avatarImg}
+                  alt="Avatar Pelanggan"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <p className="text-[16px] font-semibold">Gus Akira Nakai</p>
+                  <p className="text-[14px] text-[#818181]">CEO RAUH-Welt BEGRIFF</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-[0px_0px_40px_0px_rgba(0,0,0,0.1)] p-6">
+              <p className="text-[15px] text-black leading-relaxed text-justify">
+                Mobil siap pakai, bensin full, dan ada fasilitas supir
+                profesional juga. Next trip bakal kesini lagi!
+              </p>
+              <div className="flex items-center gap-4 mt-6">
+                <img
+                  src={avatarImg}
+                  alt="Avatar Pelanggan"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <p className="text-[16px] font-semibold">Asep Teripang</p>
+                  <p className="text-[14px] text-[#818181]">GAM Special Forces</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </Layout>
   );
 };
