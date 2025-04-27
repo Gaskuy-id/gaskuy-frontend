@@ -12,6 +12,7 @@ const Booking = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [tipeLayanan, setTipeLayanan] = useState("");  // Ini perlu ada di sini
 
   const carsPerPage = 8; // jumlah mobil per halaman
 
@@ -85,7 +86,7 @@ const Booking = () => {
       </section>
 
       {/* Field Pemesanan Section */}
-      <BookingForm />
+      <BookingForm onTipeLayananChange={setTipeLayanan} />
 
       {/* Pilihan yang tersedia Section*/}
       <section className="w-full bg-white text-black font-poppins py-2 px-4 md:px-0">
@@ -101,7 +102,7 @@ const Booking = () => {
                 <Link
                   key={car.id}
                   to="/detail"
-                  state={{ car }}
+                  state={{ car, tipeLayanan }} // kirim ke tipe layanan
                   className="block"
                 >
                   <CarInformation

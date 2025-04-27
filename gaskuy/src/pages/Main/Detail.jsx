@@ -10,24 +10,37 @@ const Detail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const car = location.state?.car;
+  const tipeLayanan = location.state?.tipeLayanan;
   const [mainImage, setMainImage] = useState('');
+
+  const handlePesanSekarang = () => {
+    if (!tipeLayanan) {
+      alert("Silahkan pilih tipe layanan terlebih dahulu.");
+      return;
+    }
+  
+    if (tipeLayanan === "dengan") {
+      navigate("/book-driver", { state: { car } });
+    } else if (tipeLayanan === "tanpa") {
+      navigate("/book-no-driver", { state: { car } });
+    }
+  };  
 
   useEffect(() => {
     if (!car) {
-      navigate('/booking');
+      navigate('/booking'); // Navigasi kembali ke halaman booking jika mobil tidak ada
     } else {
-      setMainImage(car.imageSrc);
+      setMainImage(car.imageSrc); // Set gambar utama mobil
     }
   }, [car, navigate]);
 
   if (!car) {
-    return null;
+    return null; // Jika mobil tidak ada, tidak ada yang ditampilkan
   }
 
   return (
     <Layout>
       <div className="max-w-[1200px] mx-auto px-4 py-8">
-
         {/* Tombol kembali */}
         <Link to="/booking" className="flex items-center gap-2 mb-6 group">
           <div className="w-8 h-8 flex items-center justify-center bg-[#5D8B68] rounded-lg transition-colors duration-300 group-hover:bg-green-800">
@@ -70,22 +83,24 @@ const Detail = () => {
               <h2 className="text-base font-semibold mb-2">Spesifikasi:</h2>
               <ul className="space-y-3 mb-8 text-gray-700 text-sm">
                 <li className="flex items-center gap-2">
-                  <FaTachometerAlt className="w-4 h-4" /> {car.speed} CC
+                  <FaTachometerAlt className="w-4 h-4" /> {car.speed} km/jam
                 </li>
                 <li className="flex items-center gap-2">
                   <GiSteeringWheel className="w-4 h-4" /> {car.transmission}
                 </li>
                 <li className="flex items-center gap-2">
-                  <img src={SeatIcon} alt="Seat" className="w-4 h-4" /> {car.seats} Kursi
+                  <img src={SeatIcon} alt="Seat" className="w-4 h-4" /> {car.seats} orang
                 </li>
                 <li className="flex items-center gap-2">
-                  <FaGasPump className="w-4 h-4" /> Capacity {car.fuelCapacity} L
+                  <FaGasPump className="w-4 h-4" /> {car.fuelCapacity} liter
                 </li>
               </ul>
             </div>
 
             {/* Tombol Pesan Sekarang */}
-            <button className="bg-[#335540] hover:bg-green-800 text-white py-2 px-3 rounded-full text-sm font-semibold w-80 h-10">
+            <button 
+              onClick={handlePesanSekarang}
+              className="bg-[#335540] hover:bg-green-800 text-white py-2 px-3 rounded-full text-sm font-semibold w-80 h-10">
               PESAN SEKARANG
             </button>
           </div>

@@ -4,7 +4,7 @@ import tanggal from "../assets/images/tanggal.png";
 import jam from "../assets/images/jam.png";
 import { Icon } from "@iconify/react";
 
-const BookingForm = () => {
+const BookingForm = ({ onTipeLayananChange }) => {
     // State untuk field pemesanan
     const [tipeLayanan, setTipeLayanan] = useState(""); // "dengan" / "tanpa"
     const [tempatRental, setTempatRental] = useState("");
@@ -13,6 +13,11 @@ const BookingForm = () => {
     const [waktuMulai, setWaktuMulai] = useState("");
     const [tanggalSelesai, setTanggalSelesai] = useState("");
     const [waktuSelesai, setWaktuSelesai] = useState("");
+
+    const handleTipeLayananChange = (value) => {
+        setTipeLayanan(value);
+        onTipeLayananChange(value); // Mengirim tipe layanan ke parent (Booking.jsx)
+    };
 
     const handleCari = () => {
         console.log("Cari Mobil!", {
@@ -40,7 +45,7 @@ const BookingForm = () => {
                             name="tipeLayanan"
                             value="dengan"
                             checked={tipeLayanan === "dengan"}
-                            onChange={() => setTipeLayanan("dengan")}
+                            onChange={() => handleTipeLayananChange("dengan")}
                             className="w-7 h-7 appearance-none border border-black rounded-full checked:bg-[#9CE0B6] transition focus:outline-none cursor-pointer"
                         />
                         <span className="text-[16px] text-black">Dengan Sopir</span>
@@ -52,7 +57,7 @@ const BookingForm = () => {
                             name="tipeLayanan"
                             value="tanpa"
                             checked={tipeLayanan === "tanpa"}
-                            onChange={() => setTipeLayanan("tanpa")}
+                            onChange={() => handleTipeLayananChange("tanpa")}
                             className="w-7 h-7 appearance-none border border-black rounded-full checked:bg-[#9CE0B6] transition focus:outline-none cursor-pointer"
                         />
                         <span className="text-[16px] text-black">Tanpa Sopir</span>
