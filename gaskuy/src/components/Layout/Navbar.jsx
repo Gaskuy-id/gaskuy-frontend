@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../../assets/images/logo.png";
 
@@ -74,6 +75,18 @@ const Navbar = () => {
             }
           }}
         >
+        <Link
+          to="/home"
+          className="flex items-center"
+          onClick={(e) => {
+            e.preventDefault();
+            if (location.pathname === "/home") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              navigate("/home");
+            }
+          }}
+        >
           <img
             src={logo}
             alt="GASSKUY Logo"
@@ -104,10 +117,27 @@ const Navbar = () => {
                   ? "M6 18L18 6M6 6l12 12"
                   : "M4 6h16M4 12h16M4 18h16"
               }
+              d={
+                isOpen
+                  ? "M6 18L18 6M6 6l12 12"
+                  : "M4 6h16M4 12h16M4 18h16"
+              }
             />
           </svg>
         </button>
 
+        {/* Desktop Menu */}
+        <div className="hidden md:flex md:items-center md:gap-4 text-[#101010] font-medium">
+          {menuItems.map((item, idx) => (
+            <Link
+              key={idx}
+              to={item.isContact ? "#contact" : item.to}
+              onClick={handleNavClick(item.to, item.isContact)}
+              className="min-w-[90px] text-center transition duration-200 hover:font-bold"
+            >
+              {item.label}
+            </Link>
+          ))}
         {/* Desktop Menu */}
         <div className="hidden md:flex md:items-center md:gap-4 text-[#101010] font-medium">
           {menuItems.map((item, idx) => (
@@ -139,7 +169,18 @@ const Navbar = () => {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
               className="w-full bg-[#67F49F] flex flex-col items-center gap-3 px-6 py-4 text-[#101010] font-medium md:hidden overflow-hidden"
+              className="w-full bg-[#67F49F] flex flex-col items-center gap-3 px-6 py-4 text-[#101010] font-medium md:hidden overflow-hidden"
             >
+              {menuItems.map((item, idx) => (
+                <Link
+                  key={idx}
+                  to={item.isContact ? "#contact" : item.to}
+                  onClick={handleNavClick(item.to, item.isContact)}
+                  className="min-w-[90px] text-center transition duration-200 hover:font-bold"
+                >
+                  {item.label}
+                </Link>
+              ))}
               {menuItems.map((item, idx) => (
                 <Link
                   key={idx}
