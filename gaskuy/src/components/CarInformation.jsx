@@ -22,12 +22,12 @@ const CarInformation = ({
             <img
                 src={imageSrc}
                 alt={alt}
-                className="w-full h-40 object-cover mt-2"
+                className="w-full h-40 object-cover mt-2 object-fit: cover"
             />
 
             {/* Harga per hari */}
             <p className="text-lg font-semibold px-4 py-2">
-                Rp {pricePerDay}/day
+                Rp {pricePerDay}/jam
             </p>
 
             {/* Spesifikasi */}

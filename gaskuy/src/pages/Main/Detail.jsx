@@ -67,7 +67,7 @@ const Detail = () => {
                   key={idx}
                   src={thumb}
                   alt={`Thumbnail ${idx}`}
-                  className="w-40 h-auto object-cover rounded-md cursor-pointer border hover:ring-2 hover:ring-green-700"
+                  className="w-32 h-auto object-cover rounded-md cursor-pointer border hover:ring-2 hover:ring-green-700"
                   onClick={() => setMainImage(thumb)}
                 />
               ))}
@@ -78,7 +78,7 @@ const Detail = () => {
           <div className="flex-1 flex flex-col justify-between">
             <div>
               <h1 className="text-2xl font-bold mb-3">{car.title}</h1>
-              <p className="text-lg font-semibold text-green-700 mb-6">${car.pricePerDay} /hours</p>
+              <p className="text-lg font-semibold text-green-700 mb-6">Rp {car.pricePerDay}/jam</p>
 
               <h2 className="text-base font-semibold mb-2">Spesifikasi:</h2>
               <ul className="space-y-3 mb-8 text-gray-700 text-sm">
