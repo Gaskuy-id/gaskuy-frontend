@@ -6,29 +6,13 @@ import CarInformation from "../../components/CarInformation";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-// import images from "../../utils/imageLoader";
-
 const Booking = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [tipeLayanan, setTipeLayanan] = useState("");  // Ini perlu ada di sini
+  const [tipeLayanan, setTipeLayanan] = useState("");
 
   const carsPerPage = 8; // jumlah mobil per halaman
-
-  // useEffect(() => {
-  //   // Panggil API untuk ambil data mobil
-  //   axios.get("/api/cars")
-  //     .then(response => {
-  //       setCars(response.data);
-  //     })
-  //     .catch(err => {
-  //       console.error("Gagal fetch data:", err);
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // }, []);
 
   useEffect(() => {
     fetch("/cars.json")
@@ -110,7 +94,7 @@ const Booking = () => {
                     imageSrc={car.imageSrc}
                     alt={car.title}
                     pricePerDay={car.pricePerDay}
-                    speed={car.speed}
+                    engineCapacity={car.engineCapacity}
                     fuelCapacity={car.fuelCapacity}
                     transmission={car.transmission}
                     seats={car.seats}

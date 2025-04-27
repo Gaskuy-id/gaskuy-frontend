@@ -8,7 +8,7 @@ const CarInformation = ({
     imageSrc,
     alt,
     pricePerDay,
-    speed,
+    engineCapacity,
     fuelCapacity,
     transmission,
     seats,
@@ -25,7 +25,7 @@ const CarInformation = ({
                 className="w-full h-40 object-cover mt-2 object-fit: cover"
             />
 
-            {/* Harga per hari */}
+            {/* Harga per jam */}
             <p className="text-lg font-semibold px-4 py-2">
                 Rp {pricePerDay}/jam
             </p>
@@ -34,7 +34,7 @@ const CarInformation = ({
             <div className="flex items-center text-xs text-gray-600 px-4 pb-4 space-x-7">
                 <div className="flex items-center space-x-1">
                     <FaTachometerAlt className="w-4 h-4" />
-                    <span>{speed} km/jam</span>
+                    <span>{engineCapacity} CC</span>
                 </div>
                 <div className="flex items-center space-x-1">
                     <FaGasPump className="w-4 h-4" />
