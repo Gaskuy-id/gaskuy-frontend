@@ -27,7 +27,7 @@ const Detail = () => {
   return (
     <Layout>
       <div className="max-w-[1200px] mx-auto px-4 py-8">
-        
+
         {/* Tombol kembali */}
         <Link to="/booking" className="flex items-center gap-2 mb-6 group">
           <div className="w-8 h-8 flex items-center justify-center bg-[#5D8B68] rounded-lg transition-colors duration-300 group-hover:bg-green-800">
@@ -41,20 +41,20 @@ const Detail = () => {
         <div className="flex flex-col md:flex-row gap-10">
           {/* Kolom Kiri: Gambar Mobil */}
           <div className="flex-1">
-            <img 
-              src={mainImage} 
-              alt={car.title} 
+            <img
+              src={mainImage}
+              alt={car.title}
               className="w-full h-auto rounded-lg shadow-md border object-cover"
             />
-            
+
             {/* Thumbnails */}
             <div className="flex gap-4 mt-6">
               {car.thumbnails?.map((thumb, idx) => (
-                <img 
+                <img
                   key={idx}
                   src={thumb}
                   alt={`Thumbnail ${idx}`}
-                  className="w-20 h-20 object-cover rounded-md cursor-pointer border hover:ring-2 hover:ring-green-700"
+                  className="w-40 h-auto object-cover rounded-md cursor-pointer border hover:ring-2 hover:ring-green-700"
                   onClick={() => setMainImage(thumb)}
                 />
               ))}
@@ -90,7 +90,6 @@ const Detail = () => {
             </button>
           </div>
         </div>
-
       </div>
     </Layout>
   );
