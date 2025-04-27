@@ -1,0 +1,194 @@
+[
+    {
+        "id": 1,
+        "title": "All New Honda Civic Type R 6 M/T",
+        "imageSrc": "civic.png",
+        "pricePerDay": 100,
+        "speed": "300 km/jam",
+        "fuelCapacity": "50 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "civic_thumb1.png",
+            "civic_thumb2.png",
+            "civic_thumb3.png",
+            "civic_thumb4.png"
+        ]
+    },
+    {
+        "id": 2,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 3,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 4,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 5,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 6,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 7,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 8,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 9,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 10,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 11,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    },
+    {
+        "id": 12,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "accord.png",
+        "pricePerDay": 120,
+        "speed": "280 km/jam",
+        "fuelCapacity": "48 liter",
+        "transmission": "Automatic",
+        "seats": "4 kursi",
+        "thumbnails": [
+            "accord_thumb1.png",
+            "accord_thumb2.png",
+            "accord_thumb3.png",
+            "accord_thumb4.png"
+        ]
+    }
+]
