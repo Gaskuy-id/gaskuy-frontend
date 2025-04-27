@@ -3,8 +3,9 @@ import penumpang from "../assets/images/penumpang.png";
 import tanggal from "../assets/images/tanggal.png";
 import jam from "../assets/images/jam.png";
 import { Icon } from "@iconify/react";
+import API from "../utils/api"
 
-const BookingForm = ({ onTipeLayananChange }) => {
+const BookingForm = ({ onTipeLayananChange, setCars }) => {
     // State untuk field pemesanan
     const [tipeLayanan, setTipeLayanan] = useState(""); // "dengan" / "tanpa"
     const [tempatRental, setTempatRental] = useState("");
@@ -19,7 +20,7 @@ const BookingForm = ({ onTipeLayananChange }) => {
         onTipeLayananChange(value); // Mengirim tipe layanan ke parent (Booking.jsx)
     };
 
-    const handleCari = () => {
+    const handleCari = async () => {
         console.log("Cari Mobil!", {
             tipeLayanan,
             tempatRental,
@@ -29,7 +30,23 @@ const BookingForm = ({ onTipeLayananChange }) => {
             tanggalSelesai,
             waktuSelesai,
         });
-        // ini belum diimplementasiin backendnya
+        const result = await API.get(`/vehicles?city=${tempatRental}&currentStatus=tersedia&passengerCount=${jumlahPenumpang}`);
+        let newCars = []
+        console.log(result)
+        result.data.forEach(element => {
+            newCars.push({
+                "id": element._id,
+                "title": element.name,
+                "imageSrc": element.mainImage,
+                "pricePerDay": element.ratePerHour,
+                "speed": 50,
+                "fuelCapacity": element.engineCapacity,
+                "transmission": element.transmission,
+                "seats": element.seat
+            })
+        });
+        console.log(newCars)
+        setCars(newCars);
     };
 
     return (
