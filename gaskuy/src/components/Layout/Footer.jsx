@@ -38,7 +38,7 @@ const Footer = () => {
         <div className="md:col-span-1 text-center md:text-left ml-4">
           <h3 className="font-semibold mb-2">Cabang</h3>
           <ul className="space-y-1">
-            <li>Surabaya</li>
+            <li>Surakarta</li>
             <li>Jakarta</li>
             <li>Jogjakarta</li>
             <li>Semarang</li>
