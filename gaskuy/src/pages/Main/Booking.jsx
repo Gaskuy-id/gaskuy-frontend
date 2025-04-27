@@ -3,6 +3,9 @@ import axios from "axios";
 import Layout from "../../components/Layout/Layout";
 import BookingForm from "../../components/BookingForm";
 import CarInformation from "../../components/CarInformation";
+import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { Link } from "react-router-dom";
+
 // import images from "../../utils/imageLoader";
 
 const Booking = () => {
@@ -32,7 +35,7 @@ const Booking = () => {
       .then(data => setCars(data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
-  }, []);  
+  }, []);
 
   // Hitung jumlah halaman
   const totalPages = Math.ceil(cars.length / carsPerPage);
@@ -76,7 +79,7 @@ const Booking = () => {
 
           {/* Deskripsi */}
           <p className="text-xs md:text-sm text-black max-w-[940px] font-extralight mx-auto leading-relaxed">
-          Silahkan isi field dibawah ini sesuai keinginan untuk menampilkan layanan yang tersedia
+            Silahkan isi field dibawah ini sesuai keinginan untuk menampilkan layanan yang tersedia
           </p>
         </div>
       </section>
@@ -95,18 +98,23 @@ const Booking = () => {
           <div className="grid grid-cols-2 gap-12 mt-4">
             {currentCars.length > 0 ? (
               currentCars.map(car => (
-                <CarInformation
+                <Link
                   key={car.id}
-                  title={car.title}
-                  imageSrc={car.imageSrc}
-                  // imageSrc={images[imageName]} kalo mau pake image loader, tapi tadi nyoba blm bisa
-                  alt={car.title}
-                  pricePerDay={car.pricePerDay}
-                  speed={car.speed}
-                  fuelCapacity={car.fuelCapacity}
-                  transmission={car.transmission}
-                  seats={car.seats}
-                />
+                  to="/detail"
+                  state={{ car }}
+                  className="block"
+                >
+                  <CarInformation
+                    title={car.title}
+                    imageSrc={car.imageSrc}
+                    alt={car.title}
+                    pricePerDay={car.pricePerDay}
+                    speed={car.speed}
+                    fuelCapacity={car.fuelCapacity}
+                    transmission={car.transmission}
+                    seats={car.seats}
+                  />
+                </Link>
               ))
             ) : (
               <div className="col-span-2 text-center text-sm text-gray-500">
@@ -116,39 +124,39 @@ const Booking = () => {
           </div>
 
           {/* Pagination Section */}
-            <div className="flex items-center justify-center mt-8 space-x-2 text-sm">
-            <button 
-              onClick={handlePreviousPage} 
+          <div className="flex items-center justify-center mt-8 space-x-2 text-sm">
+            <button
+              onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className="w-22 h-8 flex items-center justify-center rounded-lg border text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+              className="flex items-center gap-1 w-auto h-8 px-3 rounded-lg border text-gray-700 hover:bg-[#5D8B68] hover:text-white disabled:opacity-50 transition-all duration-200"
             >
-              Previous ←
+              <FaArrowLeft />
+              Previous
             </button>
 
             {[...Array(totalPages)].map((_, index) => (
               <button
                 key={index}
                 onClick={() => handlePageChange(index + 1)}
-                className={`w-9 h-8 flex items-center justify-center transition 
-                  ${
-                    currentPage === index + 1 
-                      ? "bg-green-700 text-white rounded-lg" 
-                      : "text-gray-700 hover:bg-green-700 hover:text-white hover:rounded-lg hover:border"
+                className={`w-9 h-8 flex items-center justify-center transition-all duration-200 
+                  ${currentPage === index + 1
+                    ? "bg-[#5D8B68] text-white rounded-lg"
+                    : "text-gray-700 hover:bg-[#5D8B68] hover:text-white hover:rounded-lg hover:border"
                   }`}
               >
                 {index + 1}
               </button>
             ))}
 
-            <button 
-              onClick={handleNextPage} 
+            <button
+              onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className="w-16 h-8 flex items-center justify-center rounded-lg border text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+              className="flex items-center gap-1 w-auto h-8 px-3 rounded-lg border text-gray-700 hover:bg-[#5D8B68] hover:text-white disabled:opacity-50 transition-all duration-200"
             >
-              Next →
+              Next
+              <FaArrowRight />
             </button>
           </div>
-
         </div>
       </section>
     </Layout>
