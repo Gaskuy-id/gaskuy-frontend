@@ -1,113 +1,103 @@
-import React, { useState } from 'react';
+import React from "react";
+import { Icon } from "@iconify/react";
+import { NavLink } from "react-router-dom";
+import logo from "../../assets/images/logo.png";
 
 const AdminVehicle = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [location, setLocation] = useState('Jakarta');
-  
-  // Sample data adjusted to match reference
-  const vehicles = [
-    { id: 1, name: 'Buruk Quiz Faqih', rentPrice: 'Rp200.000/jam', kilometers: '50.000', year: '2012', seats: '4', luggage: '50 Liter', engine: '2000 CC', status: 'Tersedia' },
-    { id: 2, name: 'Buruk Quiz Aspa', rentPrice: 'Rp300.000/jam', kilometers: '50.000', year: '2015', seats: '5', luggage: '50 Liter', engine: '4000 CC', status: 'Tidak Tersedia' },
-    { id: 3, name: 'Buruk Quiz Aspa', rentPrice: 'Rp300.000/jam', kilometers: '50.000', year: '2015', seats: '5', luggage: '50 Liter', engine: '4000 CC', status: 'Tidak Tersedia' },
-  ];
-
-  // Filter vehicles based on search term
-  const filteredVehicles = vehicles.filter(vehicle => 
-    vehicle.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Vehicle stats
-  const stats = {
-    total: 20,
-    available: 10,
-    inUse: 5,
-    maintenance: 5
-  };
-
+  const branches = ['Jakarta','Bandung','Surabaya','Jogjakarta','Semarang'];
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar remains unchanged */}
+    <div className="flex h-screen relative">
+      {/* Sidebar Hijau */}
+      <aside className="w-72 bg-[#335540] text-white flex flex-col p-6 space-y-8">
+        {/* Logo */}
+        <img
+          src={logo}
+          alt="GASSKUY Logo"
+          className="w-20 h-15 ml-12.5"
+        />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header remains unchanged */}
-        
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-gray-100 p-4">
-          {/* Stats Cards - Updated titles */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white p-4 rounded shadow">
-              {/* Icon and content */}
-              <p className="text-sm text-gray-600">Teknik Kendaraan</p>
-              <p className="text-xl font-bold">{stats.total}</p>
-              <div className="mt-2 space-y-1">
-                <p className="text-sm">Kendaraan Tersedia {stats.available}</p>
-                <p className="text-sm">Kendaraan Terpakai {stats.inUse}</p>
-                <p className="text-sm">Dalam Perawatan {stats.maintenance}</p>
-              </div>
-            </div>
-            
-            {/* Removed redundant stats cards */}
+        {/* Lokasi dengan custom dropdown */}
+        <div className="relative">
+          <select
+            className="appearance-none w-45 bg-white text-[#335540] py-2 px-3 pr-10 rounded-md bg-[url('https://api.iconify.design/subway:down-2.svg?color=%23335540&width=20&height=20')] bg-no-repeat bg-[length:0.5rem_0.5rem] bg-[position:calc(100%-0.7rem)_center]"
+            defaultValue="Jakarta"
+          >
+            {branches.map((branch) => (
+              <option key={branch} value={branch}>{branch}</option>
+            ))}
+          </select>
+          <Icon
+            icon="subway:down-2"
+            width="20"
+            height="20"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#335540]"
+          />
+        </div>
 
-            {/* Year Filter Section */}
-            <div className="bg-white p-4 rounded shadow col-span-3">
-              <h3 className="text-lg font-semibold mb-4">Yılında Kendaraan</h3>
-              {/* Year filter content */}
-            </div>
+        {/* Navigation */}
+        <nav className="flex-1 flex flex-col gap-4 w-44">
+          <NavItem
+            icon="mage:dashboard"
+            label="Dashboard"
+            to="/admin-general-no-driver"
+          />
+          <NavItem icon="lucide:user" label="Pelanggan" to="/admin-customer" />
+          <NavItem icon="ri:steering-fill" label="Supir" to="/admin-driver" />
+          <NavItem icon="tabler:car" label="Kendaraan" to="/admin-vehicle" />
+        </nav>
+      </aside>
+
+      {/* Content Putih Overlay */}
+      <main className="flex-1 bg-white -ml-16 z-10 rounded-tl-2xl shadow-lg p-6 relative flex flex-col">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold">Kendaraan</h1>
+          <div className="flex items-center space-x-4 text-black">
+            <Icon
+              icon="basil:notification-outline"
+              width="20"
+              height="20"
+              className="cursor-pointer hover:text-gray-800"
+            />
+            <Icon
+              icon="weui:setting-filled"
+              width="20"
+              height="20"
+              className="cursor-pointer hover:text-gray-800"
+            />
+            <Icon
+              icon="gg:profile"
+              width="24"
+              height="24"
+              className="cursor-pointer hover:text-gray-800"
+            />
           </div>
+        </header>
 
-          {/* Table Section - Adjusted headers */}
-          <div className="bg-white rounded shadow">
-            <div className="p-4 flex justify-between items-center border-b">
-              <div></div>
-              <div className="flex items-center gap-4">
-                {/* Add vehicle button and search remain unchanged */}
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Nama</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Harga Sawa</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Kilometer</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Tahun</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Kursi</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Bagasi</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Mesin</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Status</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {filteredVehicles.map((vehicle) => (
-                    <tr key={vehicle.id}>
-                      <td className="px-4 py-3 text-sm">{vehicle.name}</td>
-                      <td className="px-4 py-3 text-sm">{vehicle.rentPrice}</td>
-                      <td className="px-4 py-3 text-sm">{vehicle.kilometers}</td>
-                      <td className="px-4 py-3 text-sm">{vehicle.year}</td>
-                      <td className="px-4 py-3 text-sm">{vehicle.seats}</td>
-                      <td className="px-4 py-3 text-sm">{vehicle.luggage}</td>
-                      <td className="px-4 py-3 text-sm">{vehicle.engine}</td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className={`px-2 py-1 rounded text-xs ${vehicle.status === 'Tersedia' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {vehicle.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        {/* Action buttons remain unchanged */}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </main>
-      </div>
+        {/* Konten manajemen kendaraan */}
+        <div className="flex-1 bg-gray-100 rounded-lg p-4">
+          <p className="text-gray-500">Konten manajemen kendaraan di sini…</p>
+        </div>
+      </main>
     </div>
   );
 };
+
+// NavItem kini pakai NavLink untuk routing & active state otomatis
+const NavItem = ({ icon, label, to }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      `flex items-center py-2 px-4 rounded-lg transition-colors ${
+        isActive
+          ? "bg-[#4D7257] font-medium text-white"
+          : "hover:bg-[#2C4436] text-white/80"
+      }`
+    }
+  >
+    <Icon icon={icon} width="18" height="18" className="mr-3" />
+    <span>{label}</span>
+  </NavLink>
+);
 
 export default AdminVehicle;
