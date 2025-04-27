@@ -1,8 +1,9 @@
 import React from 'react'
+import Sidebar from '../../components/Layout/Sidebar'
 
 const AdminVehicle = () => {
   return (
-    <div>AdminVehicle</div>
+    <Sidebar></Sidebar>
   )
 }
 
