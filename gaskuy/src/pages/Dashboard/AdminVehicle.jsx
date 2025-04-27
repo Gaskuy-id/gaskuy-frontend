@@ -208,7 +208,7 @@ const AdminVehicle = () => {
         </div>
 
         {/* === CRUD CONTENT === */}
-        <div className="bg-white rounded-lg shadow p-4 flex-1 flex flex-col mt-3">
+        <div className="bg-white rounded-2xl shadow p-4 flex flex-col flex-1 mt-3 min-h-0">
           {/* toolbar */}
           <div className="flex items-center justify-between mb-4">
             <button
@@ -240,7 +240,7 @@ const AdminVehicle = () => {
             </div>
           </div>
           {/* table */}
-          <div className="overflow-x-auto flex-1">
+          <div className="flex-1 overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="min-w-full bg-white rounded-lg shadow overflow-hidden">
               <thead className="bg-white">
                 <tr className="bg-[#D9D9D9]/20">
