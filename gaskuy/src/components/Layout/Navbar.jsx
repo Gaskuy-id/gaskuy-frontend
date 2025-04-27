@@ -10,25 +10,41 @@ const Navbar = () => {
 
   const handleNavClick = (to, isContact) => (e) => {
     e.preventDefault();
+  
     if (isContact) {
-      const contactSection = document.getElementById("contact");
-      if (contactSection) {
-        contactSection.scrollIntoView({ behavior: "smooth" });
+      if (location.pathname !== "/home") {
+        // 1) pindah dulu
+        navigate("/home");
+        // 2) polling tiap 100ms, maksimal 50 kali (5 detik)
+        let attempts = 0;
+        const maxAttempts = 50;
+        const pollScroll = setInterval(() => {
+          const section = document.getElementById("contact");
+          if (section) {
+            section.scrollIntoView({ behavior: "smooth" });
+            clearInterval(pollScroll);
+          } else if (++attempts >= maxAttempts) {
+            clearInterval(pollScroll);
+          }
+        }, 100);
+      } else {
+        // sudah di /home → langsung scroll
+        const section = document.getElementById("contact");
+        if (section) section.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // If already on the target route, scroll to top
+      // normal nav untuk Home/Booking
       if (location.pathname === to) {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         navigate(to);
       }
     }
-
-    // Close mobile menu if open
-    if (isOpen) {
-      setIsOpen(false);
-    }
+  
+    // tutup mobile menu kalau perlu
+    if (isOpen) setIsOpen(false);
   };
+  
 
   const menuItems = [
     { label: "Home", to: "/home" },
