@@ -1,10 +1,40 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../../assets/images/logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleNavClick = (to, isContact) => (e) => {
+    e.preventDefault();
+    if (isContact) {
+      const contactSection = document.getElementById("contact");
+      if (contactSection) {
+        contactSection.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // If already on the target route, scroll to top
+      if (location.pathname === to) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        navigate(to);
+      }
+    }
+
+    // Close mobile menu if open
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  };
+
+  const menuItems = [
+    { label: "Home", to: "/home" },
+    { label: "Contact Us", to: "#contact", isContact: true },
+    { label: "Booking", to: "/booking" }
+  ];
 
   return (
     <div>
@@ -16,7 +46,18 @@ const Navbar = () => {
         }}
       >
         {/* Logo */}
-        <Link to="/" className="flex items-center">
+        <Link
+          to="/home"
+          className="flex items-center"
+          onClick={(e) => {
+            e.preventDefault();
+            if (location.pathname === "/home") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              navigate("/home");
+            }
+          }}
+        >
           <img
             src={logo}
             alt="GASSKUY Logo"
@@ -42,43 +83,27 @@ const Navbar = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              d={
+                isOpen
+                  ? "M6 18L18 6M6 6l12 12"
+                  : "M4 6h16M4 12h16M4 18h16"
+              }
             />
           </svg>
         </button>
 
-        {/* Menu (Always rendered) */}
-        <div
-          className={`
-            hidden md:flex md:items-center md:gap-4 text-[#101010] font-medium
-          `}
-        >
-          {["Home", "Contact Us", "Booking"].map((item, idx) => {
-            const isContact = item === "Contact Us";
-
-            const handleClick = (e) => {
-              if (isContact) {
-                e.preventDefault();
-                const footer = document.getElementById("footer");
-                if (footer) {
-                  footer.scrollIntoView({ behavior: "smooth" });
-                }
-              }
-            };
-
-            return (
-              <Link
-                key={idx}
-                to={
-                  isContact ? "#" : `/${item.toLowerCase().replace(/\s/g, "-")}`
-                }
-                onClick={handleClick}
-                className="min-w-[90px] text-center transition duration-200 hover:font-bold"
-              >
-                {item}
-              </Link>
-            );
-          })}
+        {/* Desktop Menu */}
+        <div className="hidden md:flex md:items-center md:gap-4 text-[#101010] font-medium">
+          {menuItems.map((item, idx) => (
+            <Link
+              key={idx}
+              to={item.isContact ? "#contact" : item.to}
+              onClick={handleNavClick(item.to, item.isContact)}
+              className="min-w-[90px] text-center transition duration-200 hover:font-bold"
+            >
+              {item.label}
+            </Link>
+          ))}
 
           <Link to="/login">
             <button className="bg-[#101010] text-white px-6 py-2 rounded-full hover:bg-[#67F49F] hover:text-black transition cursor-pointer">
@@ -97,39 +122,18 @@ const Navbar = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className={`
-          w-full bg-[#67F49F] flex flex-col items-center
-          gap-3 px-6 py-4 text-[#101010] font-medium md:hidden overflow-hidden
-        `}
+              className="w-full bg-[#67F49F] flex flex-col items-center gap-3 px-6 py-4 text-[#101010] font-medium md:hidden overflow-hidden"
             >
-              {["Home", "Contact Us", "Booking"].map((item, idx) => {
-                const isContact = item === "Contact Us";
-
-                const handleClick = (e) => {
-                  if (isContact) {
-                    e.preventDefault();
-                    const footer = document.getElementById("footer");
-                    if (footer) {
-                      footer.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }
-                };
-
-                return (
-                  <Link
-                    key={idx}
-                    to={
-                      isContact
-                        ? "#"
-                        : `/${item.toLowerCase().replace(/\s/g, "-")}`
-                    }
-                    onClick={handleClick}
-                    className="min-w-[90px] text-center transition duration-200 hover:font-bold"
-                  >
-                    {item}
-                  </Link>
-                );
-              })}
+              {menuItems.map((item, idx) => (
+                <Link
+                  key={idx}
+                  to={item.isContact ? "#contact" : item.to}
+                  onClick={handleNavClick(item.to, item.isContact)}
+                  className="min-w-[90px] text-center transition duration-200 hover:font-bold"
+                >
+                  {item.label}
+                </Link>
+              ))}
 
               <Link to="/login" onClick={() => setIsOpen(false)}>
                 <button className="bg-[#101010] text-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition cursor-pointer">
