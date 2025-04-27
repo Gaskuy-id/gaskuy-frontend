@@ -44,7 +44,7 @@ const BookDriver = () => {
           </div>
         </div>
 
-        <div className="max-w-[1200px] mx-auto p-5 bg-white ml-27">
+        <div className="max-w-[1200px] mx-auto p-5 bg-white"> {/* ml-27 hilangkan */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-14">
             {/* Bagian Detail Pemesanan */}
             <div className="col-span-2 border rounded-3xl p-4 border-[#ACACAC]">
