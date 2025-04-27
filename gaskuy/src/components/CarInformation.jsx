@@ -1,4 +1,3 @@
-// src/components/CarInformation.jsx
 import React from "react";
 import { FaTachometerAlt, FaGasPump } from "react-icons/fa";
 import { GiSteeringWheel } from "react-icons/gi";
@@ -32,14 +31,14 @@ const CarInformation = ({
             </p>
 
             {/* Spesifikasi */}
-            <div className="flex items-center text-xs text-gray-600 px-4 pb-4 space-x-9">
+            <div className="flex items-center text-xs text-gray-600 px-4 pb-4 space-x-7">
                 <div className="flex items-center space-x-1">
                     <FaTachometerAlt className="w-4 h-4" />
-                    <span>{speed}</span>
+                    <span>{speed} km/jam</span>
                 </div>
                 <div className="flex items-center space-x-1">
                     <FaGasPump className="w-4 h-4" />
-                    <span>{fuelCapacity}</span>
+                    <span>{fuelCapacity} liter</span>
                 </div>
                 <div className="flex items-center space-x-1">
                     <GiSteeringWheel className="w-4 h-4" />
@@ -47,7 +46,7 @@ const CarInformation = ({
                 </div>
                 <div className="flex items-center space-x-1">
                     <img src={SeatIcon} alt="Seat" className="w-4 h-4" />
-                    <span>{seats}</span>
+                    <span>{seats} orang</span>
                 </div>
             </div>
         </div>
