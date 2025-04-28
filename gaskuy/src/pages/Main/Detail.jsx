@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
-import { FaTachometerAlt, FaGasPump, FaCogs, FaUsers } from 'react-icons/fa';
+import { FaTachometerAlt, FaGasPump } from 'react-icons/fa';
 import { GiSteeringWheel } from "react-icons/gi";
 import SeatIcon from "../../assets/images/seat.png";
 import Layout from "../../components/Layout/Layout";
@@ -83,7 +83,7 @@ const Detail = () => {
               <h2 className="text-base font-semibold mb-2">Spesifikasi:</h2>
               <ul className="space-y-3 mb-8 text-gray-700 text-sm">
                 <li className="flex items-center gap-2">
-                  <FaTachometerAlt className="w-4 h-4" /> {car.speed} km/jam
+                  <FaTachometerAlt className="w-4 h-4" /> {car.engineCapacity} CC
                 </li>
                 <li className="flex items-center gap-2">
                   <GiSteeringWheel className="w-4 h-4" /> {car.transmission}

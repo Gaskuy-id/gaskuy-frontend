@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from "../../components/Layout/Layout";
 import jalanan from "../../assets/images/jalanan.png";
 import { Icon } from "@iconify/react";
 
 const BookDriver = () => {
+  const navigate = useNavigate(); 
+
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
@@ -28,18 +31,18 @@ const BookDriver = () => {
 
           <div className="flex items-center justify-center mb-10">
             <div className="flex items-center space-x-2">
-              <div className="w-[69px] h-[69px] rounded-full bg-[#59A618] text-[32px] font-semibold flex items-center justify-center">1</div>
+              <div className="w-[69px] h-[69px] rounded-full border-4 border-[#59A618] text-[32px] font-semibold flex items-center justify-center">1</div>
               <span className="text-[32px] font-semibold ml-4">Book</span>
             </div>
-            <div className="w-[265px] h-1 bg-[#59A618] mx-2" />
+            <div className="w-[265px] h-1 bg-gray-300 mx-2" />
             <div className="flex items-center space-x-2">
-              <div className="w-[69px] h-[69px] rounded-full border-4 border-[#59A618] text-[32px] font-semibold flex items-center justify-center">2</div>
-              <span className="text-[32px] font-semibold ml-4">Payment</span>
+              <div className="w-[69px] h-[69px] rounded-full border-4 border-gray-300 text-[32px] font-semibold flex items-center justify-center text-gray-300">2</div>
+              <span className="text-[32px] font-semibold ml-4 text-gray-300">Payment</span>
             </div>
-            <div className="w-[265px] h-1 bg-[#59A618] mx-2" />
-            <div className="flex items-center space-x-2">
-              <div className="w-[69px] h-[69px] rounded-full border-4 border-[#59A618] text-[32px] font-semibold flex items-center justify-center">3</div>
-              <span className="text-[32px] font-semibold ml-4">Done</span>
+            <div className="w-[265px] h-1 bg-gray-300 mx-2" />
+            <div className="flex items-center space-x-2"> 
+              <div className="w-[69px] h-[69px] rounded-full border-4 border-gray-300 text-[32px] font-semibold flex items-center justify-center text-gray-300">3</div>
+              <span className="text-[32px] font-semibold ml-4 text-gray-300 ">Done</span>
             </div>
           </div>
         </div>
@@ -192,7 +195,7 @@ const BookDriver = () => {
               </div>
 
               {/* Tombol Bayar */}
-              <button className="w-full bg-[#AAEEC4] text-black py-3 rounded-full font-semibold hover:bg-black hover:text-white transition">
+              <button onClick={() => navigate('/payment')} className="w-full bg-[#AAEEC4] text-black py-3 rounded-full font-semibold hover:bg-black hover:text-white transition">
                 Bayar
               </button>
             </div>
