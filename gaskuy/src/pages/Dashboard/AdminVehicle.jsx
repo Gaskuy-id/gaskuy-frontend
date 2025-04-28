@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Icon } from "@iconify/react";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
+import api from "../../utils/api";
 
 const AdminVehicle = () => {
-  const branches = ["Jakarta", "Bandung", "Surabaya", "Jogjakarta", "Semarang"];
+  const branches = ["Jakarta", "Bandung", "Surakarta", "Jogjakarta", "Semarang"];
 
   // === CRUD state ===
   const [vehicles, setVehicles] = useState([
@@ -17,7 +18,7 @@ const AdminVehicle = () => {
       seats: 4,
       trunk: "50 Liter",
       engine: "2000 CC",
-      status: "Tersedia",
+      status: "tersedia",
     },
     {
       id: 2,
@@ -28,7 +29,7 @@ const AdminVehicle = () => {
       seats: 5,
       trunk: "50 Liter",
       engine: "4000 CC",
-      status: "Tidak Tersedia",
+      status: "tidak tersedia",
     },
     {
       id: 3,
@@ -39,9 +40,12 @@ const AdminVehicle = () => {
       seats: 4,
       trunk: "45 Liter",
       engine: "1800 CC",
-      status: "Maintenance",
+      status: "maintenance",
     },
   ]);
+
+  const [selectedBranch, setSelectedBranch] = useState("Surakarta");
+
   const [q, setQ] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "create" | "edit" | "delete"
@@ -54,9 +58,44 @@ const AdminVehicle = () => {
     seats: "",
     trunk: "",
     engine: "",
-    status: "Tersedia",
+    status: "tersedia",
+    transmission: "manual",  
+    mainImage: null,          
+    detailImages: [],         
   });
   // === end CRUD state ===
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get(`/cms/vehicle/city/${selectedBranch}`);
+        let newData = [];
+        
+        console.log(res.data);
+        res.data.vehicles.forEach(element=>{
+          newData.push({
+            id: element._id,
+            name: element.name,
+            price: element.ratePerHour,
+            km: element.kilometer,
+            year: element.year,
+            seats: element.seat,
+            trunk: element.luggage,
+            engine: element.engineCapacity,
+            status: element.currentStatus
+          })
+        });
+
+        setVehicles(newData);
+        console.log(newData);
+
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    }; 
+
+    fetchProfile();
+  }, [selectedBranch]);
 
   // filter berdasarkan q
   const filtered = useMemo(
@@ -67,9 +106,9 @@ const AdminVehicle = () => {
 
   // metrics
   const total = vehicles.length;
-  const available = vehicles.filter((v) => v.status === "Tersedia").length;
-  const inUse = vehicles.filter((v) => v.status === "Tidak Tersedia").length;
-  const inMaintain = vehicles.filter((v) => v.status === "Maintenance").length;
+  const available = vehicles.filter((v) => v.status === "tersedia").length;
+  const inUse = vehicles.filter((v) => v.status === "tidak tersedia").length;
+  const inMaintain = vehicles.filter((v) => v.status === "maintenance").length;
 
   const openModal = (type, v = null) => {
     setModalType(type);
@@ -84,6 +123,9 @@ const AdminVehicle = () => {
         trunk: v.trunk,
         engine: v.engine,
         status: v.status,
+        transmission: v.transmission || "manual",
+        mainImage: null,
+        detailImages: [],
       });
     } else {
       setForm({
@@ -94,32 +136,107 @@ const AdminVehicle = () => {
         seats: "",
         trunk: "",
         engine: "",
-        status: "Tersedia",
+        status: "tersedia",
+        transmission: "manual",
+        mainImage: null,
+        detailImages: [],
       });
     }
     setShowModal(true);
   };
   const closeModal = () => setShowModal(false);
 
-  const handleSave = () => {
-    if (modalType === "create") {
-      const nextId = vehicles.length
-        ? Math.max(...vehicles.map((v) => v.id)) + 1
-        : 1;
-      setVehicles([...vehicles, { ...form, id: nextId }]);
+  const handleSave = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("ratePerHour", Number(form.price));
+      formData.append("kilometer", Number(form.km));
+      formData.append("year", Number(form.year));
+      formData.append("seat", Number(form.seats));
+      formData.append("luggage", form.trunk);
+      formData.append("engineCapacity", form.engine);
+      formData.append("currentStatus", form.status);
+      formData.append("branch", selectedBranch);
+      formData.append("transmission", form.transmission);
+  
+      if (form.mainImage) {
+        formData.append("mainImage", form.mainImage);
+      }
+  
+      if (form.detailImages.length > 0) {
+        form.detailImages.forEach((img) => {
+          formData.append("detailImages", img);
+        });
+      }
+  
+      console.log("Payload yang dikirim:", formData);
+  
+      if (modalType === "create") {
+        await api.post("/cms/vehicle", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else if (modalType === "edit") {
+        await api.put(`/cms/vehicle/${selected.id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      closeModal();
+  
+      // Refresh data
+      const res = await api.get(`/cms/vehicle/city/${selectedBranch}`);
+      let newData = [];
+      res.data.vehicles.forEach(element => {
+        newData.push({
+          id: element._id,
+          name: element.name,
+          price: element.ratePerHour,
+          km: element.kilometer,
+          year: element.year,
+          seats: element.seat,
+          trunk: element.luggage,
+          engine: element.engineCapacity,
+          status: element.currentStatus,
+          transmission: element.transmission,
+          mainImage: element.mainImage, // cek
+          detailImage: element.detailImage, // cek
+        });
+      });
+      setVehicles(newData);
+    } catch (error) {
+      console.error("Error saat menyimpan kendaraan:", error.response?.data || error.message);
     }
-    if (modalType === "edit") {
-      setVehicles(
-        vehicles.map((v) => (v.id === selected.id ? { ...form, id: v.id } : v))
-      );
-    }
-    closeModal();
   };
+  
+  
+  
 
-  const handleDelete = () => {
-    setVehicles(vehicles.filter((v) => v.id !== selected.id));
+const handleDelete = async () => {
+  try {
+    await api.delete(`/cms/vehicle/${selected.id}`); // Panggil API untuk delete
     closeModal();
-  };
+    // Refresh data
+    const res = await api.get(`/cms/vehicle/city/${selectedBranch}`);
+    let newData = [];
+    res.data.vehicles.forEach(element => {
+      newData.push({
+        id: element._id,
+        name: element.name,
+        price: element.ratePerHour,
+        km: element.kilometer,
+        year: element.year,
+        seats: element.seat,
+        trunk: element.luggage,
+        engine: element.engineCapacity,
+        status: element.currentStatus
+      })
+    });
+    setVehicles(newData);
+  } catch (error) {
+    console.error("Error saat menghapus kendaraan:", error);
+  }
+};
+
 
   return (
     <div className="flex h-screen relative">
@@ -127,16 +244,18 @@ const AdminVehicle = () => {
       <aside className="w-72 bg-[#335540] text-white flex flex-col p-6 space-y-8">
         <img src={logo} alt="GASSKUY Logo" className="w-20 h-15 ml-12.5" />
         <div className="relative">
-          <select
-            className="appearance-none w-45 bg-white text-[#335540] py-2 px-3 pr-10 rounded-md bg-[url('https://api.iconify.design/subway:down-2.svg?color=%23335540&width=20&height=20')] bg-no-repeat bg-[length:0.5rem_0.5rem] bg-[position:calc(100%-0.7rem)_center]"
-            defaultValue="Jakarta"
-          >
-            {branches.map((branch) => (
-              <option key={branch} value={branch}>
-                {branch}
-              </option>
-            ))}
-          </select>
+        
+        <select
+          className="appearance-none w-45 bg-white text-[#335540] py-2 px-3 pr-10 rounded-md bg-[url('https://api.iconify.design/subway:down-2.svg?color=%23335540&width=20&height=20')] bg-no-repeat bg-[length:0.5rem_0.5rem] bg-[position:calc(100%-0.7rem)_center]"
+          value={selectedBranch}
+          onChange={(event) => setSelectedBranch(event.target.value)}
+        >
+          {branches.map((branch) => (
+            <option key={branch} value={branch}>
+              {branch}
+            </option>
+          ))}
+        </select>
           <Icon
             icon="subway:down-2"
             width="20"
@@ -367,6 +486,7 @@ const AdminVehicle = () => {
                 <div className="space-y-3">
                   {[
                     "name",
+                    "transmission",
                     "price",
                     "km",
                     "year",
@@ -401,7 +521,7 @@ const AdminVehicle = () => {
                       }
                       className="w-full border px-3 py-1 rounded-md"
                     >
-                      {["Tersedia", "Tidak Tersedia", "Maintenance"].map((s) => (
+                      {["tersedia", "tidak tersedia", "maintenance"].map((s) => (
                         <option key={s} value={s}>
                           {s}
                         </option>
