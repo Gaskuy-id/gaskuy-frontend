@@ -8,19 +8,33 @@ import { Link } from "react-router-dom";
 
 const Booking = () => {
   const [cars, setCars] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [tipeLayanan, setTipeLayanan] = useState("");
 
   const carsPerPage = 8; // jumlah mobil per halaman
 
-  useEffect(() => {
-    fetch("/cars.json")
-      .then(res => res.json())
-      .then(data => setCars(data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
+  // useEffect(() => {
+  //   // Panggil API untuk ambil data mobil
+  //   axios.get("/api/cars")
+  //     .then(response => {
+  //       setCars(response.data);
+  //     })
+  //     .catch(err => {
+  //       console.error("Gagal fetch data:", err);
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // }, []);
+
+  // useEffect(() => {
+  //   fetch("/cars.json")
+  //     .then(res => res.json())
+  //     .then(data => setCars(data))
+  //     .catch(err => console.error(err))
+  //     .finally(() => setLoading(false));
+  // }, []);
 
   // Hitung jumlah halaman
   const totalPages = Math.ceil(cars.length / carsPerPage);
@@ -70,7 +84,7 @@ const Booking = () => {
       </section>
 
       {/* Field Pemesanan Section */}
-      <BookingForm onTipeLayananChange={setTipeLayanan} />
+      <BookingForm onTipeLayananChange={setTipeLayanan} setCars={setCars} />
 
       {/* Pilihan yang tersedia Section*/}
       <section className="w-full bg-white text-black font-poppins py-2 px-4 md:px-0">
