@@ -1,9 +1,142 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import { Icon } from "@iconify/react";
+import logo from "../../assets/images/logo.png";
+import AdminVehicle from "./AdminVehicle";
+import AdminCustomer from "./AdminCustomer";
+import AdminDriver from "./AdminDriver";
+import AdminGeneralDriver from "./AdminGeneralDriver";
 
 const MainDashboard = () => {
-  return (
-    <div>MainDashboard</div>
-  )
-}
+  const branches = ["Jakarta", "Bandung", "Surakarta", "Jogjakarta", "Semarang"];
 
-export default MainDashboard
+  // Ambil branch dari query parameter URL
+  const getBranchFromURL = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("branch") || "Surakarta";
+  };
+
+  const [selectedBranch, setSelectedBranch] = useState(getBranchFromURL);
+  const [activeContent, setActiveContent] = useState(() => {
+    return localStorage.getItem("activeContent") || "dashboard";
+  });
+
+  // Update localStorage saat selectedBranch berubah
+  useEffect(() => {
+    localStorage.setItem("selectedBranch", selectedBranch);
+
+    // Update URL query param juga agar bisa di-refresh tanpa hilang
+    const url = new URL(window.location);
+    url.searchParams.set("branch", selectedBranch);
+    window.history.replaceState({}, "", url);
+  }, [selectedBranch]);
+
+  useEffect(() => {
+    localStorage.setItem("activeContent", activeContent);
+  }, [activeContent]);
+
+  const renderContent = () => {
+    switch (activeContent) {
+      case "dashboard":
+        return <AdminGeneralDriver selectedBranch={selectedBranch} />;
+      case "vehicle":
+        return <AdminVehicle selectedBranch={selectedBranch} />;
+      case "customer":
+        return <AdminCustomer selectedBranch={selectedBranch} />;
+      case "driver":
+        return <AdminDriver selectedBranch={selectedBranch} />;
+      default:
+        return <AdminGeneralDriver selectedBranch={selectedBranch} />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen relative">
+      {/* Sidebar */}
+      <aside className="w-72 bg-[#335540] text-white flex flex-col p-6 space-y-8">
+        <img src={logo} alt="GASSKUY Logo" className="w-20 h-15 ml-12.5" />
+        <div className="relative">
+          <select
+            className="appearance-none w-45 bg-white text-[#335540] py-2 px-3 pr-10 rounded-md bg-[url('https://api.iconify.design/subway:down-2.svg?color=%23335540&width=20&height=20')] bg-no-repeat bg-[length:0.5rem_0.5rem] bg-[position:calc(100%-0.7rem)_center]"
+            value={selectedBranch}
+            onChange={(e) => setSelectedBranch(e.target.value)}
+          >
+            {branches.map((branch) => (
+              <option key={branch} value={branch}>
+                {branch}
+              </option>
+            ))}
+          </select>
+          <Icon
+            icon="subway:down-2"
+            width="20"
+            height="20"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#335540]"
+          />
+        </div>
+        <nav className="flex-1 flex flex-col gap-4 w-44">
+          <NavItem
+            icon="mage:dashboard"
+            label="Dashboard"
+            active={activeContent === "dashboard"}
+            onClick={() => setActiveContent("dashboard")}
+          />
+          <NavItem
+            icon="lucide:user"
+            label="Pelanggan"
+            active={activeContent === "customer"}
+            onClick={() => setActiveContent("customer")}
+          />
+          <NavItem
+            icon="ri:steering-fill"
+            label="Supir"
+            active={activeContent === "driver"}
+            onClick={() => setActiveContent("driver")}
+          />
+          <NavItem
+            icon="tabler:car"
+            label="Kendaraan"
+            active={activeContent === "vehicle"}
+            onClick={() => setActiveContent("vehicle")}
+          />
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 bg-gray-100 -ml-16 z-10 rounded-tl-2xl p-6 relative flex flex-col">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold">
+            {activeContent === "dashboard" && "Dashboard"}
+            {activeContent === "customer" && "Pelanggan"}
+            {activeContent === "driver" && "Supir"}
+            {activeContent === "vehicle" && "Kendaraan"}
+          </h1>
+          <div className="flex items-center space-x-4 text-black">
+            <Icon icon="basil:notification-outline" width="20" height="20" className="cursor-pointer hover:text-gray-800" />
+            <Icon icon="weui:setting-filled" width="20" height="20" className="cursor-pointer hover:text-gray-800" />
+            <Icon icon="gg:profile" width="24" height="24" className="cursor-pointer hover:text-gray-800" />
+          </div>
+        </header>
+
+        {/* Dynamic Content */}
+        {renderContent()}
+      </main>
+    </div>
+  );
+};
+
+const NavItem = ({ icon, label, active, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`flex items-center py-2 px-4 rounded-lg transition-colors cursor-pointer ${
+      active
+        ? "bg-[#4D7257] font-medium text-white"
+        : "hover:bg-[#2C4436] text-white/80"
+    }`}
+  >
+    <Icon icon={icon} width="18" height="18" className="mr-3" />
+    <span>{label}</span>
+  </div>
+);
+
+export default MainDashboard;
