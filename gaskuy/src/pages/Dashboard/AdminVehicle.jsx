@@ -16,9 +16,9 @@ const AdminVehicle = () => {
       km: 50000,
       year: 2012,
       seats: 4,
-      trunk: "50 Liter",
-      engine: "2000 CC",
-      status: "tersedia",
+      trunk: "50",
+      engine: "2000",
+      status: "Tersedia",
     },
     {
       id: 2,
@@ -27,9 +27,9 @@ const AdminVehicle = () => {
       km: 50000,
       year: 2015,
       seats: 5,
-      trunk: "50 Liter",
-      engine: "4000 CC",
-      status: "tidak tersedia",
+      trunk: "50",
+      engine: "4000",
+      status: "Tidak Tersedia",
     },
     {
       id: 3,
@@ -38,9 +38,9 @@ const AdminVehicle = () => {
       km: 40000,
       year: 2014,
       seats: 4,
-      trunk: "45 Liter",
-      engine: "1800 CC",
-      status: "maintenance",
+      trunk: "45",
+      engine: "1800",
+      status: "Maintenance",
     },
   ]);
 
@@ -58,7 +58,7 @@ const AdminVehicle = () => {
     seats: "",
     trunk: "",
     engine: "",
-    status: "tersedia",
+    status: "Tersedia",
     transmission: "manual",  
     mainImage: null,          
     detailImages: [],         
@@ -106,9 +106,9 @@ const AdminVehicle = () => {
 
   // metrics
   const total = vehicles.length;
-  const available = vehicles.filter((v) => v.status === "tersedia").length;
-  const inUse = vehicles.filter((v) => v.status === "tidak tersedia").length;
-  const inMaintain = vehicles.filter((v) => v.status === "maintenance").length;
+  const available = vehicles.filter((v) => v.status === "Tersedia").length;
+  const inUse = vehicles.filter((v) => v.status === "Tidak Tersedia").length;
+  const inMaintain = vehicles.filter((v) => v.status === "Maintenance").length;
 
   const openModal = (type, v = null) => {
     setModalType(type);
@@ -136,7 +136,7 @@ const AdminVehicle = () => {
         seats: "",
         trunk: "",
         engine: "",
-        status: "tersedia",
+        status: "Tersedia",
         transmission: "manual",
         mainImage: null,
         detailImages: [],
@@ -402,10 +402,10 @@ const handleDelete = async () => {
                       {v.seats}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
-                      {v.trunk}
+                      {v.trunk} Liter
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
-                      {v.engine}
+                      {v.engine} CC
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {v.status}
@@ -521,7 +521,7 @@ const handleDelete = async () => {
                       }
                       className="w-full border px-3 py-1 rounded-md"
                     >
-                      {["tersedia", "tidak tersedia", "maintenance"].map((s) => (
+                      {["Tersedia", "Tidak Tersedia", "Maintenance"].map((s) => (
                         <option key={s} value={s}>
                           {s}
                         </option>

@@ -1,9 +1,9 @@
-import React from 'react'
+  import React from 'react'
 
-const AdminGeneralDriver = () => {
-  return (
-    <div>AdminGeneralDriver</div>
-  )
-}
+  const AdminGeneralDriver = () => {
+    return (
+      <div>AdminGeneralDriver</div>
+    )
+  }
 
-export default AdminGeneralDriver
+  export default AdminGeneralDriver
