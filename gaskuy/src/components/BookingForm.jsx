@@ -4,6 +4,7 @@ import tanggal from "../assets/images/tanggal.png";
 import jam from "../assets/images/jam.png";
 import { Icon } from "@iconify/react";
 import API from "../utils/api"
+import { useNavigate } from "react-router-dom";
 
 const BookingForm = ({ onTipeLayananChange, setCars }) => {
     // State untuk field pemesanan
@@ -15,38 +16,50 @@ const BookingForm = ({ onTipeLayananChange, setCars }) => {
     const [tanggalSelesai, setTanggalSelesai] = useState("");
     const [waktuSelesai, setWaktuSelesai] = useState("");
 
+    const navigate = useNavigate();
+
     const handleTipeLayananChange = (value) => {
         setTipeLayanan(value);
         onTipeLayananChange(value); // Mengirim tipe layanan ke parent (Booking.jsx)
     };
 
     const handleCari = async () => {
-        console.log("Cari Mobil!", {
-            tipeLayanan,
-            tempatRental,
-            jumlahPenumpang,
-            tanggalMulai,
-            waktuMulai,
-            tanggalSelesai,
-            waktuSelesai,
-        });
-        const result = await API.get(`/vehicles?city=${tempatRental}&currentStatus=tersedia&passengerCount=${jumlahPenumpang}`);
-        let newCars = []
-        console.log(result)
-        result.data.forEach(element => {
-            newCars.push({
-                "id": element._id,
-                "title": element.name,
-                "imageSrc": element.mainImage,
-                "pricePerDay": element.ratePerHour,
-                "speed": 50,
-                "fuelCapacity": element.engineCapacity,
-                "transmission": element.transmission,
-                "seats": element.seat
-            })
-        });
-        console.log(newCars)
-        setCars(newCars);
+        if (!tipeLayanan || !tempatRental || !jumlahPenumpang || !tanggalMulai || !waktuMulai || !tanggalSelesai || !waktuSelesai) {
+            alert("Mohon lengkapi semua field sebelum mencari mobil.");
+            return;
+        }
+
+        try {
+            const result = await API.get(`/vehicles?city=${tempatRental}&currentStatus=tersedia&passengerCount=${jumlahPenumpang}`);
+            const newCars = result.data.map(element => ({
+                id: element._id,
+                title: element.name,
+                imageSrc: element.mainImage,
+                pricePerDay: element.ratePerHour,
+                speed: 50,
+                fuelCapacity: element.engineCapacity,
+                transmission: element.transmission,
+                seats: element.seat
+            }));
+
+            setCars(newCars);
+
+            // Navigasi ke halaman booking
+            navigate("/booking", {
+                state: {
+                    cars: newCars,
+                    tanggalMulai,
+                    waktuMulai,
+                    tanggalSelesai,
+                    waktuSelesai,
+                    tipeLayanan,
+                    tempatRental
+                }
+            });
+        } catch (error) {
+            console.error("Gagal mengambil data kendaraan:", error);
+            alert("Terjadi kesalahan saat mencari kendaraan. Silakan coba lagi.");
+        }
     };
 
     return (
@@ -90,13 +103,18 @@ const BookingForm = ({ onTipeLayananChange, setCars }) => {
                             <label className="block mb-1 text-[15px]">Tempat rental</label>
                             <div className="flex items-center gap-2 border-b border-gray-400 pb-1">
                                 <Icon icon="hugeicons:maps-square-01" width="32" />
-                                <input
-                                    type="text"
-                                    placeholder="Rental Dimana?"
-                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-1px]"
+                                <select
+                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-1px] py-1"
                                     value={tempatRental}
                                     onChange={(e) => setTempatRental(e.target.value)}
-                                />
+                                >
+                                    <option value="">Pilih Kota</option>
+                                    <option value="Jakarta">Jakarta</option>
+                                    <option value="Bandung">Bandung</option>
+                                    <option value="Yogyakarta">Jogjakarta</option>
+                                    <option value="Semarang">Semarang</option>
+                                    <option value="Medan">Surakarta</option>
+                                </select>
                             </div>
                         </div>
 

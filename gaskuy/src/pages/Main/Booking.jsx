@@ -5,12 +5,29 @@ import BookingForm from "../../components/BookingForm";
 import CarInformation from "../../components/CarInformation";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const Booking = () => {
-  const [cars, setCars] = useState([]);
+  const location = useLocation();
+  const state = location.state || {};
+  const {
+    cars: carsFromState,
+    tipeLayanan: tipeLayananFromState
+  } = state;
+
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [cars, setCars] = useState([]);
   const [tipeLayanan, setTipeLayanan] = useState("");
+
+  useEffect(() => {
+    if (carsFromState) {
+      setCars(carsFromState);
+    }
+    if (tipeLayananFromState) {
+      setTipeLayanan(tipeLayananFromState);
+    }
+  }, [carsFromState, tipeLayananFromState]);
 
   const carsPerPage = 8; // jumlah mobil per halaman
 
