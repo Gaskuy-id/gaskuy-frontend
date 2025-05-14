@@ -13,7 +13,9 @@
             "/images/civic_thumb2.png",
             "/images/civic_thumb3.png",
             "/images/civic_thumb4.png"
-        ]
+        ],
+        "city": "Jakarta",
+        "currentStatus": "tersedia"
     },
     {
         "id": 2,
@@ -29,7 +31,9 @@
             "/images/accord_thumb2.png",
             "/images/accord_thumb3.png",
             "/images/accord_thumb4.png"
-        ]
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
     },
     {
         "id": 3,
@@ -45,7 +49,9 @@
             "/images/civic_thumb2.png",
             "/images/civic_thumb3.png",
             "/images/civic_thumb4.png"
-        ]
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
     },
     {
         "id": 4,
@@ -61,6 +67,8 @@
             "/images/accord_thumb2.png",
             "/images/accord_thumb3.png",
             "/images/accord_thumb4.png"
-        ]
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
     }
 ]
