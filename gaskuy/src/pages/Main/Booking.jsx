@@ -10,10 +10,13 @@ import { useLocation } from "react-router-dom";
 const Booking = () => {
   const location = useLocation();
   const state = location.state || {};
+
   const {
-    cars: carsFromState,
-    tipeLayanan: tipeLayananFromState
-  } = state;
+  cars: carsFromState,
+  tipeLayanan: tipeLayananFromState,
+  formValues: formValuesFromState
+  } = location.state || {};
+
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -101,8 +104,12 @@ const Booking = () => {
       </section>
 
       {/* Field Pemesanan Section */}
-      <BookingForm onTipeLayananChange={setTipeLayanan} setCars={setCars} />
-
+      <BookingForm
+        onTipeLayananChange={setTipeLayanan}
+        setCars={setCars}
+        defaultValues={formValuesFromState}
+      />
+    
       {/* Pilihan yang tersedia Section*/}
       <section className="w-full bg-white text-black font-poppins py-2 px-4 md:px-0">
         <div className="mx-auto text-left max-w-[940px] mt-2 mb-10">

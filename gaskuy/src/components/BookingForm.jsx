@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import penumpang from "../assets/images/penumpang.png";
 import tanggal from "../assets/images/tanggal.png";
 import jam from "../assets/images/jam.png";
 import { Icon } from "@iconify/react";
 import API from "../utils/api"
 
-const BookingForm = ({ onTipeLayananChange, setCars }) => {
-    // State untuk field pemesanan
-    const [tipeLayanan, setTipeLayanan] = useState(""); // "dengan" / "tanpa"
-    const [tempatRental, setTempatRental] = useState("");
-    const [jumlahPenumpang, setJumlahPenumpang] = useState("");
-    const [tanggalMulai, setTanggalMulai] = useState("");
-    const [waktuMulai, setWaktuMulai] = useState("");
-    const [tanggalSelesai, setTanggalSelesai] = useState("");
-    const [waktuSelesai, setWaktuSelesai] = useState("");
+const BookingForm = ({ onTipeLayananChange, setCars, defaultValues = {} }) => {
+    // State untuk field pemesanan dengan nilai awal dari defaultValues
+    const [tipeLayanan, setTipeLayanan] = useState(defaultValues.tipeLayanan || "");
+    const [tempatRental, setTempatRental] = useState(defaultValues.tempatRental || "");
+    const [jumlahPenumpang, setJumlahPenumpang] = useState(defaultValues.jumlahPenumpang || "");
+    const [tanggalMulai, setTanggalMulai] = useState(defaultValues.tanggalMulai || "");
+    const [waktuMulai, setWaktuMulai] = useState(defaultValues.waktuMulai || "");
+    const [tanggalSelesai, setTanggalSelesai] = useState(defaultValues.tanggalSelesai || "");
+    const [waktuSelesai, setWaktuSelesai] = useState(defaultValues.waktuSelesai || "");
 
     const navigate = useNavigate();
 
