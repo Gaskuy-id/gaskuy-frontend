@@ -1,10 +1,10 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import Layout from "../../components/Layout/Layout";
 import headerHero from "../../assets/images/mobil.jpg";
 import smallCar from "../../assets/images/smallCar.png";
-import penumpang from "../../assets/images/penumpang.png";
-import tanggal from "../../assets/images/tanggal.png";
-import jam from "../../assets/images/jam.png";
 import iconMoney from "../../assets/images/iconMoney.png";
 import iconCS from "../../assets/images/iconCS.png";
 import iconTrust from "../../assets/images/iconTrust.png";
@@ -27,14 +27,28 @@ import { Icon } from "@iconify/react";
 import BookingForm from "../../components/BookingForm";
 
 const Home = () => {
-  // State untuk field pemesanan
-  const [tipeLayanan, setTipeLayanan] = useState(""); // "dengan" / "tanpa"
-  const [tempatRental, setTempatRental] = useState("");
-  const [jumlahPenumpang, setJumlahPenumpang] = useState("");
-  const [tanggalMulai, setTanggalMulai] = useState("");
-  const [waktuMulai, setWaktuMulai] = useState("");
-  const [tanggalSelesai, setTanggalSelesai] = useState("");
-  const [waktuSelesai, setWaktuSelesai] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate(); // tambahkan ini untuk navigasi
+
+  const state = location.state || {};
+  const {
+    cars: carsFromState,
+    tipeLayanan: tipeLayananFromState
+  } = state;
+
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cars, setCars] = useState([]);
+  const [tipeLayanan, setTipeLayanan] = useState("");
+
+  useEffect(() => {
+    if (carsFromState) {
+      setCars(carsFromState);
+    }
+    if (tipeLayananFromState) {
+      setTipeLayanan(tipeLayananFromState);
+    }
+  }, [carsFromState, tipeLayananFromState]);
 
   // Whatsapp
   const WHATSAPP_PHONE = "6281392610510";
@@ -113,23 +127,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Form Booking */}
-      <BookingForm
-        tipeLayanan={tipeLayanan}
-        setTipeLayanan={setTipeLayanan}
-        tempatRental={tempatRental}
-        setTempatRental={setTempatRental}
-        jumlahPenumpang={jumlahPenumpang}
-        setJumlahPenumpang={setJumlahPenumpang}
-        tanggalMulai={tanggalMulai}
-        setTanggalMulai={setTanggalMulai}
-        waktuMulai={waktuMulai}
-        setWaktuMulai={setWaktuMulai}
-        tanggalSelesai={tanggalSelesai}
-        setTanggalSelesai={setTanggalSelesai}
-        waktuSelesai={waktuSelesai}
-        setWaktuSelesai={setWaktuSelesai}
-      />
+      {/* Field Pemesanan Section */}
+      <BookingForm onTipeLayananChange={setTipeLayanan} setCars={setCars} />
 
       {/* Section Alasan Kenapa Harus Sewa di Gaskuy */}
       <section className="w-full bg-white text-black font-poppins py-6 px-4 md:px-0">

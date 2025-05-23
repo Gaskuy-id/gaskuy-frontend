@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react"; 
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 
@@ -37,6 +37,7 @@ const DUMMY_TRANSACTIONS = [
     endDate: "15/03/2025, 02:30",
     status: "Proses Pengambilan",
     amount: 600000,
+    penalty: 50000, // denda
     phone: "089281231273",
     email: "akiranagai@gmail.com",
     pickupLocation: "Kantor Rental",
@@ -53,6 +54,7 @@ const DUMMY_TRANSACTIONS = [
     endDate: "01/04/2025, 14:00",
     status: "Dalam Proses",
     amount: 800000,
+    penalty: 0,
     phone: "081234567890",
     email: "maria.dewi@example.com",
     pickupLocation: "Bandung Office",
@@ -69,6 +71,7 @@ const DUMMY_TRANSACTIONS = [
     endDate: "05/04/2025, 12:45",
     status: "Sudah Selesai",
     amount: 700000,
+    penalty: 75000,
     phone: "081998877665",
     email: "jokowi@example.com",
     pickupLocation: "Semarang HQ",
@@ -111,13 +114,6 @@ export default function AdminGeneralDriver() {
       isCurrency: true,
     },
     {
-      icon: "mdi:currency-usd-off",
-      size: 32,
-      label: "Total Pengeluaran",
-      value: summary.expense,
-      isCurrency: true,
-    },
-    {
       icon: "mdi:swap-horizontal",
       size: 28,
       label: "Total Transaksi",
@@ -140,12 +136,6 @@ export default function AdminGeneralDriver() {
       size: 28,
       label: "Total Bayar Denda",
       value: summary.penalties,
-    },
-    {
-      icon: "mdi:cancel",
-      size: 28,
-      label: "Total Dibatalkan",
-      value: summary.cancelled,
     },
     {
       icon: "mdi:bank-transfer-out",
@@ -173,8 +163,14 @@ export default function AdminGeneralDriver() {
 
   // Komponen detail
   const TransactionDetail = ({ t }) => {
+    // State untuk menyimpan jawaban setiap pertanyaan
+    const [answers, setAnswers] = useState({});
+    // State untuk menyimpan status konfirmasi setiap pertanyaan
+    const [confirmed, setConfirmed] = useState({});
+
     const fieldsLeft = [
-      { label: "Total Bayar", value: `Rp${t.amount.toLocaleString("id-ID")}` },
+      { label: "Total Bayar", value: `Rp ${t.amount.toLocaleString("id-ID")}` },
+      { label: "Denda", value: `Rp ${t.penalty.toLocaleString("id-ID")}` },
       { label: "No Telp Customer", value: t.phone },
       { label: "Email Customer", value: t.email },
       { label: "Lokasi Pengambilan dan Pengembalian", value: t.pickupLocation },
@@ -189,38 +185,131 @@ export default function AdminGeneralDriver() {
       "Apakah Customer Membayar Denda?",
     ];
 
+    const handleAnswerChange = (questionIndex, answer) => {
+      setAnswers(prev => ({
+        ...prev,
+        [questionIndex]: answer
+      }));
+    };
+
+    const handleConfirm = (questionIndex) => {
+      // Hanya bisa konfirmasi jika sudah ada jawaban
+      if (answers[questionIndex]) {
+        setConfirmed(prev => ({
+          ...prev,
+          [questionIndex]: true
+        }));
+      }
+    };
+
+    const AnswerButton = ({ questionIndex, type, isSelected, isDisabled }) => {
+      const isNo = type === 'no';
+      const baseClasses = "w-6 h-6 border-2 rounded cursor-pointer flex items-center justify-center transition-all duration-200";
+      const selectedClasses = isNo 
+        ? "border-red-500 bg-red-500" 
+        : "border-green-500 bg-green-500";
+      const unselectedClasses = isDisabled 
+        ? "border-gray-300 bg-gray-100 cursor-not-allowed" 
+        : "border-gray-300 bg-white hover:border-gray-400";
+
+      return (
+        <button
+          onClick={() => !isDisabled && handleAnswerChange(questionIndex, type)}
+          disabled={isDisabled}
+          className={clsx(baseClasses, isSelected ? selectedClasses : unselectedClasses)}
+        >
+          {isSelected && (
+            <Icon  
+              icon={isNo ? "mdi:close" : "mdi:check"} 
+              width={16} 
+              height={16} 
+              className="text-white"
+            />
+          )}
+        </button>
+      );
+    };
+
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-2 text-sm">
-          {fieldsLeft.map(({ label, value }) => (
-            <div key={label} className="flex justify-between">
-              <span>{label}</span>
-              <span className="font-medium">{value}</span>
-            </div>
-          ))}
-        </div>
-        <div className="border border-green-200 rounded-lg p-4 space-y-4">
-          {questions.map((q) => (
-            <div key={q} className="flex items-center justify-between">
-              <span className="text-sm">{q}</span>
-              <div className="flex items-center space-x-2">
-                <span className="w-4 h-4 border border-gray-300 rounded-full" />
-                <span className="w-4 h-4 border border-gray-300 rounded-full" />
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left side - Transaction details */}
+          <div className="space-y-3">
+            {fieldsLeft.map(({ label, value }) => (
+              <div key={label} className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-700">{label}</span>
+                <span className="text-sm font-medium text-gray-900">{value}</span>
               </div>
-              <button className="text-green-600 border border-green-600 rounded px-3 py-1 text-sm hover:bg-green-50">
-                Konfirmasi
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
+          
+          {/* Right side - Questions */}
+          <div className="space-y-4">
+            {questions.map((question, index) => {
+              const isConfirmed = confirmed[index];
+              const hasAnswer = answers[index];
+              
+              return (
+                <div 
+                  key={index} 
+                  className={clsx(
+                    "flex items-center justify-between gap-4 p-3 rounded-md transition-all duration-300",
+                    isConfirmed ? "bg-gray-100" : "bg-transparent"
+                  )}
+                >
+                  <span className={clsx(
+                    "text-sm flex-1",
+                    isConfirmed ? "text-gray-500" : "text-gray-700"
+                  )}>
+                    {question}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <AnswerButton 
+                        questionIndex={index} 
+                        type="no" 
+                        isSelected={answers[index] === 'no'} 
+                        isDisabled={isConfirmed}
+                      />
+                      <AnswerButton 
+                        questionIndex={index} 
+                        type="yes" 
+                        isSelected={answers[index] === 'yes'} 
+                        isDisabled={isConfirmed}
+                      />
+                    </div>
+                    {isConfirmed ? (
+                      <div className="px-4 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-md bg-gray-50">
+                        Terkonfirmasi
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => handleConfirm(index)}
+                        disabled={!hasAnswer}
+                        className={clsx(
+                          "px-4 py-1.5 text-sm border rounded-md transition-colors whitespace-nowrap",
+                          hasAnswer 
+                            ? "text-teal-600 border-teal-600 hover:bg-teal-50 cursor-pointer" 
+                            : "text-gray-400 border-gray-300 cursor-not-allowed"
+                        )}
+                      >
+                        Konfirmasi
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
   };
-
+  
   return (
     <>
       {/* Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {metrics.map((m, i) => (
           <div key={i} className="bg-white rounded-lg p-4 flex flex-col space-y-2">
             <Icon icon={m.icon} width={m.size} height={m.size} className="text-black" />
@@ -249,7 +338,9 @@ export default function AdminGeneralDriver() {
           <table className="min-w-full border-collapse">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
-                {["Penyewa", "Kendaraan", "ID Transaksi", "Tanggal Sewa", "Status", "Lainnya"].map((h) => (
+                {[]
+                .concat(["Penyewa", "Kendaraan", "ID Transaksi", "Tanggal Sewa", "Status", "Lainnya"])
+                .map((h) => (
                   <th key={h} className="px-4 py-2 text-left text-sm font-medium text-gray-700">{h}</th>
                 ))}
               </tr>

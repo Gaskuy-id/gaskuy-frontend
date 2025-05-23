@@ -1,20 +1,21 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import penumpang from "../assets/images/penumpang.png";
 import tanggal from "../assets/images/tanggal.png";
 import jam from "../assets/images/jam.png";
 import { Icon } from "@iconify/react";
 import API from "../utils/api"
-import { useNavigate } from "react-router-dom";
 
-const BookingForm = ({ onTipeLayananChange, setCars }) => {
-    // State untuk field pemesanan
-    const [tipeLayanan, setTipeLayanan] = useState(""); // "dengan" / "tanpa"
-    const [tempatRental, setTempatRental] = useState("");
-    const [jumlahPenumpang, setJumlahPenumpang] = useState("");
-    const [tanggalMulai, setTanggalMulai] = useState("");
-    const [waktuMulai, setWaktuMulai] = useState("");
-    const [tanggalSelesai, setTanggalSelesai] = useState("");
-    const [waktuSelesai, setWaktuSelesai] = useState("");
+const BookingForm = ({ onTipeLayananChange, setCars, defaultValues = {} }) => {
+    // State untuk field pemesanan dengan nilai awal dari defaultValues
+    const [tipeLayanan, setTipeLayanan] = useState(defaultValues.tipeLayanan || "");
+    const [tempatRental, setTempatRental] = useState(defaultValues.tempatRental || "");
+    const [jumlahPenumpang, setJumlahPenumpang] = useState(defaultValues.jumlahPenumpang || "");
+    const [tanggalMulai, setTanggalMulai] = useState(defaultValues.tanggalMulai || "");
+    const [waktuMulai, setWaktuMulai] = useState(defaultValues.waktuMulai || "");
+    const [tanggalSelesai, setTanggalSelesai] = useState(defaultValues.tanggalSelesai || "");
+    const [waktuSelesai, setWaktuSelesai] = useState(defaultValues.waktuSelesai || "");
 
     const navigate = useNavigate();
 
@@ -30,24 +31,32 @@ const BookingForm = ({ onTipeLayananChange, setCars }) => {
         }
 
         try {
-            const result = await API.get(`/vehicles?city=${tempatRental}&currentStatus=tersedia&passengerCount=${jumlahPenumpang}`);
-            const newCars = result.data.map(element => ({
-                id: element._id,
-                title: element.name,
-                imageSrc: element.mainImage,
-                pricePerDay: element.ratePerHour,
-                speed: 50,
-                fuelCapacity: element.engineCapacity,
-                transmission: element.transmission,
-                seats: element.seat
+            const response = await fetch("/cars.json"); // asumsi public/cars.json
+            const data = await response.json();
+
+            const filteredCars = data.filter(car =>
+                car.city.toLowerCase() === tempatRental.toLowerCase() &&
+                car.seats >= parseInt(jumlahPenumpang) &&
+                car.currentStatus === "tersedia"
+            );
+
+            const formattedCars = filteredCars.map(car => ({
+                id: car.id,
+                title: car.title,
+                imageSrc: car.imageSrc,
+                pricePerDay: car.pricePerDay,
+                engineCapacity: car.engineCapacity,
+                fuelCapacity: car.fuelCapacity,
+                transmission: car.transmission,
+                seats: car.seats,
+                city: car.city
             }));
 
-            setCars(newCars);
+            setCars(formattedCars);
 
-            // Navigasi ke halaman booking
             navigate("/booking", {
                 state: {
-                    cars: newCars,
+                    cars: formattedCars,
                     tanggalMulai,
                     waktuMulai,
                     tanggalSelesai,
@@ -57,8 +66,8 @@ const BookingForm = ({ onTipeLayananChange, setCars }) => {
                 }
             });
         } catch (error) {
-            console.error("Gagal mengambil data kendaraan:", error);
-            alert("Terjadi kesalahan saat mencari kendaraan. Silakan coba lagi.");
+            console.error("Gagal memuat data mobil dari cars.json:", error);
+            alert("Terjadi kesalahan saat mencari kendaraan.");
         }
     };
 
@@ -109,11 +118,11 @@ const BookingForm = ({ onTipeLayananChange, setCars }) => {
                                     onChange={(e) => setTempatRental(e.target.value)}
                                 >
                                     <option value="">Pilih Kota</option>
+                                    <option value="Surakarta">Surakarta</option>
                                     <option value="Jakarta">Jakarta</option>
-                                    <option value="Bandung">Bandung</option>
-                                    <option value="Yogyakarta">Jogjakarta</option>
+                                    <option value="Jogjakarta">Jogjakarta</option>
                                     <option value="Semarang">Semarang</option>
-                                    <option value="Medan">Surakarta</option>
+                                    <option value="Bandung">Bandung</option>
                                 </select>
                             </div>
                         </div>
@@ -131,6 +140,7 @@ const BookingForm = ({ onTipeLayananChange, setCars }) => {
                                 />
                                 <input
                                     type="number"
+                                    min="1"
                                     placeholder="Berapa Orang?"
                                     className="w-full outline-none bg-transparent text-[15px] font-light mb-[-1px] ml-1 "
                                     value={jumlahPenumpang}
