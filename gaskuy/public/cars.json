@@ -7,13 +7,15 @@
         "engineCapacity": "1996",
         "fuelCapacity": "50",
         "transmission": "Automatic",
-        "seats": "4",
+        "seats": 4,
         "thumbnails": [
             "/images/civic_thumb1.png",
             "/images/civic_thumb2.png",
             "/images/civic_thumb3.png",
             "/images/civic_thumb4.png"
-        ]
+        ],
+        "city": "Jakarta",
+        "currentStatus": "tersedia"
     },
     {
         "id": 2,
@@ -23,13 +25,15 @@
         "engineCapacity": "1993",
         "fuelCapacity": "48",
         "transmission": "Automatic",
-        "seats": "4",
+        "seats": 4,
         "thumbnails": [
             "/images/accord_thumb1.png",
             "/images/accord_thumb2.png",
             "/images/accord_thumb3.png",
             "/images/accord_thumb4.png"
-        ]
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
     },
     {
         "id": 3,
@@ -39,13 +43,15 @@
         "engineCapacity": "1993",
         "fuelCapacity": "50",
         "transmission": "Automatic",
-        "seats": "4",
+        "seats": 4,
         "thumbnails": [
             "/images/civic_thumb1.png",
             "/images/civic_thumb2.png",
             "/images/civic_thumb3.png",
             "/images/civic_thumb4.png"
-        ]
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
     },
     {
         "id": 4,
@@ -55,12 +61,14 @@
         "engineCapacity": "1993",
         "fuelCapacity": "48",
         "transmission": "Automatic",
-        "seats": "4",
+        "seats": 4,
         "thumbnails": [
             "/images/accord_thumb1.png",
             "/images/accord_thumb2.png",
             "/images/accord_thumb3.png",
             "/images/accord_thumb4.png"
-        ]
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
     }
 ]
