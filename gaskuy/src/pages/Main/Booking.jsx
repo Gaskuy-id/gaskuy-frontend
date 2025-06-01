@@ -5,12 +5,32 @@ import BookingForm from "../../components/BookingForm";
 import CarInformation from "../../components/CarInformation";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const Booking = () => {
-  const [cars, setCars] = useState([]);
+  const location = useLocation();
+  const state = location.state || {};
+
+  const {
+  cars: carsFromState,
+  tipeLayanan: tipeLayananFromState,
+  formValues: formValuesFromState
+  } = location.state || {};
+
+
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [cars, setCars] = useState([]);
   const [tipeLayanan, setTipeLayanan] = useState("");
+
+  useEffect(() => {
+    if (carsFromState) {
+      setCars(carsFromState);
+    }
+    if (tipeLayananFromState) {
+      setTipeLayanan(tipeLayananFromState);
+    }
+  }, [carsFromState, tipeLayananFromState]);
 
   const carsPerPage = 8; // jumlah mobil per halaman
 
@@ -84,8 +104,12 @@ const Booking = () => {
       </section>
 
       {/* Field Pemesanan Section */}
-      <BookingForm onTipeLayananChange={setTipeLayanan} setCars={setCars} />
-
+      <BookingForm
+        onTipeLayananChange={setTipeLayanan}
+        setCars={setCars}
+        defaultValues={formValuesFromState}
+      />
+    
       {/* Pilihan yang tersedia Section*/}
       <section className="w-full bg-white text-black font-poppins py-2 px-4 md:px-0">
         <div className="mx-auto text-left max-w-[940px] mt-2 mb-10">
