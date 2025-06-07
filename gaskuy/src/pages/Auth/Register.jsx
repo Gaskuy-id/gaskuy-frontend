@@ -11,6 +11,7 @@ const Register = () => {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // Tambahan
   const [checkPolicy, setCheckPolicy] = useState(false);
   const [error, setError] = useState('');
 
@@ -45,7 +46,17 @@ const Register = () => {
       return;
     }
 
-    if (checkPolicy == false) {
+    if (!confirmPassword) {
+      setError("Silahkan masukkan konfirmasi password");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Password dan Konfirmasi Password tidak cocok");
+      return;
+    }
+
+    if (checkPolicy === false) {
       setError("Silahkan mencentang persetujuan kebijakan privasi");
       return;
     }
@@ -62,7 +73,7 @@ const Register = () => {
         address: address
       });
       setError(res.data.message);
-      navigate("/login")
+      navigate("/login");
     } catch (error) {
       setError(error.response?.data?.message || "Registration failed");
     }
@@ -80,75 +91,83 @@ const Register = () => {
           Ayo jadi <span className='bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1'>pengguna baru</span> di website kami
         </p>
         <div className='flex justify-center items-center'>
-            <div className='lg:w-[50%] md:w-[50%] w-[80%] flex flex-col justify-center text-left'>
-              <form onSubmit={handleRegister}>
-                <Input
-                  value={fullName}
-                  onChange={({ target }) => setFullName(target.value)}
-                  label="Nama Lengkap"
-                  placeholder="Gus Gaskuy"
-                  type="text"
-                />
+          <div className='lg:w-[50%] md:w-[50%] w-[80%] flex flex-col justify-center text-left'>
+            <form onSubmit={handleRegister}>
+              <Input
+                value={fullName}
+                onChange={({ target }) => setFullName(target.value)}
+                label="Nama Lengkap"
+                placeholder="Gus Gaskuy"
+                type="text"
+              />
 
-                <Input
-                  value={email}
-                  onChange={({ target }) => setEmail(target.value)}
-                  label="Email"
-                  placeholder="gasskuy@gmail.com"
-                  type="text"
-                />
+              <Input
+                value={email}
+                onChange={({ target }) => setEmail(target.value)}
+                label="Email"
+                placeholder="gasskuy@gmail.com"
+                type="text"
+              />
 
-                <Input
-                  value={address}
-                  onChange={({ target }) => setAddress(target.value)}
-                  label="Alamat Lengkap"
-                  placeholder="skibidisigma, surakarta, jawa tenggara"
-                  type="text"
-                />
+              <Input
+                value={address}
+                onChange={({ target }) => setAddress(target.value)}
+                label="Alamat Lengkap"
+                placeholder="skibidisigma, surakarta, jawa tenggara"
+                type="text"
+              />
 
-                <Input
-                  value={phoneNumber}
-                  onChange={({ target }) => setPhoneNumber(target.value)}
-                  label="Nomor Telepon"
-                  placeholder="0812345678910"
-                  type="text"
-                />
+              <Input
+                value={phoneNumber}
+                onChange={({ target }) => setPhoneNumber(target.value)}
+                label="Nomor Telepon"
+                placeholder="0812345678910"
+                type="text"
+              />
 
-                <Input
-                  value={password}
-                  onChange={({ target }) => setPassword(target.value)}
-                  label="Password"
-                  placeholder="Minimal 8 Karakter"
-                  type="password"
-                />
+              <Input
+                value={password}
+                onChange={({ target }) => setPassword(target.value)}
+                label="Password"
+                placeholder="Minimal 8 Karakter"
+                type="password"
+              />
 
-                {error && <p className='text-red-500 text-xs pb-2.5'>{error}</p>}
+              <Input
+                value={confirmPassword}
+                onChange={({ target }) => setConfirmPassword(target.value)}
+                label="Konfirmasi Password"
+                placeholder="Ulangi password anda"
+                type="password"
+              />
 
-                <div className='flex justify-between items-center text-[16px] text-black mt-3 mb-10'>
-                  <label className='flex items-center'>
-                    <input
-                      type="checkbox"
-                      checked={checkPolicy}
-                      onChange={() => setCheckPolicy(!checkPolicy)}
-                      className="mr-2"
-                    />
-                    Saya menyetujui kebijakan privasi
-                  </label>
-                </div>
-                
-                <button type='submit' className='btn-auth w-full'>
-                  REGISTER
-                </button>
+              {error && <p className='text-red-500 text-xs pb-2.5'>{error}</p>}
 
-                <p className='text-[16px] text-center text-black mt-3'>
-                  Sudah punya akun? {" "}
-                  <Link className='font-medium text-[#3932FF]' to='/login'>
-                    masuk
-                  </Link>
-                </p>
-              </form>
-            </div>
+              <div className='flex justify-between items-center text-[16px] text-black mt-3 mb-10'>
+                <label className='flex items-center'>
+                  <input
+                    type="checkbox"
+                    checked={checkPolicy}
+                    onChange={() => setCheckPolicy(!checkPolicy)}
+                    className="mr-2"
+                  />
+                  Saya menyetujui kebijakan privasi
+                </label>
+              </div>
+              
+              <button type='submit' className='btn-auth w-full'>
+                REGISTER
+              </button>
+
+              <p className='text-[16px] text-center text-black mt-3'>
+                Sudah punya akun? {" "}
+                <Link className='font-medium text-[#3932FF]' to='/login'>
+                  masuk
+                </Link>
+              </p>
+            </form>
           </div>
+        </div>
       </div>
     </div>
   );

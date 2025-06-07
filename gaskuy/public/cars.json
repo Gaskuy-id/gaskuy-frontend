@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "title": "All New Honda Civic Type R 6 M/T",
+        "imageSrc": "/images/civic.png",
+        "pricePerDay": 150000,
+        "engineCapacity": "1996",
+        "fuelCapacity": "50",
+        "transmission": "Automatic",
+        "seats": 4,
+        "thumbnails": [
+            "/images/civic_thumb1.png",
+            "/images/civic_thumb2.png",
+            "/images/civic_thumb3.png",
+            "/images/civic_thumb4.png"
+        ],
+        "city": "Jakarta",
+        "currentStatus": "tersedia"
+    },
+    {
+        "id": 2,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "/images/accord.png",
+        "pricePerDay": 125000,
+        "engineCapacity": "1993",
+        "fuelCapacity": "48",
+        "transmission": "Automatic",
+        "seats": 4,
+        "thumbnails": [
+            "/images/accord_thumb1.png",
+            "/images/accord_thumb2.png",
+            "/images/accord_thumb3.png",
+            "/images/accord_thumb4.png"
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
+    },
+    {
+        "id": 3,
+        "title": "All New Honda Civic Type R 6 M/T",
+        "imageSrc": "/images/civic.png",
+        "pricePerDay": 150000,
+        "engineCapacity": "1993",
+        "fuelCapacity": "50",
+        "transmission": "Automatic",
+        "seats": 4,
+        "thumbnails": [
+            "/images/civic_thumb1.png",
+            "/images/civic_thumb2.png",
+            "/images/civic_thumb3.png",
+            "/images/civic_thumb4.png"
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
+    },
+    {
+        "id": 4,
+        "title": "All New Honda Accord 2.0L RS e:HEV",
+        "imageSrc": "/images/accord.png",
+        "pricePerDay": 125000,
+        "engineCapacity": "1993",
+        "fuelCapacity": "48",
+        "transmission": "Automatic",
+        "seats": 4,
+        "thumbnails": [
+            "/images/accord_thumb1.png",
+            "/images/accord_thumb2.png",
+            "/images/accord_thumb3.png",
+            "/images/accord_thumb4.png"
+        ],
+        "city": "Surakarta",
+        "currentStatus": "tersedia"
+    }
+]
