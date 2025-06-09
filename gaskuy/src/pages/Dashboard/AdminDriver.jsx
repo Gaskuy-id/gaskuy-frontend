@@ -163,11 +163,13 @@ const AdminDriver = () => {
     toggleDetail(id);
   };
 
+  // Fungsi ini hanya memicu modal konfirmasi
   const confirmDeleteDriver = (driver) => {
     setDriverToDelete(driver);
     setShowDeleteModal(true);
   };
 
+  // Fungsi ini dijalankan dari dalam modal saat user menekan "Ya, Hapus"
   const deleteDriver = () => {
     setDrivers((prev) => prev.filter((d) => d.id !== driverToDelete.id));
     setShowDeleteModal(false);
@@ -382,12 +384,10 @@ const AdminDriver = () => {
                         <Icon icon="mdi:eye" className="text-blue-600 cursor-pointer" width={22} />
                       </button>
                       
-                      <button onClick={() => handleDelete(driver.id)} 
+                      <button onClick={() => confirmDeleteDriver(driver)} 
                         className="p-1 rounded hover:bg-red-100 transition"
                         title="Hapus">
-                        <Icon icon="mdi:delete" className="text-red-600 cursor-pointer" width={22}
-                          onClick={() => confirmDeleteDriver(driver)}
-                        />
+                        <Icon icon="mdi:delete" className="text-red-600 cursor-pointer" width={22} />
                       </button>
                     </td>
                   </tr>
