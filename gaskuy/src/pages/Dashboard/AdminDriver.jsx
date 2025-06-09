@@ -100,9 +100,9 @@ const AdminDriver = () => {
   const driverTerpakai = drivers.filter(d => d.status === 'Tidak Tersedia').length;
 
   const stats = [
-    { icon: 'ic:outline-receipt-long', label: 'Total Driver', value: totalDriver },
-    { icon: 'ic:outline-people-alt', label: 'Driver Tersedia', value: driverTersedia },
-    { icon: 'ic:baseline-sync', label: 'Driver Terpakai', value: driverTerpakai },
+    { icon: 'mdi:account-multiple-outline', label: 'Total Driver', value: totalDriver },
+    { icon: 'mdi:account-check-outline', label: 'Driver Tersedia', value: driverTersedia },
+    { icon: 'mdi:account-clock-outline', label: 'Driver Terpakai', value: driverTerpakai },
   ];
 
   const filtered = drivers
