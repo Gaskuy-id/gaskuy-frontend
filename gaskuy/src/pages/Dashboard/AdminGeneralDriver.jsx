@@ -180,9 +180,9 @@ export default function AdminGeneralDriver() {
     ];
 
     const baseQuestions = [
-      { id: 0, text: "Apakah Customer Meminta Pengembalian Dana?", type: "yesNo" },
+      { id: 0, text: "Apakah Customer Sudah Bayar?", type: "yesNo" },
       { id: 1, text: "Apakah Mobil Sudah Diberikan?", type: "confirmOnly" },
-      { id: 2, text: "Apakah Customer Memiliki Denda?", type: "yesNo" },
+      { id: 2, text: "Apakah Customer Membayar Denda?", type: "yesNo" },
       { id: 3, text: "Apakah Mobil Sudah Dikembalikan?", type: "confirmOnly" },
     ];
 
@@ -254,8 +254,8 @@ export default function AdminGeneralDriver() {
             [questionIndex]: true
           }));
           
-          // PERBAIKAN: Jika pertanyaan pertama dijawab "yes" dan dikonfirmasi, batalkan semua pertanyaan lainnya
-          if (questionIndex === 0 && answers[questionIndex] === 'yes') {
+          // Jika pertanyaan pertama dijawab "no" dan dikonfirmasi, batalkan semua pertanyaan lainnya
+          if (questionIndex === 0 && answers[questionIndex] === 'no') {
             const allQuestions = getQuestions();
             const cancelledConfirmations = {};
             
@@ -275,9 +275,9 @@ export default function AdminGeneralDriver() {
       }
     };
 
-    // PERBAIKAN: Fungsi untuk mengecek apakah transaksi dibatalkan
+    // Fungsi untuk mengecek apakah transaksi dibatalkan
     const isTransactionCancelled = () => {
-      return answers[0] === 'yes' && confirmed[0];
+      return answers[0] === 'no' && confirmed[0];
     };
 
     const AnswerButton = ({ questionIndex, type, isSelected, isDisabled }) => {
