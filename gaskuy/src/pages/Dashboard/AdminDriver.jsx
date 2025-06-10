@@ -113,7 +113,7 @@ const AdminDriver = () => {
     .filter((v) => {
       if (!q) return true;
       const flatValues = [
-        v.name, v.email, v.password, v.phone, v.birthDate, v.address, v.status,
+        v.name, v.email, v.phone, v.birthDate, v.address, v.status,
         ...v.details.flatMap(d => [
           d.renter, d.vehicle, d.customerPhone, d.start, d.end, d.pickUp, d.detailedStatus
         ])
@@ -212,7 +212,7 @@ const AdminDriver = () => {
               <div>
                 <label className="block text-sm mb-1">Password</label>
                 <input
-                  type="text"
+                  type="password"
                   name="password"
                   defaultValue={editDriver?.password || ''}
                   required
@@ -370,7 +370,7 @@ const AdminDriver = () => {
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
-                {['Nama', 'Email', 'Password', 'No Telp', 'Tanggal Lahir', 'Alamat', 'Status', 'Aksi'].map(h => (
+                {['Nama', 'Email', 'No Telp', 'Tanggal Lahir', 'Alamat', 'Status', 'Aksi'].map(h => (
                   <th key={h} className="px-6 py-4">{h}</th>
                 ))}
               </tr>
@@ -381,7 +381,6 @@ const AdminDriver = () => {
                   <tr className="bg-white">
                     <td className="px-6 py-4">{driver.name}</td>
                     <td className="px-6 py-4">{driver.email}</td>
-                    <td className="px-6 py-4">{driver.password}</td>
                     <td className="px-6 py-4">{driver.phone}</td>
                     <td className="px-6 py-4">{driver.birthDate}</td>
                     <td className="px-6 py-4">{driver.address}</td>
