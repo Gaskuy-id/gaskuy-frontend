@@ -28,9 +28,10 @@ const AdminDriver = () => {
       id: 1,
       name: 'Alamojek',
       email: 'alamojek@gmail.com',
+      password: 'admin123',
       phone: '0811222233334444',
       birthDate: '1995-05-15',
-      creationDate: "2024-12-02",
+      address: "Surakarta",
       status: "Tidak Tersedia",
       details: [
         {
@@ -57,9 +58,10 @@ const AdminDriver = () => {
       id: 2,
       name: 'Wira Kusuma',
       email: 'wirakusuma@gmail.com',
+      password: 'admin123',
       phone: "0822333344445555",
       birthDate: "1991-01-11",
-      creationDate: "2024-12-12",
+      address: "Semarang",
       status: "Tersedia",
       details: [
         {
@@ -77,9 +79,10 @@ const AdminDriver = () => {
       id: 3,
       name: "Rendi Fauzan",
       email: "rendifauzan@gmail.com",
+      password: 'admin123',
       phone: "0833444455556666",
       birthDate: "1994-06-17",
-      creationDate: "2024-12-05",
+      address: "Semarang",
       status: "Tersedia",
       details: [
         {
@@ -110,7 +113,7 @@ const AdminDriver = () => {
     .filter((v) => {
       if (!q) return true;
       const flatValues = [
-        v.name, v.email, v.phone, v.birthDate, v.creationDate, v.status,
+        v.name, v.email, v.password, v.phone, v.birthDate, v.address, v.status,
         ...v.details.flatMap(d => [
           d.renter, d.vehicle, d.customerPhone, d.start, d.end, d.pickUp, d.detailedStatus
         ])
@@ -132,9 +135,10 @@ const AdminDriver = () => {
       id: editDriver ? editDriver.id : Date.now(),
       name: form.name.value,
       email: form.email.value,
+      password: form.password.value,
       phone: form.phone.value,
       birthDate: form.birthDate.value,
-      creationDate: form.creationDate.value,
+      address: form.address.value,
       status: form.status.value,
       details: editDriver?.details || [],
     };
@@ -206,6 +210,16 @@ const AdminDriver = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm mb-1">Password</label>
+                <input
+                  type="text"
+                  name="password"
+                  defaultValue={editDriver?.password || ''}
+                  required
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
                 <label className="block text-sm mb-1">No Telepon</label>
                 <input
                   type="text"
@@ -226,11 +240,11 @@ const AdminDriver = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">Tanggal Dibuat</label>
+                <label className="block text-sm mb-1">Alamat</label>
                 <input
-                  type="date"
-                  name="creationDate"
-                  defaultValue={editDriver?.creationDate || ''}
+                  type="text"
+                  name="address"
+                  defaultValue={editDriver?.address || ''}
                   required
                   className="w-full border rounded-lg px-3 py-2"
                 />
@@ -356,7 +370,7 @@ const AdminDriver = () => {
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
-                {['Nama', 'Email', 'No Telp', 'Tanggal Lahir', 'Tanggal Dibuat', 'Status', 'Aksi'].map(h => (
+                {['Nama', 'Email', 'Password', 'No Telp', 'Tanggal Lahir', 'Alamat', 'Status', 'Aksi'].map(h => (
                   <th key={h} className="px-6 py-4">{h}</th>
                 ))}
               </tr>
@@ -367,9 +381,10 @@ const AdminDriver = () => {
                   <tr className="bg-white">
                     <td className="px-6 py-4">{driver.name}</td>
                     <td className="px-6 py-4">{driver.email}</td>
+                    <td className="px-6 py-4">{driver.password}</td>
                     <td className="px-6 py-4">{driver.phone}</td>
                     <td className="px-6 py-4">{driver.birthDate}</td>
-                    <td className="px-6 py-4">{driver.creationDate}</td>
+                    <td className="px-6 py-4">{driver.address}</td>
                     <td className="px-6 py-4">{driver.status}</td>
                     <td className="px-6 py-4 flex space-x-4">
                       <button onClick={() => handleEdit(driver.id)} 
