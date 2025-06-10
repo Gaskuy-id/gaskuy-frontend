@@ -2,46 +2,10 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Icon } from "@iconify/react";
 import api from "../../utils/api";
 
-const AdminVehicle = ({ selectedBranch }) => {
+const AdminVehicle = ({ selectedBranchId }) => {
   // === CRUD state ===
-  const [vehicles, setVehicles] = useState([
-    {
-      id: 1,
-      name: "Burok Gus Faqih",
-      price: 200000,
-      km: 50000,
-      year: 2012,
-      seats: 4,
-      trunk: "50",
-      engine: "2000",
-      transmission: "Manual",
-      status: "Tersedia",
-    },
-    {
-      id: 2,
-      name: "Burok Gus Aspa",
-      price: 300000,
-      km: 50000,
-      year: 2015,
-      seats: 5,
-      trunk: "50",
-      engine: "4000",
-      transmission: "Automatic",
-      status: "Tidak Tersedia",
-    },
-    {
-      id: 3,
-      name: "Burok Gus Asri",
-      price: 250000,
-      km: 40000,
-      year: 2014,
-      seats: 4,
-      trunk: "45",
-      engine: "1800",
-      transmission: "Manual",
-      status: "Maintenance",
-    },
-  ]);
+  const [vehicles, setVehicles] = useState([]);
+
 
   const [q, setQ] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -55,21 +19,23 @@ const AdminVehicle = ({ selectedBranch }) => {
     seats: "",
     trunk: "",
     engine: "",
-    transmission: "Manual",
-    status: "Tersedia",
+    transmission: "manual",
+    status: "tersedia",
     mainImage: null,
     detailImages: [],
   });
   // === end CRUD state ===
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchVehicles = async () => {
+      console.log(selectedBranchId)
+      if (!selectedBranchId) return;
       try {
-        const res = await api.get(`/cms/vehicle/city/${selectedBranch}`);
+        const res = await api.get(`/cms/vehicle/branch/${selectedBranchId}`);
+        console.log(res)
         let newData = [];
-        
-        console.log(res.data);
-        res.data.vehicles.forEach(element=>{
+
+        res.data.vehicles.forEach(element => {
           newData.push({
             id: element._id,
             name: element.name,
@@ -80,20 +46,20 @@ const AdminVehicle = ({ selectedBranch }) => {
             trunk: element.luggage,
             engine: element.engineCapacity,
             status: element.currentStatus,
-            transmission: element.transmission || "Manual"
+            transmission: element.transmission || "manual",
+            mainImage: element.mainImage,
+            detailImage: element.detailImage,
           });
         });
 
         setVehicles(newData);
-        console.log(newData);
-
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Error fetching vehicles:", error);
       }
-    }; 
+    };
 
-    fetchProfile();
-  }, [selectedBranch]);
+    fetchVehicles();
+  }, [selectedBranchId]); // <- Ganti ke selectedBranchId
 
   // filter berdasarkan q
   const filtered = useMemo(
@@ -104,9 +70,9 @@ const AdminVehicle = ({ selectedBranch }) => {
 
   // metrics
   const total = vehicles.length;
-  const available = vehicles.filter((v) => v.status === "Tersedia").length;
-  const inUse = vehicles.filter((v) => v.status === "Tidak Tersedia").length;
-  const inMaintain = vehicles.filter((v) => v.status === "Maintenance").length;
+  const available = vehicles.filter((v) => v.status === "tersedia").length;
+  const inUse = vehicles.filter((v) => v.status === "tidak tersedia").length;
+  const inMaintain = vehicles.filter((v) => v.status === "maintenance").length;
 
   const openModal = (type, v = null) => {
     setModalType(type);
@@ -120,7 +86,7 @@ const AdminVehicle = ({ selectedBranch }) => {
         seats: v.seats,
         trunk: v.trunk,
         engine: v.engine,
-        transmission: v.transmission || "Manual",
+        transmission: v.transmission || "manual",
         status: v.status,
         mainImage: null,
         detailImages: [],
@@ -134,8 +100,8 @@ const AdminVehicle = ({ selectedBranch }) => {
         seats: "",
         trunk: "",
         engine: "",
-        transmission: "Manual",
-        status: "Tersedia",
+        transmission: "manual",
+        status: "tersedia",
         mainImage: null,
         detailImages: [],
       });
@@ -155,7 +121,7 @@ const AdminVehicle = ({ selectedBranch }) => {
       formData.append("luggage", form.trunk);
       formData.append("engineCapacity", form.engine);
       formData.append("currentStatus", form.status);
-      formData.append("branch", selectedBranch);
+      formData.append("branchId", selectedBranchId);
       formData.append("transmission", form.transmission);
   
       if (form.mainImage) {
@@ -175,14 +141,16 @@ const AdminVehicle = ({ selectedBranch }) => {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else if (modalType === "edit") {
-        await api.put(`/cms/vehicle/${selected.id}`, formData, {
+        console.log(selected)
+        let result = await api.put(`/cms/vehicle/${selected.id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+        await console.log(result)
       }
       closeModal();
   
       // Refresh data
-      const res = await api.get(`/cms/vehicle/city/${selectedBranch}`);
+      const res = await api.get(`/cms/vehicle/branch/${selectedBranchId}`);
       let newData = [];
       res.data.vehicles.forEach(element => {
         newData.push({
@@ -194,7 +162,7 @@ const AdminVehicle = ({ selectedBranch }) => {
           seats: element.seat,
           trunk: element.luggage,
           engine: element.engineCapacity,
-          transmission: element.transmission || "Manual",
+          transmission: element.transmission || "manual",
           status: element.currentStatus,
           mainImage: element.mainImage,
           detailImage: element.detailImage,
@@ -211,20 +179,22 @@ const AdminVehicle = ({ selectedBranch }) => {
       await api.delete(`/cms/vehicle/${selected.id}`); // Panggil API untuk delete
       closeModal();
       // Refresh data
-      const res = await api.get(`/cms/vehicle/city/${selectedBranch}`);
+      const res = await api.get(`/cms/vehicle/branch/${selectedBranchId}`);
       let newData = [];
       res.data.vehicles.forEach(element => {
-        newData.push({
-          id: element._id,
-          name: element.name,
-          price: element.ratePerHour,
-          km: element.kilometer,
-          year: element.year,
-          seats: element.seat,
-          trunk: element.luggage,
-          engine: element.engineCapacity,
-          status: element.currentStatus,
-          transmission: element.transmission || "Manual"
+      newData.push({
+        id: element._id,
+        name: element.name,
+        price: element.ratePerHour,
+        km: element.kilometer,
+        year: element.year,
+        seats: element.seat,
+        trunk: element.luggage,
+        engine: element.engineCapacity,
+        status: element.currentStatus,
+        transmission: element.transmission || "manual",
+        mainImage: element.mainImage,
+        detailImage: element.detailImage,
         });
       });
       setVehicles(newData);
@@ -239,9 +209,9 @@ const AdminVehicle = ({ selectedBranch }) => {
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
   {[
     { icon: "tabler:car",         label: "Total Kendaraan",        value: total },
-    { icon: "mdi:car-location",   label: "Kendaraan Tersedia",     value: available },
+    { icon: "mdi:car-location",   label: "Kendaraan tersedia",     value: available },
     { icon: "mdi:car-off",  label: "Kendaraan Terpakai",     value: inUse },
-    { icon: "mdi:car-cog",          label: "Dalam Maintenance",      value: inMaintain },
+    { icon: "mdi:car-cog",          label: "Dalam maintenance",      value: inMaintain },
   ].map((c, i) => (
     <div
       key={i}
@@ -456,7 +426,7 @@ const AdminVehicle = ({ selectedBranch }) => {
                       }
                       className="w-full border px-3 py-1 rounded-md"
                     >
-                      {["Manual", "Automatic"].map((t) => (
+                      {["manual", "automatic"].map((t) => (
                         <option key={t} value={t}>
                           {t}
                         </option>
@@ -472,7 +442,7 @@ const AdminVehicle = ({ selectedBranch }) => {
                       }
                       className="w-full border px-3 py-1 rounded-md"
                     >
-                      {["Tersedia", "Tidak Tersedia", "Maintenance"].map((s) => (
+                      {["tersedia", "tidak tersedia", "maintenance"].map((s) => (
                         <option key={s} value={s}>
                           {s}
                         </option>

@@ -5,26 +5,49 @@ import AdminVehicle from "./AdminVehicle";
 import AdminCustomer from "./AdminCustomer";
 import AdminDriver from "./AdminDriver";
 import AdminGeneralDriver from "./AdminGeneralDriver";
+import api from "../../utils/api";
 
 const MainDashboard = () => {
-  const branches = ["Jakarta", "Bandung", "Surakarta", "Jogjakarta", "Semarang"];
-
   // Ambil branch dari query parameter URL
   const getBranchFromURL = () => {
     const params = new URLSearchParams(window.location.search);
     return params.get("branch") || "Surakarta";
   };
 
+  const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(getBranchFromURL);
+  const [selectedBranchId, setSelectedBranchId] = useState(null);
   const [activeContent, setActiveContent] = useState(() => {
     return localStorage.getItem("activeContent") || "dashboard";
   });
 
-  // Update localStorage saat selectedBranch berubah
+  // Fetch daftar branch dari API
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const response = await api.get("/cms/branch");
+        const data = response.data;
+        setBranches(data);
+
+        const branchFromURL = getBranchFromURL();
+        const found = data.find((b) => b.name === branchFromURL);
+        if (found) {
+          setSelectedBranch(found.name);
+          setSelectedBranchId(found._id);
+        } else {
+          setSelectedBranch(data[0].name);
+          setSelectedBranchId(data[0]._id);
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data cabang:", error);
+      }
+    };
+    fetchBranches();
+  }, []);
+
+  // Simpan selectedBranch di localStorage dan URL
   useEffect(() => {
     localStorage.setItem("selectedBranch", selectedBranch);
-
-    // Update URL query param juga agar bisa di-refresh tanpa hilang
     const url = new URL(window.location);
     url.searchParams.set("branch", selectedBranch);
     window.history.replaceState({}, "", url);
@@ -35,17 +58,21 @@ const MainDashboard = () => {
   }, [activeContent]);
 
   const renderContent = () => {
+    const sharedProps = {
+      selectedBranchId,
+    };
+
     switch (activeContent) {
       case "dashboard":
-        return <AdminGeneralDriver selectedBranch={selectedBranch} />;
+        return <AdminGeneralDriver {...sharedProps} />;
       case "vehicle":
-        return <AdminVehicle selectedBranch={selectedBranch} />;
+        return <AdminVehicle {...sharedProps} />;
       case "customer":
-        return <AdminCustomer selectedBranch={selectedBranch} />;
+        return <AdminCustomer {...sharedProps} />;
       case "driver":
-        return <AdminDriver selectedBranch={selectedBranch} />;
+        return <AdminDriver {...sharedProps} />;
       default:
-        return <AdminGeneralDriver selectedBranch={selectedBranch} />;
+        return <AdminGeneralDriver {...sharedProps} />;
     }
   };
 
@@ -58,11 +85,16 @@ const MainDashboard = () => {
           <select
             className="appearance-none w-45 bg-white text-[#335540] py-2 px-3 pr-10 rounded-md bg-[url('https://api.iconify.design/subway:down-2.svg?color=%23335540&width=20&height=20')] bg-no-repeat bg-[length:0.5rem_0.5rem] bg-[position:calc(100%-0.7rem)_center]"
             value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
+            onChange={(e) => {
+              const name = e.target.value;
+              const found = branches.find((b) => b.name === name);
+              setSelectedBranch(name);
+              setSelectedBranchId(found?.id || null);
+            }}
           >
             {branches.map((branch) => (
-              <option key={branch} value={branch}>
-                {branch}
+              <option key={branch.id} value={branch.name}>
+                {branch.name}
               </option>
             ))}
           </select>
