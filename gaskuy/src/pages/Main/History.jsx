@@ -101,65 +101,51 @@ const History = () => {
                       </div>
 
                       {/* Info Mobil + Timeline */}
-                      <div className="col-span-12 md:col-span-5 space-y-2">
+                      <div className="col-span-12 md:col-span-4 space-y-2">
                         <h3 className="text-[18px] font-semibold">{order.vehicle}</h3>
 
-                      {/* Tanggal + Timeline + Durasi di bawah lingkaran tengah */}
-                      <div className="relative mb-1">
-                        {/* Tanggal */}
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>{order.startDate}</span>
-                          <span>{order.endDate}</span>
-                        </div>
-
-                        {/* Timeline dengan titik tengah */}
-                        <div className="flex items-center">
-                          {/* Titik awal */}
-                          <div className="w-4 h-4 border-2 border-gray-400 rounded-full bg-white z-10"></div>
-                          
-                          {/* Garis putus-putus */}
-                          <div className="flex-1 h-[1px] border-t border-dashed border-gray-400 relative">
-                            {/* Titik tengah */}
-                            <div className="absolute left-1/2 -translate-x-1/2 -top-[6px] w-3 h-3 bg-[#AAEEC5] rounded-full z-10"></div>
-
-                            {/* Durasi di bawah titik tengah */}
-                            <div className="absolute left-1/2 -translate-x-1/2 top-4 text-[11px] text-gray-500 whitespace-nowrap">
-                              {duration}
-                            </div>
+                        {/* Tanggal + Timeline + Durasi */}
+                        <div className="relative mb-1">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>{order.startDate}</span>
+                            <span>{order.endDate}</span>
                           </div>
 
-                          {/* Titik akhir */}
-                          <div className="w-4 h-4 bg-[#AAEEC5] rounded-full z-10"></div>
+                          <div className="flex items-center">
+                            <div className="w-4 h-4 border-2 border-gray-400 rounded-full bg-white z-10"></div>
+                            <div className="flex-1 h-[1px] border-t border-dashed border-gray-400 relative">
+                              <div className="absolute left-1/2 -translate-x-1/2 -top-[6px] w-3 h-3 bg-[#AAEEC5] rounded-full z-10"></div>
+                              <div className="absolute left-1/2 -translate-x-1/2 top-4 text-[11px] text-gray-500 whitespace-nowrap">
+                                {duration}
+                              </div>
+                            </div>
+                            <div className="w-4 h-4 bg-[#AAEEC5] rounded-full z-10"></div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between text-sm text-gray-600 mt-1">
+                          <span>{order.startTime}</span>
+                          <span>{order.endTime}</span>
                         </div>
                       </div>
 
-                      {/* Jam Mulai & Selesai */}
-                      <div className="flex justify-between text-sm text-gray-600 mt-1">
-                        <span>{order.startTime}</span>
-                        <span>{order.endTime}</span>
-                      </div>
-                      </div>
-
-                      {/* Info Pemesan & Lokasi (dibagi 2 grid) */}
+                      {/* Info Pemesan */}
                       <div className="col-span-12 md:col-span-4 border-l pl-4 text-sm space-y-2">
                         <p className="font-semibold text-left">
                           Kode Pemesanan: <span className="font-bold">{order.code}</span>
                         </p>
 
-                        <div className="grid grid-cols-2 gap-4 mt-2">
-                          {/* Data Pemesan */}
+                        <div className="grid grid-cols-2 gap-10 mt-2">
                           <div>
                             <p className="font-semibold">Data Pemesan</p>
                             <p>{order.name}</p>
                             <p>{order.phone}</p>
                             <p>{order.email}</p>
                           </div>
-
-                          {/* Lokasi */}
                           <div>
-                            <p className="font-semibold">Tempat Pengambilan</p>
+                            <p className="font-semibold whitespace-nowrap">Tempat Pengambilan</p>
                             <p>{order.pickup}</p>
-                            <p className="font-semibold mt-2">Tempat Pengembalian</p>
+                            <p className="font-semibold mt-2 whitespace-nowrap">Tempat Pengembalian</p>
                             <p>{order.return}</p>
                           </div>
                         </div>
