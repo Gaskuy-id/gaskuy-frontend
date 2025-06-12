@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import api from '../../utils/api';
 
-
-
 const CardStat = ({ icon, label, value }) => (
   <div className="bg-white rounded-lg p-4 flex flex-col space-y-2">
     <div className="text-2xl text-black">
@@ -26,115 +24,39 @@ const AdminDriver = ({ selectedBranchId }) => {
   const [driverToDelete, setDriverToDelete] = useState(null);
 
 
-  const [drivers, setDrivers] = useState([
-    {
-      id: 1,
-      name: 'Alamojek',
-      email: 'alamojek@gmail.com',
-      password: 'admin123',
-      phone: '0811222233334444',
-      birthDate: '1995-05-15',
-      address: "Surakarta",
-      status: "Tidak Tersedia",
-      details: [
-        {
-          renter: 'Dhiya Ulhaq',
-          vehicle: 'Burak Gus Faqih',
-          customerPhone: '081234567890',
-          start: '2025-05-15',
-          end: '2025-05-16',
-          pickUp: 'Jalan Slamet Riyadi',
-          detailedStatus: 'Dalam Penjemputan',
-        },
-        {
-          renter: 'Dhiya Ulhaq',
-          vehicle: 'Burak Gus Faqih',
-          customerPhone: '081234567890',
-          start: '2025-05-15',
-          end: '2025-05-16',
-          pickUp: 'Jalan Slamet Riyadi',
-          detailedStatus: 'Sudah Selesai',
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Wira Kusuma',
-      email: 'wirakusuma@gmail.com',
-      password: 'admin123',
-      phone: "0822333344445555",
-      birthDate: "1991-01-11",
-      address: "Semarang",
-      status: "Tersedia",
-      details: [
-        {
-          renter: 'Bima Sakti',
-          vehicle: 'Honda Mobilio',
-          customerPhone: '081234567890',
-          start: '2025-04-01',
-          end: '2025-04-02',
-          pickUp: 'Paragon Semarang',
-          detailedStatus: 'Sudah Selesai',
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "Rendi Fauzan",
-      email: "rendifauzan@gmail.com",
-      password: 'admin123',
-      phone: "0833444455556666",
-      birthDate: "1994-06-17",
-      address: "Semarang",
-      status: "Tersedia",
-      details: [
-        {
-          renter: 'Bima Sakti',
-          vehicle: 'Suzuki Ertiga',
-          customerPhone: '081234567890',
-          start: '2025-04-10',
-          end: '2025-04-11',
-          pickUp: 'Paragon Semarang',
-          detailedStatus: 'Sudah Selesai',
-        },
-      ],
-    },
-  ]);
+  const [drivers, setDrivers] = useState([]);
 
-    useEffect(() => {
-    const fetchProfile = async () => {
+  {/* API CALL - Get All Driver */}
+  useEffect(() => {
+    const fetchDrivers = async () => {
       try {
         const res = await api.get(`/cms/users/role/driver`);
-        let newData = [];
-        
-        console.log(res.data.data);
-        res.data.data.forEach(element=>{
-          newData.push({
-            id: element._id,
-            name: element.name,
-            email: element.email,
-            password: element.password,
-            phone: element.phone,
-            birthDate: element.birthDate,
-            address: element.address,
-            status: element.status,
-          });
-        });
+        const newData = res.data.data.map((element) => ({
+          id: element._id,
+          name: element.fullName,
+          email: element.email,
+          password: element.password || [],
+          phone: element.phoneNumber,
+          birthDate: element.birthDate || [],
+          address: element.address,
+          status: element.driverInfo?.currentStatus,
+          details: element.details || [], // jika API belum mengembalikan details
+        }));
 
         setDrivers(newData);
-        console.log(newData);
-
+        console.log("Fetched drivers:", newData);
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Error fetching drivers:", error);
       }
-    }; 
+    };
 
-    fetchProfile();
+    fetchDrivers();
   }, [selectedBranchId]);
 
+  {/* Logic untuk menampilkan angka di card */}
   const totalDriver = drivers.length;
-  const driverTersedia = drivers.filter(d => d.status === 'Tersedia').length;
-  const driverTerpakai = drivers.filter(d => d.status === 'Tidak Tersedia').length;
+  const driverTersedia = drivers.filter(d => d.status === 'tersedia').length;
+  const driverTerpakai = drivers.filter(d => d.status === 'tidak tersedia').length;
 
   const stats = [
     { icon: 'mdi:account-multiple-outline', label: 'Total Driver', value: totalDriver },
