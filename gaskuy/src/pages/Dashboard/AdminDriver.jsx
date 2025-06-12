@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
+import api from '../../utils/api';
+
+
 
 const CardStat = ({ icon, label, value }) => (
   <div className="bg-white rounded-lg p-4 flex flex-col space-y-2">
@@ -13,7 +16,7 @@ const CardStat = ({ icon, label, value }) => (
   </div>
 );
 
-const AdminDriver = () => {
+const AdminDriver = ({ selectedBranchId }) => {
   const [q, setQ] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   const [statusFilter, setStatusFilter] = useState('Semua');
@@ -98,6 +101,37 @@ const AdminDriver = () => {
     },
   ]);
 
+    useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get(`/cms/users/role/driver`);
+        let newData = [];
+        
+        console.log(res.data.data);
+        res.data.data.forEach(element=>{
+          newData.push({
+            id: element._id,
+            name: element.name,
+            email: element.email,
+            password: element.password,
+            phone: element.phone,
+            birthDate: element.birthDate,
+            address: element.address,
+            status: element.status,
+          });
+        });
+
+        setDrivers(newData);
+        console.log(newData);
+
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    }; 
+
+    fetchProfile();
+  }, [selectedBranchId]);
+
   const totalDriver = drivers.length;
   const driverTersedia = drivers.filter(d => d.status === 'Tersedia').length;
   const driverTerpakai = drivers.filter(d => d.status === 'Tidak Tersedia').length;
@@ -128,7 +162,7 @@ const AdminDriver = () => {
     setShowModal(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     const newDriver = {
@@ -142,7 +176,7 @@ const AdminDriver = () => {
       status: form.status.value,
       details: editDriver?.details || [],
     };
-
+    await api.post("cms/users", newDriver, {headers: { "Content-Type": "application/json"} })
     if (editDriver) {
       setDrivers(prev => prev.map(d => (d.id === editDriver.id ? newDriver : d)));
     } else {
