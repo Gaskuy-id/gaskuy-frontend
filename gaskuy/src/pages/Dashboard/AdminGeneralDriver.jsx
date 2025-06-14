@@ -178,12 +178,57 @@ export default function AdminGeneralDriver() {
       { label: "No Telp Driver", value: t.driverPhone || "-" },
       { label: "Terakhir maintenance mobil", value: t.lastMaintenance || "-" },
     ];
-    const questions = [
-      "Apakah Customer Meminta Pengembalian Dana?",
-      "Apakah Mobil Sudah Diberikan?",
-      "Apakah Mobil Sudah Dikembalikan?",
-      "Apakah Customer Membayar Denda?",
+
+    const baseQuestions = [
+      { id: 0, text: "Apakah Customer Sudah Bayar?", type: "yesNo" },
+      { id: 1, text: "Apakah Mobil Sudah Diberikan?", type: "confirmOnly" },
+      { id: 2, text: "Apakah Customer Membayar Denda?", type: "yesNo" },
+      { id: 3, text: "Apakah Mobil Sudah Dikembalikan?", type: "confirmOnly" },
     ];
+
+    // Pertanyaan dinamis berdasarkan kondisi
+    const getQuestions = () => {
+      let questions = [...baseQuestions];
+      
+      // Jika pertanyaan "Apakah Customer Membayar Denda?" dijawab "yes" dan dikonfirmasi
+      if (answers[2] === 'yes' && confirmed[2]) {
+        // Insert pertanyaan follow-up sebelum pertanyaan terakhir
+        questions.splice(3, 0, {
+          id: 4,
+          text: "Apakah Customer Sudah membayar denda?",
+          type: "confirmOnly"
+        });
+      }
+      
+      return questions;
+    };
+
+    // Fungsi untuk mengecek apakah pertanyaan bisa diakses (tidak disabled)
+    const isQuestionAccessible = (questionIndex) => {
+      // Jika transaksi dibatalkan, hanya pertanyaan pertama yang bisa diakses
+      if (isTransactionCancelled() && questionIndex !== 0) {
+        return false;
+      }
+      
+      // Pertanyaan pertama selalu bisa diakses
+      if (questionIndex === 0) return true;
+      
+      // Untuk pertanyaan lainnya, cek apakah pertanyaan sebelumnya sudah dikonfirmasi
+      const questions = getQuestions();
+      const currentQuestionIndex = questions.findIndex(q => q.id === questionIndex);
+      
+      if (currentQuestionIndex === 0) return true;
+      
+      // Cek semua pertanyaan sebelumnya sudah dikonfirmasi
+      for (let i = 0; i < currentQuestionIndex; i++) {
+        const prevQuestion = questions[i];
+        if (!confirmed[prevQuestion.id]) {
+          return false;
+        }
+      }
+      
+      return true;
+    };
 
     const handleAnswerChange = (questionIndex, answer) => {
       setAnswers(prev => ({
@@ -193,29 +238,65 @@ export default function AdminGeneralDriver() {
     };
 
     const handleConfirm = (questionIndex) => {
-      // Hanya bisa konfirmasi jika sudah ada jawaban
-      if (answers[questionIndex]) {
+      const question = getQuestions().find(q => q.id === questionIndex);
+      
+      if (question.type === 'confirmOnly') {
+        // Untuk pertanyaan confirm only, langsung konfirmasi
         setConfirmed(prev => ({
           ...prev,
           [questionIndex]: true
         }));
+      } else {
+        // Untuk pertanyaan yes/no, hanya bisa konfirmasi jika sudah ada jawaban
+        if (answers[questionIndex]) {
+          setConfirmed(prev => ({
+            ...prev,
+            [questionIndex]: true
+          }));
+          
+          // Jika pertanyaan pertama dijawab "no" dan dikonfirmasi, batalkan semua pertanyaan lainnya
+          if (questionIndex === 0 && answers[questionIndex] === 'no') {
+            const allQuestions = getQuestions();
+            const cancelledConfirmations = {};
+            
+            // Set semua pertanyaan lain sebagai "dibatalkan"
+            allQuestions.forEach(q => {
+              if (q.id !== 0) {
+                cancelledConfirmations[q.id] = 'cancelled';
+              }
+            });
+            
+            setConfirmed(prev => ({
+              ...prev,
+              ...cancelledConfirmations
+            }));
+          }
+        }
       }
+    };
+
+    // Fungsi untuk mengecek apakah transaksi dibatalkan
+    const isTransactionCancelled = () => {
+      return answers[0] === 'no' && confirmed[0];
     };
 
     const AnswerButton = ({ questionIndex, type, isSelected, isDisabled }) => {
       const isNo = type === 'no';
+      const isQuestionDisabled = !isQuestionAccessible(questionIndex);
+      const finalDisabled = isDisabled || isQuestionDisabled;
+      
       const baseClasses = "w-6 h-6 border-2 rounded cursor-pointer flex items-center justify-center transition-all duration-200";
       const selectedClasses = isNo 
         ? "border-red-500 bg-red-500" 
         : "border-green-500 bg-green-500";
-      const unselectedClasses = isDisabled 
+      const unselectedClasses = finalDisabled 
         ? "border-gray-300 bg-gray-100 cursor-not-allowed" 
         : "border-gray-300 bg-white hover:border-gray-400";
 
       return (
         <button
-          onClick={() => !isDisabled && handleAnswerChange(questionIndex, type)}
-          disabled={isDisabled}
+          onClick={() => !finalDisabled && handleAnswerChange(questionIndex, type)}
+          disabled={finalDisabled}
           className={clsx(baseClasses, isSelected ? selectedClasses : unselectedClasses)}
         >
           {isSelected && (
@@ -245,50 +326,62 @@ export default function AdminGeneralDriver() {
           
           {/* Right side - Questions */}
           <div className="space-y-4">
-            {questions.map((question, index) => {
-              const isConfirmed = confirmed[index];
-              const hasAnswer = answers[index];
+            {getQuestions().map((question) => {
+              const isConfirmed = confirmed[question.id];
+              const isCancelled = confirmed[question.id] === 'cancelled';
+              const hasAnswer = answers[question.id];
+              const isConfirmOnly = question.type === 'confirmOnly';
+              const isAccessible = isQuestionAccessible(question.id);
+              const isTransCancelled = isTransactionCancelled();
               
               return (
                 <div 
-                  key={index} 
+                  key={question.id} 
                   className={clsx(
                     "flex items-center justify-between gap-4 p-3 rounded-md transition-all duration-300",
-                    isConfirmed ? "bg-gray-100" : "bg-transparent"
+                    (isConfirmed || isCancelled) ? "bg-gray-100" : "bg-transparent",
+                    (!isAccessible || isTransCancelled) && question.id !== 0 ? "opacity-50" : "opacity-100"
                   )}
                 >
                   <span className={clsx(
                     "text-sm flex-1",
-                    isConfirmed ? "text-gray-500" : "text-gray-700"
+                    (isConfirmed || isCancelled) ? "text-gray-500" : 
+                    isAccessible && !isTransCancelled ? "text-gray-700" : "text-gray-400"
                   )}>
-                    {question}
+                    {question.text}
                   </span>
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <AnswerButton 
-                        questionIndex={index} 
-                        type="no" 
-                        isSelected={answers[index] === 'no'} 
-                        isDisabled={isConfirmed}
-                      />
-                      <AnswerButton 
-                        questionIndex={index} 
-                        type="yes" 
-                        isSelected={answers[index] === 'yes'} 
-                        isDisabled={isConfirmed}
-                      />
-                    </div>
-                    {isConfirmed ? (
+                    {!isConfirmOnly && (
+                      <div className="flex items-center gap-2">
+                        <AnswerButton 
+                          questionIndex={question.id} 
+                          type="no" 
+                          isSelected={answers[question.id] === 'no'} 
+                          isDisabled={isConfirmed || isCancelled}
+                        />
+                        <AnswerButton 
+                          questionIndex={question.id} 
+                          type="yes" 
+                          isSelected={answers[question.id] === 'yes'} 
+                          isDisabled={isConfirmed || isCancelled}
+                        />
+                      </div>
+                    )}
+                    {(isConfirmed && !isCancelled) ? (
                       <div className="px-4 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-md bg-gray-50">
                         Terkonfirmasi
                       </div>
+                    ) : isCancelled ? (
+                      <div className="px-4 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-md bg-gray-50">
+                        Dibatalkan
+                      </div>
                     ) : (
                       <button 
-                        onClick={() => handleConfirm(index)}
-                        disabled={!hasAnswer}
+                        onClick={() => handleConfirm(question.id)}
+                        disabled={(!isConfirmOnly && !hasAnswer) || !isAccessible || (isTransCancelled && question.id !== 0)}
                         className={clsx(
                           "px-4 py-1.5 text-sm border rounded-md transition-colors whitespace-nowrap",
-                          hasAnswer 
+                          (isConfirmOnly || hasAnswer) && isAccessible && (!isTransCancelled || question.id === 0)
                             ? "text-teal-600 border-teal-600 hover:bg-teal-50 cursor-pointer" 
                             : "text-gray-400 border-gray-300 cursor-not-allowed"
                         )}
