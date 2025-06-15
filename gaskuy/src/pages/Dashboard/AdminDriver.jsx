@@ -26,13 +26,8 @@ const AdminDriver = ({ selectedBranchId }) => {
   const [drivers, setDrivers] = useState([]);
 
   // API CALL - Get All Driver
-  // Refactored to be a reusable function
   const fetchDrivers = async () => {
     try {
-      // It's crucial that this endpoint also filters by branch if your backend supports it
-      // Otherwise, it will fetch all drivers across all branches.
-      // If your backend API for drivers has a branch filter, you might want to add:
-      // `/cms/users/role/driver?branchId=${selectedBranchId}`
       const res = await api.get(`/cms/users/role/driver`);
       const newData = res.data.data.map((element) => ({
         id: element._id,
@@ -40,8 +35,8 @@ const AdminDriver = ({ selectedBranchId }) => {
         email: element.email,
         phone: element.phoneNumber,
         address: element.address,
-        status: element.driverInfo?.currentStatus, // Ensure this matches what backend returns
-        details: element.details || [], // jika API belum mengembalikan details
+        status: element.driverInfo?.currentStatus,
+        details: element.details || [],
       }));
 
       setDrivers(newData);
@@ -54,7 +49,7 @@ const AdminDriver = ({ selectedBranchId }) => {
 
   useEffect(() => {
     fetchDrivers();
-  }, [selectedBranchId]); // Re-fetch drivers when selectedBranchId changes
+  }, [selectedBranchId]); 
 
   // Logic untuk menampilkan angka di card
   const totalDriver = drivers.length;
@@ -73,7 +68,7 @@ const AdminDriver = ({ selectedBranchId }) => {
       if (!q) return true;
       const flatValues = [
         v.name, v.email, v.phone, v.address, v.status,
-        ...(v.details ? v.details.flatMap(d => [ // Add null/undefined check for v.details
+        ...(v.details ? v.details.flatMap(d => [
           d.renter, d.vehicle, d.customerPhone, d.start, d.end, d.pickUp, d.detailedStatus
         ]) : [])
       ];
@@ -91,20 +86,18 @@ const AdminDriver = ({ selectedBranchId }) => {
     e.preventDefault();
     const form = e.target;
 
-    // --- Payload for both Edit and Add ---
     const payload = {
       fullName: form.name.value,
       email: form.email.value,
       phoneNumber: form.phone.value,
       address: form.address.value,
-      currentStatus: form.status.value.toLowerCase(), // Field name as per your backend
-      branch: selectedBranchId, // <--- Add this line for the 'branch' field
+      currentStatus: form.status.value.toLowerCase(),
+      branch: selectedBranchId,
     };
 
     try {
       if (editDriver) {
         // --- EDIT DRIVER (PUT) ---
-        // Payload for edit now correctly includes 'branch'
         console.log("Submitting edit for driver ID:", editDriver.id, "with payload:", payload);
         await api.put(`/cms/users/${editDriver.id}`, payload, {
           headers: { "Content-Type": "application/json" },
@@ -120,17 +113,16 @@ const AdminDriver = ({ selectedBranchId }) => {
                   email: payload.email,
                   phone: payload.phoneNumber,
                   address: payload.address,
-                  status: payload.currentStatus, // Update local state with currentStatus
+                  status: payload.currentStatus, 
                 }
               : d
           )
         );
       } else {
         // --- TAMBAH DRIVER (POST) ---
-        // For adding, password is also included directly in the payload
         const addPayload = {
-          ...payload, // Contains all fields, including 'branch'
-          password: form.password.value, // Add password only for new drivers
+          ...payload,
+          password: form.password.value,
         };
         console.log("Submitting new driver with payload:", addPayload);
         const res = await api.post(`/cms/users`, addPayload, {
@@ -149,7 +141,7 @@ const AdminDriver = ({ selectedBranchId }) => {
             email: newDriver.email,
             phone: newDriver.phoneNumber,
             address: newDriver.address,
-            status: newDriver.driverInfo?.currentStatus, // Get status from driverInfo
+            status: newDriver.driverInfo?.currentStatus, 
             details: [],
           },
         ]);
@@ -350,7 +342,7 @@ const AdminDriver = ({ selectedBranchId }) => {
           <div className="flex flex-1 justify-end items-center gap-2">
             <button
               onClick={() => {
-                setEditDriver(null); // Ensure editDriver is null for "Tambah Supir"
+                setEditDriver(null);
                 setShowModal(true);
               }}
               className="flex items-center justify-center border border-[#00A34A] bg-[#B0F4CA] text-[#00A34A] w-10 aspect-square rounded-lg"
