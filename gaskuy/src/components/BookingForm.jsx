@@ -5,9 +5,8 @@ import penumpang from "../assets/images/penumpang.png";
 import tanggal from "../assets/images/tanggal.png";
 import jam from "../assets/images/jam.png";
 import { Icon } from "@iconify/react";
-import API from "../utils/api"
 
-const BookingForm = ({ onTipeLayananChange, setCars, defaultValues = {} }) => {
+const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches, defaultValues = {} }) => {
     // State untuk field pemesanan dengan nilai awal dari defaultValues
     const [tipeLayanan, setTipeLayanan] = useState(defaultValues.tipeLayanan || "");
     const [tempatRental, setTempatRental] = useState(defaultValues.tempatRental || "");
@@ -30,45 +29,26 @@ const BookingForm = ({ onTipeLayananChange, setCars, defaultValues = {} }) => {
             return;
         }
 
-        try {
-            const response = await fetch("/cars.json"); // asumsi public/cars.json
-            const data = await response.json();
-
-            const filteredCars = data.filter(car =>
-                car.city.toLowerCase() === tempatRental.toLowerCase() &&
-                car.seats >= parseInt(jumlahPenumpang) &&
-                car.currentStatus === "tersedia"
-            );
-
-            const formattedCars = filteredCars.map(car => ({
-                id: car.id,
-                title: car.title,
-                imageSrc: car.imageSrc,
-                pricePerDay: car.pricePerDay,
-                engineCapacity: car.engineCapacity,
-                fuelCapacity: car.fuelCapacity,
-                transmission: car.transmission,
-                seats: car.seats,
-                city: car.city
-            }));
-
-            setCars(formattedCars);
-
-            navigate("/booking", {
-                state: {
-                    cars: formattedCars,
-                    tanggalMulai,
-                    waktuMulai,
-                    tanggalSelesai,
-                    waktuSelesai,
-                    tipeLayanan,
-                    tempatRental
-                }
-            });
-        } catch (error) {
-            console.error("Gagal memuat data mobil dari cars.json:", error);
-            alert("Terjadi kesalahan saat mencari kendaraan.");
+        // Cari branch ID berdasarkan nama tempat rental yang dipilih       
+        const selectedBranch = branches.find(branch => branch.name === tempatRental);
+        if (!selectedBranch) {
+            alert("Branch tidak ditemukan. Silakan pilih tempat rental yang valid.");
+            return;
         }
+
+        // Panggil fungsi onSearch dari parent dengan parameter yang diperlukan
+        const searchParams = {
+            branchId: selectedBranch._id,
+            jumlahPenumpang: parseInt(jumlahPenumpang),
+            tempatRental,
+            tanggalMulai,
+            waktuMulai,
+            tanggalSelesai,
+            waktuSelesai,
+            tipeLayanan
+        };
+
+        onSearch(searchParams);
     };
 
     return (
@@ -116,13 +96,16 @@ const BookingForm = ({ onTipeLayananChange, setCars, defaultValues = {} }) => {
                                     className="w-full outline-none bg-transparent text-[15px] font-light mb-[-1px] py-1"
                                     value={tempatRental}
                                     onChange={(e) => setTempatRental(e.target.value)}
+                                    disabled={loadingBranches}
                                 >
-                                    <option value="">Pilih Kota</option>
-                                    <option value="Surakarta">Surakarta</option>
-                                    <option value="Jakarta">Jakarta</option>
-                                    <option value="Jogjakarta">Jogjakarta</option>
-                                    <option value="Semarang">Semarang</option>
-                                    <option value="Bandung">Bandung</option>
+                                    <option value="">
+                                        {loadingBranches ? "Memuat..." : "Pilih Kota"}
+                                    </option>
+                                    {branches.map((branch) => (
+                                        <option key={branch.id} value={branch.name}>
+                                            {branch.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
