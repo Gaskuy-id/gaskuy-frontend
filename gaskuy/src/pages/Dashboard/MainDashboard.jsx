@@ -26,7 +26,7 @@ const MainDashboard = () => {
     const fetchBranches = async () => {
       try {
         const response = await api.get("/cms/branch");
-        const data = response.data;
+        const data = response.data.data;
         setBranches(data);
 
         const branchFromURL = getBranchFromURL();
