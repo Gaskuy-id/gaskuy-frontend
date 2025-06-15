@@ -110,6 +110,31 @@ const AdminVehicle = ({ selectedBranchId }) => {
   };
   const closeModal = () => setShowModal(false);
 
+  // Handle main image upload
+  const handleMainImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setForm({ ...form, mainImage: file });
+    }
+  };
+
+  // Handle detail images upload
+  const handleDetailImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    setForm({ ...form, detailImages: [...form.detailImages, ...files] });
+  };
+
+  // Remove detail image
+  const removeDetailImage = (index) => {
+    const newDetailImages = form.detailImages.filter((_, i) => i !== index);
+    setForm({ ...form, detailImages: newDetailImages });
+  };
+
+  // Remove main image
+  const removeMainImage = () => {
+    setForm({ ...form, mainImage: null });
+  };
+
   const handleSave = async () => {
     try {
       const formData = new FormData();
@@ -362,7 +387,7 @@ const AdminVehicle = ({ selectedBranchId }) => {
       {/* === POPUP MODAL === */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-20 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md">
+          <div className="bg-white rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto">
             {modalType === "delete" ? (
               <>
                 <h2 className="text-lg font-semibold mb-4">Hapus Kendaraan?</h2>
@@ -389,74 +414,212 @@ const AdminVehicle = ({ selectedBranchId }) => {
                     ? "Tambah Kendaraan"
                     : "Edit Kendaraan"}
                 </h2>
-                <div className="space-y-3">
-                  {[
-                    "name",
-                    "price",
-                    "km",
-                    "year",
-                    "seats",
-                    "trunk",
-                    "engine",
-                  ].map((field) => (
-                    <div key={field}>
-                      <label className="block text-sm capitalize">
-                        {field}
-                      </label>
-                      <input
-                        type={
-                          ["price", "km", "year", "seats"].includes(field)
-                            ? "number"
-                            : "text"
-                        }
-                        value={form[field]}
-                        onChange={(e) =>
-                          setForm({ ...form, [field]: e.target.value })
-                        }
-                        className="w-full border px-3 py-1 rounded-md"
-                      />
-                    </div>
-                  ))}
-                  <div>
-                    <label className="block text-sm">Transmisi</label>
-                    <select
-                      value={form.transmission}
-                      onChange={(e) =>
-                        setForm({ ...form, transmission: e.target.value })
-                      }
-                      className="w-full border px-3 py-1 rounded-md"
-                    >
-                      {["manual", "automatic"].map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
+                <div className="space-y-4">
+                  {/* Basic form fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { field: "name", label: "Nama", type: "text" },
+                      { field: "price", label: "Harga", type: "number" },
+                      { field: "km", label: "Kilometer", type: "number" },
+                      { field: "year", label: "Tahun", type: "number" },
+                      { field: "seats", label: "Kursi", type: "number" },
+                      { field: "trunk", label: "Bagasi", type: "text" },
+                      { field: "engine", label: "Mesin", type: "text" },
+                    ].map(({ field, label, type }) => (
+                      <div key={field}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {label}
+                        </label>
+                        <input
+                          type={type}
+                          value={form[field]}
+                          onChange={(e) =>
+                            setForm({ ...form, [field]: e.target.value })
+                          }
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    ))}
                   </div>
+
+                  {/* Select fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Transmisi
+                      </label>
+                      <select
+                        value={form.transmission}
+                        onChange={(e) =>
+                          setForm({ ...form, transmission: e.target.value })
+                        }
+                        className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {["manual", "automatic"].map((t) => (
+                          <option key={t} value={t}>
+                            {t.charAt(0).toUpperCase() + t.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Status
+                      </label>
+                      <select
+                        value={form.status}
+                        onChange={(e) =>
+                          setForm({ ...form, status: e.target.value })
+                        }
+                        className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {["tersedia", "tidak tersedia", "maintenance"].map((s) => (
+                          <option key={s} value={s}>
+                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Main Image Upload */}
                   <div>
-                    <label className="block text-sm">Status</label>
-                    <select
-                      value={form.status}
-                      onChange={(e) =>
-                        setForm({ ...form, status: e.target.value })
-                      }
-                      className="w-full border px-3 py-1 rounded-md"
-                    >
-                      {["tersedia", "tidak tersedia", "maintenance"].map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gambar Utama
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                      {form.mainImage ? (
+                        <div className="relative">
+                          <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                            <div className="flex items-center space-x-3">
+                              <Icon 
+                                icon="mdi:image" 
+                                width="24" 
+                                height="24" 
+                                className="text-blue-500" 
+                              />
+                              <span className="text-sm text-gray-700">
+                                {form.mainImage.name}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={removeMainImage}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Icon icon="mdi:close" width="20" height="20" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <Icon 
+                            icon="mdi:cloud-upload" 
+                            width="48" 
+                            height="48" 
+                            className="mx-auto text-gray-400 mb-2" 
+                          />
+                          <p className="text-sm text-gray-600 mb-2">
+                            Klik untuk upload gambar utama
+                          </p>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleMainImageChange}
+                            className="hidden"
+                            id="mainImageInput"
+                          />
+                          <label
+                            htmlFor="mainImageInput"
+                            className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                          >
+                            <Icon icon="mdi:upload" width="16" height="16" className="mr-2" />
+                            Pilih File
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Detail Images Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gambar Detail
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                      <div className="text-center mb-4">
+                        <Icon 
+                          icon="mdi:cloud-upload" 
+                          width="48" 
+                          height="48" 
+                          className="mx-auto text-gray-400 mb-2" 
+                        />
+                        <p className="text-sm text-gray-600 mb-2">
+                          Klik untuk upload gambar detail (multiple)
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleDetailImagesChange}
+                          className="hidden"
+                          id="detailImagesInput"
+                        />
+                        <label
+                          htmlFor="detailImagesInput"
+                          className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                          <Icon icon="mdi:upload" width="16" height="16" className="mr-2" />
+                          Pilih File
+                        </label>
+                      </div>
+                      
+                      {/* Display selected detail images */}
+                      {form.detailImages.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium text-gray-700">
+                            File terpilih ({form.detailImages.length}):
+                          </h4>
+                          <div className="max-h-32 overflow-y-auto space-y-2">
+                            {form.detailImages.map((file, index) => (
+                              <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                                <div className="flex items-center space-x-2">
+                                  <Icon 
+                                    icon="mdi:image" 
+                                    width="20" 
+                                    height="20" 
+                                    className="text-blue-500" 
+                                  />
+                                  <span className="text-sm text-gray-700">
+                                    {file.name}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeDetailImage(index)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <Icon icon="mdi:close" width="16" height="16" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+
                 <div className="flex justify-end space-x-4 mt-6">
-                  <button onClick={closeModal} className="px-4 py-2">
+                  <button 
+                    onClick={closeModal} 
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
                     Batal
                   </button>
                   <button
                     onClick={handleSave}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Simpan
                   </button>
