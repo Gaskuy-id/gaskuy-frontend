@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
+import api from '../../utils/api';
 
 const CardStat = ({ icon, label, value }) => (
   <div className="bg-white rounded-lg p-4 flex flex-col space-y-2">
@@ -13,7 +14,7 @@ const CardStat = ({ icon, label, value }) => (
   </div>
 );
 
-const AdminDriver = () => {
+const AdminDriver = ({ selectedBranchId }) => {
   const [q, setQ] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   const [statusFilter, setStatusFilter] = useState('Semua');
@@ -23,81 +24,39 @@ const AdminDriver = () => {
   const [driverToDelete, setDriverToDelete] = useState(null);
 
 
-  const [drivers, setDrivers] = useState([
-    {
-      id: 1,
-      name: 'Alamojek',
-      email: 'alamojek@gmail.com',
-      phone: '0811222233334444',
-      birthDate: '1995-05-15',
-      creationDate: "2024-12-02",
-      status: "Tidak Tersedia",
-      details: [
-        {
-          renter: 'Dhiya Ulhaq',
-          vehicle: 'Burak Gus Faqih',
-          customerPhone: '081234567890',
-          start: '2025-05-15',
-          end: '2025-05-16',
-          pickUp: 'Jalan Slamet Riyadi',
-          detailedStatus: 'Dalam Penjemputan',
-        },
-        {
-          renter: 'Dhiya Ulhaq',
-          vehicle: 'Burak Gus Faqih',
-          customerPhone: '081234567890',
-          start: '2025-05-15',
-          end: '2025-05-16',
-          pickUp: 'Jalan Slamet Riyadi',
-          detailedStatus: 'Sudah Selesai',
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Wira Kusuma',
-      email: 'wirakusuma@gmail.com',
-      phone: "0822333344445555",
-      birthDate: "1991-01-11",
-      creationDate: "2024-12-12",
-      status: "Tersedia",
-      details: [
-        {
-          renter: 'Bima Sakti',
-          vehicle: 'Honda Mobilio',
-          customerPhone: '081234567890',
-          start: '2025-04-01',
-          end: '2025-04-02',
-          pickUp: 'Paragon Semarang',
-          detailedStatus: 'Sudah Selesai',
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "Rendi Fauzan",
-      email: "rendifauzan@gmail.com",
-      phone: "0833444455556666",
-      birthDate: "1994-06-17",
-      creationDate: "2024-12-05",
-      status: "Tersedia",
-      details: [
-        {
-          renter: 'Bima Sakti',
-          vehicle: 'Suzuki Ertiga',
-          customerPhone: '081234567890',
-          start: '2025-04-10',
-          end: '2025-04-11',
-          pickUp: 'Paragon Semarang',
-          detailedStatus: 'Sudah Selesai',
-        },
-      ],
-    },
-  ]);
+  const [drivers, setDrivers] = useState([]);
 
+  {/* API CALL - Get All Driver */}
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const res = await api.get(`/cms/users/role/driver`);
+        const newData = res.data.data.map((element) => ({
+          id: element._id,
+          name: element.fullName,
+          email: element.email,
+          password: element.password || [],
+          phone: element.phoneNumber,
+          // birthDate: element.birthDate || [],
+          address: element.address,
+          status: element.driverInfo?.currentStatus,
+          details: element.details || [], // jika API belum mengembalikan details
+        }));
+
+        setDrivers(newData);
+        console.log("Fetched drivers:", newData);
+      } catch (error) {
+        console.error("Error fetching drivers:", error);
+      }
+    };
+
+    fetchDrivers();
+  }, [selectedBranchId]);
+
+  {/* Logic untuk menampilkan angka di card */}
   const totalDriver = drivers.length;
-  const driverTersedia = drivers.filter(d => d.status === 'Tersedia').length;
-  const driverTerpakai = drivers.filter(d => d.status === 'Tidak Tersedia').length;
+  const driverTersedia = drivers.filter(d => d.status === 'tersedia').length;
+  const driverTerpakai = drivers.filter(d => d.status === 'tidak tersedia').length;
 
   const stats = [
     { icon: 'mdi:account-multiple-outline', label: 'Total Driver', value: totalDriver },
@@ -110,7 +69,7 @@ const AdminDriver = () => {
     .filter((v) => {
       if (!q) return true;
       const flatValues = [
-        v.name, v.email, v.phone, v.birthDate, v.creationDate, v.status,
+        v.name, v.email, v.phone, /*v.birthDate,*/ v.address, v.status,
         ...v.details.flatMap(d => [
           d.renter, d.vehicle, d.customerPhone, d.start, d.end, d.pickUp, d.detailedStatus
         ])
@@ -125,20 +84,21 @@ const AdminDriver = () => {
     setShowModal(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     const newDriver = {
       id: editDriver ? editDriver.id : Date.now(),
       name: form.name.value,
       email: form.email.value,
+      password: form.password.value,
       phone: form.phone.value,
-      birthDate: form.birthDate.value,
-      creationDate: form.creationDate.value,
+      // birthDate: form.birthDate.value,
+      address: form.address.value,
       status: form.status.value,
       details: editDriver?.details || [],
     };
-
+    await api.post("cms/users", newDriver, {headers: { "Content-Type": "application/json"} })
     if (editDriver) {
       setDrivers(prev => prev.map(d => (d.id === editDriver.id ? newDriver : d)));
     } else {
@@ -206,6 +166,16 @@ const AdminDriver = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm mb-1">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  defaultValue={editDriver?.password || ''}
+                  required
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
                 <label className="block text-sm mb-1">No Telepon</label>
                 <input
                   type="text"
@@ -215,7 +185,7 @@ const AdminDriver = () => {
                   className="w-full border rounded-lg px-3 py-2"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm mb-1">Tanggal Lahir</label>
                 <input
                   type="date"
@@ -224,13 +194,13 @@ const AdminDriver = () => {
                   required
                   className="w-full border rounded-lg px-3 py-2"
                 />
-              </div>
+              </div> */}
               <div>
-                <label className="block text-sm mb-1">Tanggal Dibuat</label>
+                <label className="block text-sm mb-1">Alamat</label>
                 <input
-                  type="date"
-                  name="creationDate"
-                  defaultValue={editDriver?.creationDate || ''}
+                  type="text"
+                  name="address"
+                  defaultValue={editDriver?.address || ''}
                   required
                   className="w-full border rounded-lg px-3 py-2"
                 />
@@ -356,7 +326,7 @@ const AdminDriver = () => {
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
-                {['Nama', 'Email', 'No Telp', 'Tanggal Lahir', 'Tanggal Dibuat', 'Status', 'Aksi'].map(h => (
+                {['Nama', 'Email', 'No Telp', /*'Tanggal Lahir',*/ 'Alamat', 'Status', 'Aksi'].map(h => (
                   <th key={h} className="px-6 py-4">{h}</th>
                 ))}
               </tr>
@@ -368,8 +338,8 @@ const AdminDriver = () => {
                     <td className="px-6 py-4">{driver.name}</td>
                     <td className="px-6 py-4">{driver.email}</td>
                     <td className="px-6 py-4">{driver.phone}</td>
-                    <td className="px-6 py-4">{driver.birthDate}</td>
-                    <td className="px-6 py-4">{driver.creationDate}</td>
+                    {/* <td className="px-6 py-4">{driver.birthDate}</td> */}
+                    <td className="px-6 py-4">{driver.address}</td>
                     <td className="px-6 py-4">{driver.status}</td>
                     <td className="px-6 py-4 flex space-x-4">
                       <button onClick={() => handleEdit(driver.id)} 
