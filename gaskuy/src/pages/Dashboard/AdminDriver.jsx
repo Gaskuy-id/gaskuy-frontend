@@ -37,7 +37,7 @@ const AdminDriver = ({ selectedBranchId }) => {
           email: element.email,
           password: element.password || [],
           phone: element.phoneNumber,
-          birthDate: element.birthDate || [],
+          // birthDate: element.birthDate || [],
           address: element.address,
           status: element.driverInfo?.currentStatus,
           details: element.details || [], // jika API belum mengembalikan details
@@ -69,7 +69,7 @@ const AdminDriver = ({ selectedBranchId }) => {
     .filter((v) => {
       if (!q) return true;
       const flatValues = [
-        v.name, v.email, v.phone, v.birthDate, v.address, v.status,
+        v.name, v.email, v.phone, /*v.birthDate,*/ v.address, v.status,
         ...v.details.flatMap(d => [
           d.renter, d.vehicle, d.customerPhone, d.start, d.end, d.pickUp, d.detailedStatus
         ])
@@ -93,7 +93,7 @@ const AdminDriver = ({ selectedBranchId }) => {
       email: form.email.value,
       password: form.password.value,
       phone: form.phone.value,
-      birthDate: form.birthDate.value,
+      // birthDate: form.birthDate.value,
       address: form.address.value,
       status: form.status.value,
       details: editDriver?.details || [],
@@ -185,7 +185,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                   className="w-full border rounded-lg px-3 py-2"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm mb-1">Tanggal Lahir</label>
                 <input
                   type="date"
@@ -194,7 +194,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                   required
                   className="w-full border rounded-lg px-3 py-2"
                 />
-              </div>
+              </div> */}
               <div>
                 <label className="block text-sm mb-1">Alamat</label>
                 <input
@@ -326,7 +326,7 @@ const AdminDriver = ({ selectedBranchId }) => {
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
-                {['Nama', 'Email', 'No Telp', 'Tanggal Lahir', 'Alamat', 'Status', 'Aksi'].map(h => (
+                {['Nama', 'Email', 'No Telp', /*'Tanggal Lahir',*/ 'Alamat', 'Status', 'Aksi'].map(h => (
                   <th key={h} className="px-6 py-4">{h}</th>
                 ))}
               </tr>
@@ -338,7 +338,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                     <td className="px-6 py-4">{driver.name}</td>
                     <td className="px-6 py-4">{driver.email}</td>
                     <td className="px-6 py-4">{driver.phone}</td>
-                    <td className="px-6 py-4">{driver.birthDate}</td>
+                    {/* <td className="px-6 py-4">{driver.birthDate}</td> */}
                     <td className="px-6 py-4">{driver.address}</td>
                     <td className="px-6 py-4">{driver.status}</td>
                     <td className="px-6 py-4 flex space-x-4">
