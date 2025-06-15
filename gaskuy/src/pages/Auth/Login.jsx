@@ -44,11 +44,12 @@ const Login = () => {
         password: password
       });
 
-      const token = res.data.token;
+      const token = res.data.data;
+      console.log(token)
       localStorage.setItem("token", token);
 
       // Redirect ke halaman utama setelah login
-      navigate("/home"); // Atau "/home" sesuai kebutuhan
+      // navigate("/home"); // Atau "/home" sesuai kebutuhan
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     }

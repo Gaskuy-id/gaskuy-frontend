@@ -25,30 +25,108 @@ import circleVector from "../../assets/images/circleVector.svg";
 
 import { Icon } from "@iconify/react";
 import BookingForm from "../../components/BookingForm";
+import API from "../../utils/api";
 
 const Home = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // tambahkan ini untuk navigasi
-
+  const navigate = useNavigate();
   const state = location.state || {};
   const {
     cars: carsFromState,
-    tipeLayanan: tipeLayananFromState
+    tipeLayanan: tipeLayananFromState,
+    formValues: formValuesFromState,
   } = state;
 
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [cars, setCars] = useState([]);
   const [tipeLayanan, setTipeLayanan] = useState("");
+  const [branches, setBranches] = useState([]);
+  const [loadingBranches, setLoadingBranches] = useState(true);
+  const [formValues, setFormValues] = useState(formValuesFromState || []);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (carsFromState) {
-      setCars(carsFromState);
-    }
-    if (tipeLayananFromState) {
-      setTipeLayanan(tipeLayananFromState);
-    }
+    const fetchBranches = async () => {
+      try {
+        setLoadingBranches(true);
+        const response = await API.get('/cms/branch');
+        setBranches(response.data.data || []);
+      } catch (error) {
+        console.error("Gagal memuat data branch:", error);
+        setBranches([]);
+      } finally {
+        setLoadingBranches(false);
+      }
+    };
+    fetchBranches();
+  }, []);
+
+  useEffect(() => {
+    if (carsFromState) setCars(carsFromState);
+    if (tipeLayananFromState) setTipeLayanan(tipeLayananFromState);
   }, [carsFromState, tipeLayananFromState]);
+
+  const handleSearch = async (searchParams) => {
+    const {
+      branchId,
+      jumlahPenumpang,
+      tempatRental,
+      tanggalMulai,
+      waktuMulai,
+      tanggalSelesai,
+      waktuSelesai,
+      tipeLayanan
+    } = searchParams;
+
+    setFormValues(searchParams);
+
+    try {
+      setLoading(true);
+      const response = await API.get(`/cms/vehicle/branch/${branchId}`);
+      const data = response.data || {};
+      const vehicles = data.vehicles || [];
+
+      const filteredCars = vehicles.filter(car => {
+        const seatCount = car.seats || car.seat || 0;
+        const isAvailable = car.currentStatus === "tersedia";
+        const hasEnoughSeats = seatCount >= parseInt(jumlahPenumpang);
+        return isAvailable && hasEnoughSeats;
+      });
+
+      const formattedCars = filteredCars.map(car => ({
+        id: car._id,
+        title: car.name,
+        imageSrc: car.mainImage,
+        pricePerDay: car.ratePerHour,
+        engineCapacity: car.engineCapacity,
+        fuelCapacity: car.fuelCapacity || "N/A",
+        transmission: car.transmission,
+        seats: car.seats || car.seat,
+        city: car.city || tempatRental || "N/A"
+      }));
+
+      setCars(formattedCars);
+      setTipeLayanan(tipeLayanan);
+
+      navigate("/booking", {
+        state: {
+          cars: formattedCars,
+          tanggalMulai,
+          waktuMulai,
+          tanggalSelesai,
+          waktuSelesai,
+          tipeLayanan,
+          tempatRental,
+          formValues: searchParams
+        }
+      });
+
+    } catch (error) {
+      console.error("Gagal memproses pencarian:", error);
+      setCars([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Whatsapp
   const WHATSAPP_PHONE = "6281392610510";
@@ -128,7 +206,13 @@ const Home = () => {
       </section>
 
       {/* Field Pemesanan Section */}
-      <BookingForm onTipeLayananChange={setTipeLayanan} setCars={setCars} />
+      <BookingForm
+        onTipeLayananChange={setTipeLayanan}
+        onSearch={handleSearch}
+        branches={branches}
+        loadingBranches={loadingBranches}
+        defaultValues={formValues}
+      />
 
       {/* Section Alasan Kenapa Harus Sewa di Gaskuy */}
       <section className="w-full bg-white text-black font-poppins py-6 px-4 md:px-0">
