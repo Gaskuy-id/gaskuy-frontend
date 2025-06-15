@@ -84,29 +84,70 @@ const AdminDriver = ({ selectedBranchId }) => {
     setShowModal(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const newDriver = {
-      id: editDriver ? editDriver.id : Date.now(),
-      name: form.name.value,
-      email: form.email.value,
-      password: form.password.value,
-      phone: form.phone.value,
-      // birthDate: form.birthDate.value,
-      address: form.address.value,
-      status: form.status.value,
-      details: editDriver?.details || [],
-    };
-    await api.post("cms/users", newDriver, {headers: { "Content-Type": "application/json"} })
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const form = e.target;
+
+  const formData = {
+    fullName: form.name.value,
+    email: form.email.value,
+    password: form.password.value,
+    phoneNumber: form.phone.value,
+    address: form.address.value,
+    currentStatus: form.status.value.toLowerCase(),
+  };
+
+  try {
     if (editDriver) {
-      setDrivers(prev => prev.map(d => (d.id === editDriver.id ? newDriver : d)));
+      // EDIT
+      await api.put(`/cms/users/${editDriver.id}`, formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      setDrivers((prev) =>
+        prev.map((d) =>
+          d.id === editDriver.id
+            ? {
+                ...d,
+                name: formData.fullName,
+                email: formData.email,
+                phone: formData.phoneNumber,
+                address: formData.address,
+                status: formData.currentStatus,
+              }
+            : d
+        )
+      );
     } else {
-      setDrivers(prev => [...prev, newDriver]);
+      // TAMBAH
+      console.log(formData)
+      const res = await api.post(`/cms/users`, {...formData, branch:selectedBranchId}, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const newDriver = res.data.data; // ambil elemen pertama dari array
+console.log(newDriver)
+      setDrivers((prev) => [
+        ...prev,
+        {
+          id: newDriver._id,
+          name: newDriver.fullName,
+          email: newDriver.email,
+          phone: newDriver.phoneNumber,
+          address: newDriver.address,
+          status: newDriver.driverInfo.currentStatus,
+          details: [],
+        },
+      ]);
     }
 
     resetModal();
-  };
+  } catch (err) {
+    console.error("Gagal simpan driver:", err);
+    alert("Terjadi kesalahan saat menyimpan data driver.");
+  }
+};
+
 
   const toggleDetail = (id) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -371,7 +412,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                               <thead>
                                 <tr className="bg-gray-100 text-left">
                                   <th className="px-4 py-2 font-normal">Penyewa</th>
-                                  <th className="px-4 py-2 font-normal">kendaraan</th>
+                                  <th className="px-4 py-2 font-normal">Kendaraan</th>
                                   <th className="px-4 py-2 font-normal">No Telp Penyewa</th>
                                   <th className="px-4 py-2 font-normal">Tanggal Sewa</th>
                                   <th className="px-4 py-2 font-normal">Tanggal Kembali</th>
