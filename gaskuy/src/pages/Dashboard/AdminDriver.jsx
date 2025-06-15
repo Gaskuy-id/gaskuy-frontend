@@ -23,37 +23,35 @@ const AdminDriver = ({ selectedBranchId }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState(null);
 
-
   const [drivers, setDrivers] = useState([]);
 
-  {/* API CALL - Get All Driver */}
+  // API CALL - Get All Driver
+  const fetchDrivers = async () => {
+    try {
+      const res = await api.get(`/cms/users/role/driver`);
+      const newData = res.data.data.map((element) => ({
+        id: element._id,
+        name: element.fullName,
+        email: element.email,
+        phone: element.phoneNumber,
+        address: element.address,
+        status: element.driverInfo?.currentStatus,
+        details: element.details || [],
+      }));
+
+      setDrivers(newData);
+      console.log("Fetched drivers:", newData);
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+      alert("Gagal memuat data driver.");
+    }
+  };
+
   useEffect(() => {
-    const fetchDrivers = async () => {
-      try {
-        const res = await api.get(`/cms/users/role/driver`);
-        const newData = res.data.data.map((element) => ({
-          id: element._id,
-          name: element.fullName,
-          email: element.email,
-          password: element.password || [],
-          phone: element.phoneNumber,
-          // birthDate: element.birthDate || [],
-          address: element.address,
-          status: element.driverInfo?.currentStatus,
-          details: element.details || [], // jika API belum mengembalikan details
-        }));
-
-        setDrivers(newData);
-        console.log("Fetched drivers:", newData);
-      } catch (error) {
-        console.error("Error fetching drivers:", error);
-      }
-    };
-
     fetchDrivers();
-  }, [selectedBranchId]);
+  }, [selectedBranchId]); 
 
-  {/* Logic untuk menampilkan angka di card */}
+  // Logic untuk menampilkan angka di card
   const totalDriver = drivers.length;
   const driverTersedia = drivers.filter(d => d.status === 'tersedia').length;
   const driverTerpakai = drivers.filter(d => d.status === 'tidak tersedia').length;
@@ -69,10 +67,10 @@ const AdminDriver = ({ selectedBranchId }) => {
     .filter((v) => {
       if (!q) return true;
       const flatValues = [
-        v.name, v.email, v.phone, /*v.birthDate,*/ v.address, v.status,
-        ...v.details.flatMap(d => [
+        v.name, v.email, v.phone, v.address, v.status,
+        ...(v.details ? v.details.flatMap(d => [
           d.renter, d.vehicle, d.customerPhone, d.start, d.end, d.pickUp, d.detailedStatus
-        ])
+        ]) : [])
       ];
       return flatValues.some(val =>
         String(val).toLowerCase().includes(q.toLowerCase())
@@ -87,25 +85,73 @@ const AdminDriver = ({ selectedBranchId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
-    const newDriver = {
-      id: editDriver ? editDriver.id : Date.now(),
-      name: form.name.value,
-      email: form.email.value,
-      password: form.password.value,
-      phone: form.phone.value,
-      // birthDate: form.birthDate.value,
-      address: form.address.value,
-      status: form.status.value,
-      details: editDriver?.details || [],
-    };
-    await api.post("cms/users", newDriver, {headers: { "Content-Type": "application/json"} })
-    if (editDriver) {
-      setDrivers(prev => prev.map(d => (d.id === editDriver.id ? newDriver : d)));
-    } else {
-      setDrivers(prev => [...prev, newDriver]);
-    }
 
-    resetModal();
+    const payload = {
+      fullName: form.name.value,
+      email: form.email.value,
+      phoneNumber: form.phone.value,
+      address: form.address.value,
+      currentStatus: form.status.value.toLowerCase(),
+      branch: selectedBranchId,
+    };
+
+    try {
+      if (editDriver) {
+        // --- EDIT DRIVER (PUT) ---
+        console.log("Submitting edit for driver ID:", editDriver.id, "with payload:", payload);
+        await api.put(`/cms/users/${editDriver.id}`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        // Update local state
+        setDrivers((prev) =>
+          prev.map((d) =>
+            d.id === editDriver.id
+              ? {
+                  ...d,
+                  name: payload.fullName,
+                  email: payload.email,
+                  phone: payload.phoneNumber,
+                  address: payload.address,
+                  status: payload.currentStatus, 
+                }
+              : d
+          )
+        );
+      } else {
+        // --- TAMBAH DRIVER (POST) ---
+        const addPayload = {
+          ...payload,
+          password: form.password.value,
+        };
+        console.log("Submitting new driver with payload:", addPayload);
+        const res = await api.post(`/cms/users`, addPayload, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const newDriver = res.data.data;
+        console.log("New driver added:", newDriver);
+
+        // Update local state with new driver
+        setDrivers((prev) => [
+          ...prev,
+          {
+            id: newDriver._id,
+            name: newDriver.fullName,
+            email: newDriver.email,
+            phone: newDriver.phoneNumber,
+            address: newDriver.address,
+            status: newDriver.driverInfo?.currentStatus, 
+            details: [],
+          },
+        ]);
+      }
+
+      resetModal();
+    } catch (err) {
+      console.error("Gagal simpan driver:", err.response ? err.response.data : err.message);
+      alert(`Terjadi kesalahan saat menyimpan data driver: ${err.response?.data?.message || err.message}`);
+    }
   };
 
   const toggleDetail = (id) => {
@@ -119,21 +165,26 @@ const AdminDriver = ({ selectedBranchId }) => {
   };
 
   const handleView = (id) => {
-    // Contoh aksi lihat detail, bisa toggle detail atau buka modal detail
     toggleDetail(id);
   };
 
-  // Fungsi ini hanya memicu modal konfirmasi
   const confirmDeleteDriver = (driver) => {
     setDriverToDelete(driver);
     setShowDeleteModal(true);
   };
 
-  // Fungsi ini dijalankan dari dalam modal saat user menekan "Ya, Hapus"
-  const deleteDriver = () => {
-    setDrivers((prev) => prev.filter((d) => d.id !== driverToDelete.id));
-    setShowDeleteModal(false);
-    setDriverToDelete(null);
+  const handleDeleteDriver = async () => {
+    if (!driverToDelete) return;
+
+    try {
+      await api.delete(`/cms/users/${driverToDelete.id}`);
+      setDrivers((prev) => prev.filter((d) => d.id !== driverToDelete.id));
+      setShowDeleteModal(false);
+      setDriverToDelete(null);
+      alert(`Driver ${driverToDelete.name} berhasil dihapus.`);
+    } catch (err) {
+      console.error("Gagal menghapus driver:", err.response ? err.response.data : err.message);
+    }
   };
 
   return (
@@ -165,16 +216,18 @@ const AdminDriver = ({ selectedBranchId }) => {
                   className="w-full border rounded-lg px-3 py-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm mb-1">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  defaultValue={editDriver?.password || ''}
-                  required
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
+              {/* Hanya tampilkan password saat tambah supir, sembunyikan saat edit */}
+              {!editDriver && (
+                <div>
+                  <label className="block text-sm mb-1">Password</label>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+              )}
               <div>
                 <label className="block text-sm mb-1">No Telepon</label>
                 <input
@@ -185,16 +238,6 @@ const AdminDriver = ({ selectedBranchId }) => {
                   className="w-full border rounded-lg px-3 py-2"
                 />
               </div>
-              {/* <div>
-                <label className="block text-sm mb-1">Tanggal Lahir</label>
-                <input
-                  type="date"
-                  name="birthDate"
-                  defaultValue={editDriver?.birthDate || ''}
-                  required
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div> */}
               <div>
                 <label className="block text-sm mb-1">Alamat</label>
                 <input
@@ -214,8 +257,8 @@ const AdminDriver = ({ selectedBranchId }) => {
                   className="w-full border rounded-lg px-3 py-2"
                 >
                   <option value="">Pilih status</option>
-                  <option value="Tersedia">Tersedia</option>
-                  <option value="Tidak Tersedia">Tidak Tersedia</option>
+                  <option value="tersedia">Tersedia</option> {/* Display capitalized, value is lowercase */}
+                  <option value="tidak tersedia">Tidak Tersedia</option> {/* Display capitalized, value is lowercase */}
                 </select>
               </div>
 
@@ -246,10 +289,10 @@ const AdminDriver = ({ selectedBranchId }) => {
       )}
 
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/30">
           <div className="bg-white rounded-xl p-6 max-w-md w-full relative shadow-2xl">
             <h2 className="text-xl font-bold text-center mb-4 text-gray-900">Hapus Supir</h2>
-            <p className="text-sm text-gray-700 text-center mb-4">Apakah anda yakin untuk menghapus supir?</p>
+            <p className="text-sm text-gray-700 text-center mb-4">Apakah Anda yakin untuk menghapus supir **{driverToDelete?.name}**?</p>
 
             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded mb-6 text-sm">
               <div className="font-semibold flex items-center gap-2">
@@ -267,7 +310,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                 Batalkan
               </button>
               <button
-                onClick={deleteDriver}
+                onClick={handleDeleteDriver}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition"
               >
                 Ya, hapus
@@ -292,13 +335,16 @@ const AdminDriver = ({ selectedBranchId }) => {
             className="border border-gray-300 rounded-lg px-3 py-2"
           >
             <option value="Semua">Semua Status</option>
-            <option value="Tersedia">Tersedia</option>
-            <option value="Tidak Tersedia">Tidak Tersedia</option>
+            <option value="tersedia">Tersedia</option>
+            <option value="tidak tersedia">Tidak Tersedia</option>
           </select>
 
           <div className="flex flex-1 justify-end items-center gap-2">
             <button
-              onClick={() => setShowModal(true)}
+              onClick={() => {
+                setEditDriver(null);
+                setShowModal(true);
+              }}
               className="flex items-center justify-center border border-[#00A34A] bg-[#B0F4CA] text-[#00A34A] w-10 aspect-square rounded-lg"
             >
               <Icon icon="mdi:plus" width={24} />
@@ -326,7 +372,7 @@ const AdminDriver = ({ selectedBranchId }) => {
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
-                {['Nama', 'Email', 'No Telp', /*'Tanggal Lahir',*/ 'Alamat', 'Status', 'Aksi'].map(h => (
+                {['Nama', 'Email', 'No Telp', 'Alamat', 'Status', 'Aksi'].map(h => (
                   <th key={h} className="px-6 py-4">{h}</th>
                 ))}
               </tr>
@@ -338,23 +384,22 @@ const AdminDriver = ({ selectedBranchId }) => {
                     <td className="px-6 py-4">{driver.name}</td>
                     <td className="px-6 py-4">{driver.email}</td>
                     <td className="px-6 py-4">{driver.phone}</td>
-                    {/* <td className="px-6 py-4">{driver.birthDate}</td> */}
                     <td className="px-6 py-4">{driver.address}</td>
                     <td className="px-6 py-4">{driver.status}</td>
                     <td className="px-6 py-4 flex space-x-4">
-                      <button onClick={() => handleEdit(driver.id)} 
+                      <button onClick={() => handleEdit(driver.id)}
                         className="p-1 rounded hover:bg-green-100 transition"
                         title="Edit">
                         <Icon icon="mdi:pencil" className="text-green-600 cursor-pointer" width={22} />
                       </button>
-                      
+
                       <button onClick={() => handleView(driver.id)}
                         className="p-1 rounded hover:bg-blue-100 transition"
                         title="Lihat Detail">
                         <Icon icon="mdi:eye" className="text-blue-600 cursor-pointer" width={22} />
                       </button>
-                      
-                      <button onClick={() => confirmDeleteDriver(driver)} 
+
+                      <button onClick={() => confirmDeleteDriver(driver)}
                         className="p-1 rounded hover:bg-red-100 transition"
                         title="Hapus">
                         <Icon icon="mdi:delete" className="text-red-600 cursor-pointer" width={22} />
@@ -366,12 +411,12 @@ const AdminDriver = ({ selectedBranchId }) => {
                     <tr>
                       <td colSpan={7} className="px-6 py-4 bg-gray-50">
                         <div className="rounded-lg p-4">
-                          {driver.details.length > 0 ? (
+                          {driver.details && driver.details.length > 0 ? (
                             <table className="min-w-full text-sm">
                               <thead>
                                 <tr className="bg-gray-100 text-left">
                                   <th className="px-4 py-2 font-normal">Penyewa</th>
-                                  <th className="px-4 py-2 font-normal">kendaraan</th>
+                                  <th className="px-4 py-2 font-normal">Kendaraan</th>
                                   <th className="px-4 py-2 font-normal">No Telp Penyewa</th>
                                   <th className="px-4 py-2 font-normal">Tanggal Sewa</th>
                                   <th className="px-4 py-2 font-normal">Tanggal Kembali</th>
