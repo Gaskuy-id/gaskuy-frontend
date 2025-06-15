@@ -1,17 +1,57 @@
 import React, { useState, useEffect, useMemo } from "react"; 
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
+import API from "../../utils/api";
 
-// Styles untuk badge status
+// Styles untuk badge status - Updated to match all possible statuses
 const statusStyles = {
-  "Proses Pengambilan": "bg-gray-300 text-black",
-  "Dalam Penjemputan": "bg-pink-300 text-black",
-  "Dalam Proses": "bg-blue-300 text-black",
-  "Sudah Selesai": "bg-green-300 text-black",
-  "Bayar Denda": "bg-red-300 text-black",
-  "Dibatalkan": "bg-yellow-300 text-black",
-  "Pengembalian Mobil": "bg-purple-300 text-black",
-  "Pengembalian Dana": "bg-amber-300 text-black",
+  "Konfirmasi Pembayaran": "bg-yellow-100 text-yellow-800 border border-yellow-200",
+  "Dibatalkan": "bg-red-100 text-red-800 border border-red-200",
+  "Konfirmasi Pengambilan": "bg-blue-100 text-blue-800 border border-blue-200",
+  "Kendaraan Digunakan": "bg-green-100 text-green-800 border border-green-200",
+  "Pengecekan Denda": "bg-orange-100 text-orange-800 border border-orange-200",
+  "Konfirmasi Pembayaran Denda": "bg-purple-100 text-purple-800 border border-purple-200",
+  "Konfirmasi Pengembalian": "bg-indigo-100 text-indigo-800 border border-indigo-200",
+  "Selesai": "bg-emerald-100 text-emerald-800 border border-emerald-200",
+  
+  // Legacy statuses (compatibility)
+  "Proses Pengambilan": "bg-blue-100 text-blue-800 border border-blue-200",
+  "Dalam Proses": "bg-yellow-100 text-yellow-800 border border-yellow-200",
+  "Sudah Selesai": "bg-emerald-100 text-emerald-800 border border-emerald-200",
+};
+
+// Helper function to determine status from confirmations
+const getStatusFromConfirmations = (element) => {
+  const date = new Date();
+  const confirmations = element.confirmations;
+  console.log("Confirmations:", confirmations);
+  if (!confirmations ||confirmations.paymentPaid) {
+    return "Konfirmasi Pembayaran";
+  } 
+  else if (confirmations.paymentPaid === false) {
+    return "Dibatalkan";
+  } 
+  else if (confirmations.paymentPaid === true && confirmations.vehicleTaken !== true) {
+    return "Konfirmasi Pengambilan";
+  } 
+  else if (confirmations.vehicleTaken === true && date < new Date(element.finishedAt)) {
+    return "Kendaraan Digunakan";
+  } 
+  else if (confirmations.vehicleTaken === true && date > new Date(element.finishedAt) && confirmations.hasFine === undefined) {
+    return "Pengecekan Denda";
+  } 
+  else if (confirmations.hasFine === true && confirmations.finePaid !== true) {
+    return "Konfirmasi Pembayaran Denda";
+  } 
+  else if (confirmations.finePaid === true && confirmations.vehicleReturned !== true) {
+    return "Konfirmasi Pengembalian";
+  } 
+  else if (confirmations.vehicleReturned === true) {
+    return "Selesai";
+  }
+  
+  // Default fallback
+  return "Konfirmasi Pembayaran";
 };
 
 // Dummy summary metrics
@@ -26,63 +66,8 @@ const DUMMY_SUMMARY = {
   refunds: 20,
 };
 
-// Dummy transaksi
-const DUMMY_TRANSACTIONS = [
-  {
-    id: "tx001",
-    customer: "Akira Nagai",
-    vehicle: "Burok Gus Faqih",
-    transactionId: "ABC123",
-    startDate: "14/03/2025, 23:37",
-    endDate: "15/03/2025, 02:30",
-    status: "Proses Pengambilan",
-    amount: 600000,
-    penalty: 50000, // denda
-    phone: "089281231273",
-    email: "akiranagai@gmail.com",
-    pickupLocation: "Kantor Rental",
-    driverName: "-",
-    driverPhone: "-",
-    lastMaintenance: "14/01/2025",
-  },
-  {
-    id: "tx002",
-    customer: "Maria Dewi",
-    vehicle: "Burok Gus Aspa",
-    transactionId: "DEF456",
-    startDate: "01/04/2025, 10:00",
-    endDate: "01/04/2025, 14:00",
-    status: "Dalam Proses",
-    amount: 800000,
-    penalty: 0,
-    phone: "081234567890",
-    email: "maria.dewi@example.com",
-    pickupLocation: "Bandung Office",
-    driverName: "Budi Santoso",
-    driverPhone: "082112345678",
-    lastMaintenance: "20/02/2025",
-  },
-  {
-    id: "tx003",
-    customer: "Joko Widodo",
-    vehicle: "Burok Gus Asri",
-    transactionId: "GHI789",
-    startDate: "05/04/2025, 08:30",
-    endDate: "05/04/2025, 12:45",
-    status: "Sudah Selesai",
-    amount: 700000,
-    penalty: 75000,
-    phone: "081998877665",
-    email: "jokowi@example.com",
-    pickupLocation: "Semarang HQ",
-    driverName: "Siti Aminah",
-    driverPhone: "085556677889",
-    lastMaintenance: "10/03/2025",
-  },
-];
-
-export default function AdminGeneralDriver() {
-  // === state ===
+export default function AdminGeneralDriver({ selectedBranchId }) {
+  // === State ===
   const [summary, setSummary] = useState({
     income: 0,
     expense: 0,
@@ -97,14 +82,79 @@ export default function AdminGeneralDriver() {
   const [expandedRow, setExpandedRow] = useState(null);
   const [q, setQ] = useState("");
 
-  // === mimic fetching data on mount ===
+  // === Fetch data on mount ===
   useEffect(() => {
-    // simulate API response
-    setSummary(DUMMY_SUMMARY);
-    setTransactions(DUMMY_TRANSACTIONS);
-  }, []);
+    const fetchTransactions = async () => {
+      console.log("Selected Branch ID:", selectedBranchId);
+      if (!selectedBranchId) return;
+      
+      try {
+        const res = await API.get(`/cms/rentals?branchId=${selectedBranchId}`);
+        console.log("API Response:", res.data.data);
+        
+        let newData = [];
+        let summaryData = {
+          income: 0,
+          expense: 0,
+          totalTransactions: 0,
+          completed: 0,
+          inProcess: 0,
+          penalties: 0,
+          cancelled: 0,
+          refunds: 0,
+        };
 
-  // configure metrics
+        res.data.data.forEach(element => {
+          const status = getStatusFromConfirmations(element);
+          
+          // Calculate summary metrics
+          summaryData.totalTransactions++;
+          summaryData.income += element.amount || 0;
+          
+          if (status === "Selesai") {
+            summaryData.completed++;
+          } else if (status === "Dibatalkan") {
+            summaryData.cancelled++;
+          } else {
+            summaryData.inProcess++;
+          }
+          
+          if (element.penalty > 0) {
+            summaryData.penalties++;
+          }
+
+          newData.push({
+            id: element._id,
+            customer: element.ordererName,
+            vehicle: element.vehicleId?.name || "N/A",
+            transactionId: element.transactionId,
+            startDate: element.startedAt,
+            endDate: element.finishedAt,
+            status: status,
+            amount: element.amount || 0,
+            penalty: element.penalty || 0,
+            phone: element.ordererPhone,
+            email: element.ordererEmail,
+            pickupLocation: element.locationStart,
+            driverName: element.driverId?.fullName || "-",
+            driverPhone: element.driverId?.phoneNumber || "-",
+            lastMaintenance: element.lastMaintenance || "-",
+          });
+        });
+
+        setTransactions(newData);
+        setSummary(summaryData);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        // Use dummy data as fallback
+        setSummary(DUMMY_SUMMARY);
+      }
+    };
+
+    fetchTransactions();
+  }, [selectedBranchId]);
+
+  // Configure metrics
   const metrics = [
     {
       icon: "mdi:currency-usd",
@@ -148,12 +198,12 @@ export default function AdminGeneralDriver() {
   const formatValue = (v, cur) =>
     cur ? `Rp${v.toLocaleString("id-ID")}` : v.toLocaleString();
 
-  // filter transaksi
+  // Filter transaksi
   const filtered = useMemo(
     () =>
       transactions.filter((t) =>
         [t.customer, t.vehicle, t.transactionId]
-          .some((str) => str.toLowerCase().includes(q.toLowerCase()))
+          .some((str) => str?.toLowerCase().includes(q.toLowerCase()))
       ),
     [transactions, q]
   );
@@ -161,7 +211,7 @@ export default function AdminGeneralDriver() {
   const toggleRow = (i) =>
     setExpandedRow(expandedRow === i ? null : i);
 
-  // Komponen detail
+  // Komponen detail transaction
   const TransactionDetail = ({ t }) => {
     // State untuk menyimpan jawaban setiap pertanyaan
     const [answers, setAnswers] = useState({});
@@ -421,7 +471,7 @@ export default function AdminGeneralDriver() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Cari transaksi..."
-              className="w-64 border rounded-lg pl-10 pr-4 py-2 focus:ring"
+              className="w-64 border rounded-lg pl-10 pr-4 py-2 focus:ring focus:ring-blue-200 focus:border-blue-500 outline-none"
             />
             <Icon icon="ic:outline-search" width={20} height={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
@@ -431,30 +481,46 @@ export default function AdminGeneralDriver() {
           <table className="min-w-full border-collapse">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
-                {[]
-                .concat(["Penyewa", "Kendaraan", "ID Transaksi", "Tanggal Sewa", "Status", "Lainnya"])
-                .map((h) => (
-                  <th key={h} className="px-4 py-2 text-left text-sm font-medium text-gray-700">{h}</th>
-                ))}
+                {["Penyewa", "Kendaraan", "ID Transaksi", "Tanggal Sewa", "Status", "Lainnya"]
+                  .map((h) => (
+                    <th key={h} className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">
+                      {h}
+                    </th>
+                  ))}
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-gray-200">
               {filtered.map((t, i) => (
                 <React.Fragment key={t.id}>
-                  <tr className="hover:bg-gray-50">
+                  <tr className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 text-sm text-gray-800">{t.customer}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">{t.vehicle}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">{t.transactionId}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">
-                      <div>{t.startDate}</div>
-                      <div>{t.endDate}</div>
+                      <div className="space-y-1">
+                        <div className="text-xs text-gray-600">Mulai: {t.startDate}</div>
+                        <div className="text-xs text-gray-600">Selesai: {t.endDate}</div>
+                      </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={clsx("px-3 py-1 text-xs rounded-full", statusStyles[t.status])}>{t.status}</span>
+                      <span className={clsx(
+                        "px-3 py-1 text-xs rounded-full font-medium",
+                        statusStyles[t.status] || "bg-gray-100 text-gray-800 border border-gray-200"
+                      )}>
+                        {t.status}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => toggleRow(i)}>
-                        <Icon icon={expandedRow === i ? "tabler:chevron-up" : "tabler:chevron-down"} width={20} />
+                      <button 
+                        onClick={() => toggleRow(i)}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Icon 
+                          icon={expandedRow === i ? "tabler:chevron-up" : "tabler:chevron-down"} 
+                          width={20} 
+                          height={20}
+                          className="text-gray-600"
+                        />
                       </button>
                     </td>
                   </tr>
@@ -469,7 +535,12 @@ export default function AdminGeneralDriver() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">Data tidak ditemukan</td>
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                    <div className="flex flex-col items-center gap-2">
+                      <Icon icon="tabler:inbox" width={48} height={48} className="text-gray-300" />
+                      <span>Data tidak ditemukan</span>
+                    </div>
+                  </td>
                 </tr>
               )}
             </tbody>
