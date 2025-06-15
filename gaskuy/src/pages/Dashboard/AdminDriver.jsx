@@ -91,7 +91,7 @@ const handleSubmit = async (e) => {
   const formData = {
     fullName: form.name.value,
     email: form.email.value,
-    password: form.password.value,
+    ...(editDriver ? {} : { password: form.password.value }),     //Hanya sertakan password jika bukan edit
     phoneNumber: form.phone.value,
     address: form.address.value,
     currentStatus: form.status.value.toLowerCase(),
@@ -206,16 +206,18 @@ console.log(newDriver)
                   className="w-full border rounded-lg px-3 py-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm mb-1">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  defaultValue={editDriver?.password || ''}
-                  required
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
+              {/* Hanya tampilkan password saat tambah supir, sembunyikan saat edit */}
+              {!editDriver && (
+                <div>
+                  <label className="block text-sm mb-1">Password</label>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+              )}
               <div>
                 <label className="block text-sm mb-1">No Telepon</label>
                 <input
