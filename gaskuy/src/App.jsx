@@ -19,6 +19,7 @@ import Payment from './pages/Main/Payment';
 import History from './pages/Main/History';
 import Profile from './pages/Main/Profile';
 import MainDashboard from './pages/Dashboard/MainDashboard';
+import DriverDashboard from './pages/Dashboard/Driver'
 
 const App = () => {
   return (
@@ -44,6 +45,7 @@ const App = () => {
 
           // Dashboard
           <Route path='/admin-dashboard' exact element={<MainDashboard />}/>
+          <Route path='/driver-dashboard' exact element={<DriverDashboard />}/>
 
 
         </Routes>
