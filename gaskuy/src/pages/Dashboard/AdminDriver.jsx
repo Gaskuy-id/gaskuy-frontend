@@ -94,7 +94,7 @@ const handleSubmit = async (e) => {
     ...(editDriver ? {} : { password: form.password.value }),     //Hanya sertakan password jika bukan edit
     phoneNumber: form.phone.value,
     address: form.address.value,
-    currentStatus: form.status.value.toLowerCase(),
+    status: form.status.value.toLowerCase(),
   };
 
   try {
@@ -113,7 +113,7 @@ const handleSubmit = async (e) => {
                 email: formData.email,
                 phone: formData.phoneNumber,
                 address: formData.address,
-                status: formData.currentStatus,
+                status: formData.status,
               }
             : d
         )
@@ -135,7 +135,7 @@ console.log(newDriver)
           email: newDriver.email,
           phone: newDriver.phoneNumber,
           address: newDriver.address,
-          status: newDriver.driverInfo.currentStatus,
+          status: newDriver.driverInfo.status,
           details: [],
         },
       ]);
@@ -171,10 +171,25 @@ console.log(newDriver)
   };
 
   // Fungsi ini dijalankan dari dalam modal saat user menekan "Ya, Hapus"
-  const deleteDriver = () => {
-    setDrivers((prev) => prev.filter((d) => d.id !== driverToDelete.id));
-    setShowDeleteModal(false);
-    setDriverToDelete(null);
+  const handleDeleteDriver = async () => {
+    if (!driverToDelete) return; // Should not happen if modal is triggered correctly
+
+    try {
+      // Send DELETE request to your backend API
+      // Assuming your API endpoint for deleting a user is `/cms/users/:id`
+      await api.delete(`/cms/users/${driverToDelete.id}`);
+
+      // Update local state: remove the deleted driver
+      setDrivers((prev) => prev.filter((d) => d.id !== driverToDelete.id));
+
+      // Close the modal and clear the driver to delete
+      setShowDeleteModal(false);
+      setDriverToDelete(null);
+      alert(`Driver ${driverToDelete.name} berhasil dihapus.`);
+    } catch (err) {
+      console.error("Gagal menghapus driver:", err.response ? err.response.data : err.message);
+      alert(`Terjadi kesalahan saat menghapus driver: ${err.response?.data?.message || err.message}`);
+    }
   };
 
   return (
@@ -257,8 +272,8 @@ console.log(newDriver)
                   className="w-full border rounded-lg px-3 py-2"
                 >
                   <option value="">Pilih status</option>
-                  <option value="Tersedia">Tersedia</option>
-                  <option value="Tidak Tersedia">Tidak Tersedia</option>
+                  <option value="tersedia">tersedia</option>
+                  <option value="tidak tersedia">tidak tersedia</option>
                 </select>
               </div>
 
@@ -310,7 +325,7 @@ console.log(newDriver)
                 Batalkan
               </button>
               <button
-                onClick={deleteDriver}
+                onClick={handleDeleteDriver}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition"
               >
                 Ya, hapus
