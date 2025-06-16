@@ -54,9 +54,10 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     setIsLoggedIn(false);
-    setIsDropdownOpen(false); // Close the dropdown on logout
-    navigate("/home");
+    setIsDropdownOpen(false);
+    navigate("/login");
   };
 
   const toggleDropdown = () => {
