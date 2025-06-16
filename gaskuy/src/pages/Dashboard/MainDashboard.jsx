@@ -6,8 +6,10 @@ import AdminCustomer from "./AdminCustomer";
 import AdminDriver from "./AdminDriver";
 import AdminGeneralDriver from "./AdminGeneralDriver";
 import api from "../../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const MainDashboard = () => {
+  const navigate = useNavigate();
   // Ambil branch dari query parameter URL
   const getBranchFromURL = () => {
     const params = new URLSearchParams(window.location.search);
@@ -142,6 +144,18 @@ const MainDashboard = () => {
             active={activeContent === "vehicle"}
             onClick={() => setActiveContent("vehicle")}
           />
+
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              navigate("/login");
+            }}
+            className="mt-auto flex items-center py-2 px-4 rounded-lg transition-colors cursor-pointer hover:bg-red-700 text-white font-medium"
+          >
+            <Icon icon="solar:logout-2-bold" width="18" height="18" className="mr-3" />
+            Logout
+          </button>
         </nav>
       </aside>
 

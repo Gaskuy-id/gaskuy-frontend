@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {  
   BrowserRouter as Router,
   Routes,
@@ -7,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
+// Pages
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import Home from './pages/Main/Home';
@@ -19,51 +19,105 @@ import Payment from './pages/Main/Payment';
 import History from './pages/Main/History';
 import Profile from './pages/Main/Profile';
 import MainDashboard from './pages/Dashboard/MainDashboard';
-import DriverDashboard from './pages/Dashboard/Driver'
+import DriverDashboard from './pages/Dashboard/Driver';
+
+// Middleware
+import ProtectedRoute from './middleware/ProtectedRoute';
+import RoleBasedRoute from './middleware/RoleBasedRoute';
 
 const App = () => {
   return (
     <div>
       <Router>
         <Routes>
-          <Route path='/' element={<Root />}/>
+          <Route path='/' element={<Root />} />
 
-          // Auth
-          <Route path='/login' exact element={<Login />}/>
-          <Route path='/register' exact element={<Register />}/>
+          {/* Auth */}
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
 
-          // Main
-          <Route path='/home' exact element={<Home />}/>
-          <Route path='/booking' exact element={<Booking />}/>
-          <Route path='/detail' exact element={<Detail />}/>
-          <Route path='/book-no-driver' exact element={<BookNoDriver />}/>
-          <Route path='/book-driver' exact element={<BookDriver />}/>
-          <Route path='/book-success' exact element={<BookSuccess />}/>
-          <Route path='/payment' exact element={<Payment />}/>
-          <Route path='/history' exact element={<History />}/>
-          <Route path='/profile' exact element={<Profile />}/>
+          {/* Main Customer - protected for any logged-in user */}
+          <Route path='/home' element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }/>
+          <Route path='/booking' element={
+            <ProtectedRoute>
+              <Booking />
+            </ProtectedRoute>
+          }/>
+          <Route path='/detail' element={
+            <ProtectedRoute>
+              <Detail />
+            </ProtectedRoute>
+          }/>
+          <Route path='/book-no-driver' element={
+            <ProtectedRoute>
+              <BookNoDriver />
+            </ProtectedRoute>
+          }/>
+          <Route path='/book-driver' element={
+            <ProtectedRoute>
+              <BookDriver />
+            </ProtectedRoute>
+          }/>
+          <Route path='/book-success' element={
+            <ProtectedRoute>
+              <BookSuccess />
+            </ProtectedRoute>
+          }/>
+          <Route path='/payment' element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }/>
+          <Route path='/history' element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }/>
+          <Route path='/profile' element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }/>
 
-          // Dashboard
-          <Route path='/admin-dashboard' exact element={<MainDashboard />}/>
-          <Route path='/driver-dashboard' exact element={<DriverDashboard />}/>
+          {/* Dashboard Admin */}
+          <Route path='/admin-dashboard' element={
+            <RoleBasedRoute allowedRoles={['admin']}>
+              <MainDashboard />
+            </RoleBasedRoute>
+          }/>
 
-
+          {/* Dashboard Driver */}
+          <Route path='/driver-dashboard' element={
+            <RoleBasedRoute allowedRoles={['driver']}>
+              <DriverDashboard />
+            </RoleBasedRoute>
+          }/>
         </Routes>
       </Router>
     </div>
-  )
-}
+  );
+};
 
 export default App;
 
+// Arahkan user ke halaman sesuai role
 const Root = () => {
-  // Check if token existed in local storage
-  const isAuthenticated = !!localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
-  // Redirected to home if authenticated, otherwise to home 
-  return isAuthenticated ? (
-    <Navigate to="/home" />
-  ) : (
-    <Navigate to="/home" />
-  );
+  if (!token) return <Navigate to="/login" />;
+
+  switch (role) {
+    case 'admin':
+      return <Navigate to="/admin-dashboard" />;
+    case 'driver':
+      return <Navigate to="/driver-dashboard" />;
+    case 'customer':
+    default:
+      return <Navigate to="/home" />;
+  }
 };
