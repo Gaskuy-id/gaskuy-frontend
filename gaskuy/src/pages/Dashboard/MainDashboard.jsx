@@ -16,7 +16,7 @@ const MainDashboard = () => {
 
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(getBranchFromURL);
-  const [selectedBranchId, setSelectedBranchId] = useState(null);
+  const [selectedBranchId, setSelectedBranchId] = useState(null); // Akan diatur di useEffect pertama
   const [activeContent, setActiveContent] = useState(() => {
     return localStorage.getItem("activeContent") || "dashboard";
   });
@@ -31,19 +31,21 @@ const MainDashboard = () => {
 
         const branchFromURL = getBranchFromURL();
         const found = data.find((b) => b.name === branchFromURL);
+
         if (found) {
           setSelectedBranch(found.name);
-          setSelectedBranchId(found._id);
-        } else {
+          setSelectedBranchId(found._id); // Menggunakan _id dari backend response
+        } else if (data.length > 0) { // Pastikan ada setidaknya satu cabang
           setSelectedBranch(data[0].name);
-          setSelectedBranchId(data[0]._id);
+          setSelectedBranchId(data[0]._id); // Menggunakan _id dari backend response
         }
       } catch (error) {
         console.error("Gagal mengambil data cabang:", error);
+        // Anda bisa menambahkan feedback UI di sini jika gagal mengambil cabang
       }
     };
     fetchBranches();
-  }, []);
+  }, []); // Efek ini hanya berjalan sekali saat komponen mount
 
   // Simpan selectedBranch di localStorage dan URL
   useEffect(() => {
@@ -59,8 +61,15 @@ const MainDashboard = () => {
 
   const renderContent = () => {
     const sharedProps = {
-      selectedBranchId,
+      selectedBranchId, // Prop ini diteruskan dan ada di dependency array useEffect komponen anak
     };
+
+    // Opsional: Tampilkan loading state jika selectedBranchId belum disetel
+    // ini penting jika pengambilan data cabang butuh waktu dan komponen anak tergantung pada selectedBranchId
+    if (!selectedBranchId && branches.length > 0) {
+        return <div className="text-center text-gray-500 mt-10">Memuat data cabang...</div>;
+    }
+
 
     switch (activeContent) {
       case "dashboard":
@@ -89,11 +98,14 @@ const MainDashboard = () => {
               const name = e.target.value;
               const found = branches.find((b) => b.name === name);
               setSelectedBranch(name);
-              setSelectedBranchId(found?.id || null);
+              // *** PERBAIKAN PENTING DI SINI ***
+              // Gunakan found?._id karena backend kemungkinan mengembalikan _id
+              setSelectedBranchId(found?._id || null);
             }}
           >
             {branches.map((branch) => (
-              <option key={branch.id} value={branch.name}>
+              // Gunakan branch._id sebagai key untuk konsistensi
+              <option key={branch._id} value={branch.name}>
                 {branch.name}
               </option>
             ))}
