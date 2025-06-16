@@ -28,28 +28,49 @@ const AdminDriver = ({ selectedBranchId }) => {
   // API CALL - Get All Driver
   const fetchDrivers = async () => {
     try {
+      // Pertama, ambil semua driver terlebih dahulu
       const res = await api.get(`/cms/users/role/driver`);
-      const newData = res.data.data.map((element) => ({
+      let allDrivers = res.data.data.map((element) => ({
         id: element._id,
         name: element.fullName,
         email: element.email,
         phone: element.phoneNumber,
         address: element.address,
         status: element.driverInfo?.currentStatus,
+        branch: element.driverInfo?.branch?._id || element.driverInfo?.branch, // Handle baik object maupun string
         details: element.details || [],
       }));
 
-      setDrivers(newData);
-      console.log("Fetched drivers:", newData);
+      console.log("All drivers raw data:", allDrivers);
+
+      // Lakukan filtering di client side jika ada selectedBranchId
+      const filteredDrivers = selectedBranchId 
+        ? allDrivers.filter(driver => 
+            driver.branch === selectedBranchId || 
+            driver.branch?._id === selectedBranchId // Handle jika branch adalah object
+          )
+        :
+
+      console.log("Filtered drivers:", {
+        selectedBranchId,
+        filteredDrivers,
+        branchComparison: filteredDrivers.map(d => ({
+          id: d.id,
+          driverBranch: d.branch,
+          selectedBranch: selectedBranchId,
+          match: d.branch === selectedBranchId || d.branch?._id === selectedBranchId
+        }))
+      });
+
+      setDrivers(filteredDrivers);
     } catch (error) {
       console.error("Error fetching drivers:", error);
-      alert("Gagal memuat data driver.");
     }
   };
 
   useEffect(() => {
     fetchDrivers();
-  }, [selectedBranchId]); 
+  }, [selectedBranchId]);
 
   // Logic untuk menampilkan angka di card
   const totalDriver = drivers.length;
