@@ -44,12 +44,20 @@ const Login = () => {
         password: password
       });
 
-      const token = res.data.data;
-      console.log(token)
+      const token = res.data.data.token;
+      const role = res.data.data.role;
       localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
 
       // Redirect ke halaman utama setelah login
       // navigate("/home"); // Atau "/home" sesuai kebutuhan
+      if (role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (role === "driver") {
+        navigate("/driver-dashboard");
+      } else{
+        navigate("/home");
+      }
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     }

@@ -17,6 +17,7 @@
     "emoji-picker-react": "^4.12.2",
     "framer-motion": "^12.7.3",
     "gaskuy": "file:",
+    "lucide-react": "^0.515.0",
     "moment": "^2.30.1",
     "react": "^19.0.0",
     "react-dom": "^19.1.0",
