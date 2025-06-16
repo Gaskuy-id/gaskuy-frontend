@@ -188,10 +188,10 @@ const AdminDriver = ({ selectedBranchId }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-0">
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 px-4 py-10">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative max-h-screen overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4 text-center">
               {editDriver ? 'Edit Supir' : 'Tambah Supir'}
             </h2>
@@ -289,8 +289,8 @@ const AdminDriver = ({ selectedBranchId }) => {
       )}
 
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/30">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full relative shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 px-4 py-10">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full relative shadow-2xl max-h-screen overflow-y-auto">
             <h2 className="text-xl font-bold text-center mb-4 text-gray-900">Hapus Supir</h2>
             <p className="text-sm text-gray-700 text-center mb-4">Apakah Anda yakin untuk menghapus supir **{driverToDelete?.name}**?</p>
 
@@ -368,7 +368,7 @@ const AdminDriver = ({ selectedBranchId }) => {
         </div>
 
         {/* Tabel */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto max-h-[350px] rounded-lg border border-gray-200">
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
