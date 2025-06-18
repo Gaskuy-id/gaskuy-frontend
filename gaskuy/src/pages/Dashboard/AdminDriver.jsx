@@ -236,9 +236,10 @@ const AdminDriver = ({ selectedBranchId }) => {
           }
         ];
         console.log(id)
+        console.log(details)
+        console.log(driverDetails)
         // setDriverDetails((prev) => ({ ...prev, [id]: details }));
         setDriverDetails((prev) => ({ ...prev, [id]: details }));
-        console.log(details)
       } catch (error) {
         console.error("Gagal mengambil detail driver:", error);
       }
