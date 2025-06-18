@@ -169,11 +169,6 @@ const MainDashboard = () => {
             {activeContent === "driver" && "Supir"}
             {activeContent === "vehicle" && "Kendaraan"}
           </h1>
-          <div className="flex items-center space-x-4 text-black">
-            <Icon icon="basil:notification-outline" width="20" height="20" className="cursor-pointer hover:text-gray-800" />
-            <Icon icon="weui:setting-filled" width="20" height="20" className="cursor-pointer hover:text-gray-800" />
-            <Icon icon="gg:profile" width="24" height="24" className="cursor-pointer hover:text-gray-800" />
-          </div>
         </header>
 
         {/* Dynamic Content */}
