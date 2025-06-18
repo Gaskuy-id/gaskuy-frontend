@@ -203,7 +203,7 @@ const AdminDriver = ({ selectedBranchId }) => {
           start: rental.startedAt?.split("T")[0],
           end: rental.finishedAt?.split("T")[0],
           pickUp: rental.locationStart,
-          detailedStatus: "selesai", // atau bisa dari rental.status jika tersedia
+          detailedStatus: (rental.confirmations==undefined) ? "Belum Aktif" : rental.confirmations.paymentPaid ? "Aktif" : rental.confirmations.vehicleTaken ? "Dalam Penjemputan" : rental.confirmations.vehicleReturned ? "Selesai" : "Sedang Berlangsung", // atau bisa dari rental.status jika tersedia
         }));
 
         console.log(details)
