@@ -13,31 +13,33 @@ const Detail = () => {
   const car = location.state?.car;
   const tipeLayanan = location.state?.tipeLayanan;
   const [mainImage, setMainImage] = useState('');
+  const [thumbnails, setThumbnails] = useState([]);
+
 
   const handlePesanSekarang = () => {
     if (!tipeLayanan) {
       alert("Silahkan pilih tipe layanan terlebih dahulu.");
       return;
     }
-  
+
     if (tipeLayanan === "dengan") {
       navigate("/book-driver", { state: { car } });
     } else if (tipeLayanan === "tanpa") {
       navigate("/book-no-driver", { state: { car } });
     }
-  };  
+  };
 
   useEffect(() => {
     if (!car) {
-      navigate('/booking'); // Navigasi kembali ke halaman booking jika mobil tidak ada
+      navigate('/booking');
     } else {
-      setMainImage(car.imageSrc); // Set gambar utama mobil
+      setMainImage(car.imageSrc);
+      
+      const detailImages = car.detailImage || [];
+      const uniqueThumbnails = [car.imageSrc, ...detailImages.filter(img => img !== car.imageSrc)];
+      setThumbnails(uniqueThumbnails);
     }
   }, [car, navigate]);
-
-  if (!car) {
-    return null; // Jika mobil tidak ada, tidak ada yang ditampilkan
-  }
 
   return (
     <Layout>
@@ -62,14 +64,16 @@ const Detail = () => {
             />
 
             {/* Thumbnails */}
-            <div className="flex gap-4 mt-6">
-              {car.thumbnails?.map((thumb, idx) => (
+            <div className="flex gap-5 mt-6 justify-center">
+              {thumbnails.map((img, idx) => (
                 <img
                   key={idx}
-                  src={thumb}
-                  alt={`Thumbnail ${idx}`}
-                  className="w-32 h-auto object-cover rounded-md cursor-pointer border hover:ring-2 hover:ring-green-700"
-                  onClick={() => setMainImage(thumb)}
+                  src={img}
+                  alt={`Detail Image ${idx + 1}`}
+                  className={`w-24 h-24 object-cover rounded-md cursor-pointer border transition duration-200 ${
+                    mainImage === img ? 'ring-2 ring-green-700' : 'hover:ring-2 hover:ring-green-700'
+                  }`}
+                  onClick={() => setMainImage(img)}
                 />
               ))}
             </div>
@@ -78,11 +82,11 @@ const Detail = () => {
           {/* Kolom Kanan: Info Mobil */}
           <div className="flex-1 flex flex-col justify-between">
             <div>
-              <h1 className="text-2xl font-bold mb-3">{car.title}</h1>
-              <p className="text-lg font-semibold text-green-700 mb-6">Rp {car.pricePerDay}/jam</p>
+              <h1 className="text-3xl font-bold mb-3">{car.title}</h1>
+              <p className="text-xl font-semibold text-green-700 mb-6">Rp {car.pricePerDay}/jam</p>
 
-              <h2 className="text-base font-semibold mb-2">Spesifikasi:</h2>
-              <ul className="space-y-3 mb-8 text-gray-700 text-sm">
+              <h2 className="text-lg font-semibold mb-2">Spesifikasi:</h2>
+              <ul className="space-y-3 mb-8 text-gray-700 text-lg">
                 <li className="flex items-center gap-2">
                   <FaTachometerAlt className="w-4 h-4" /> {car.engineCapacity} CC
                 </li>

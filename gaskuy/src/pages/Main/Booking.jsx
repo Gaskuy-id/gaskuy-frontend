@@ -111,6 +111,7 @@ const Booking = () => {
           id: car._id,
           title: car.name,
           imageSrc: car.mainImage,
+          detailImage: car.detailImages,
           pricePerDay: car.ratePerHour,
           engineCapacity: car.engineCapacity,
           luggage: car.luggage,
@@ -232,6 +233,7 @@ const Booking = () => {
                   <CarInformation
                     title={car.title}
                     imageSrc={car.imageSrc}
+                    detailImage={car.detailImages}
                     alt={car.title}
                     pricePerDay={car.pricePerDay}
                     engineCapacity={car.engineCapacity}
