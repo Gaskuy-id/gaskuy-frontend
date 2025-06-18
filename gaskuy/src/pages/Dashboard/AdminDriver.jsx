@@ -205,36 +205,7 @@ const AdminDriver = ({ selectedBranchId }) => {
           detailedStatus: "selesai", // atau bisa dari rental.status jika tersedia
         }));
 
-        details = [
-          {
-            renter: "Sewa Mobil A",
-            vehicle: "Toyota Avanza",
-            customerPhone: "081234567890",
-            start: "2025-06-10",
-            end: "2025-06-12",
-            pickUp: "Jakarta",
-            detailedStatus: "selesai"
-          },
-          {
-            renter: "Sewa Mobil B",
-            vehicle: "Honda Mobilio",
-            customerPhone: "089876543210",
-            start: "2025-06-02",
-            end: "2025-06-04",
-            pickUp: "Bandung",
-            detailedStatus: "dibatalkan"
-          },
-          {
-            renter: "Sewa Mobil C",
-            vehicle: "Daihatsu Xenia",
-            customerPhone: "082198765432",
-            start: "2025-05-25",
-            end: "2025-05-28",
-            pickUp: "Bekasi",
-            detailedStatus: "selesai"
-          }
-        ];
-        console.log(id)
+        console.log(details)
         // setDriverDetails((prev) => ({ ...prev, [id]: details }));
         setDriverDetails((prev) => ({ ...prev, [id]: details }));
         console.log(details)
@@ -505,7 +476,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                     <tr>
                       <td colSpan={7} className="px-6 py-4 bg-gray-50">
                         <div className="rounded-lg p-4">
-                          {driver.details && driver.details.length > 0 ? (
+                          {driverDetails[driver.id] && driverDetails[driver.id].length > 0 ? (
                             <table className="min-w-full text-sm">
                               <thead>
                                 <tr className="bg-gray-100 text-left">
@@ -519,7 +490,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {driver.details.map((d, i) => (
+                                {driverDetails[driver.id].map((d, i) => (
                                   <tr key={i} className="border-t">
                                     <td className="px-4 py-2">{d.renter}</td>
                                     <td className="px-4 py-2">{d.vehicle}</td>
