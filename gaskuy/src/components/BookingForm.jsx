@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import penumpang from "../assets/images/penumpang.png";
 import tanggal from "../assets/images/tanggal.png";
 import jam from "../assets/images/jam.png";
 import { Icon } from "@iconify/react";
 
 const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches, defaultValues = {} }) => {
-    // State untuk field pemesanan dengan nilai awal dari defaultValues
     const [tipeLayanan, setTipeLayanan] = useState(defaultValues.tipeLayanan || "");
     const [tempatRental, setTempatRental] = useState(defaultValues.tempatRental || "");
     const [jumlahPenumpang, setJumlahPenumpang] = useState(defaultValues.jumlahPenumpang || "");
@@ -18,9 +16,24 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const storedForm = localStorage.getItem("bookingForm");
+        if (storedForm) {
+            const parsedForm = JSON.parse(storedForm);
+            setTipeLayanan(parsedForm.tipeLayanan || "");
+            setTempatRental(parsedForm.tempatRental || "");
+            setJumlahPenumpang(parsedForm.jumlahPenumpang || "");
+            setTanggalMulai(parsedForm.tanggalMulai || "");
+            setWaktuMulai(parsedForm.waktuMulai || "");
+            setTanggalSelesai(parsedForm.tanggalSelesai || "");
+            setWaktuSelesai(parsedForm.waktuSelesai || "");
+            onTipeLayananChange(parsedForm.tipeLayanan || "");
+        }
+    }, []);
+
     const handleTipeLayananChange = (value) => {
         setTipeLayanan(value);
-        onTipeLayananChange(value); // Mengirim tipe layanan ke parent (Booking.jsx)
+        onTipeLayananChange(value);
     };
 
     const handleCari = async () => {
@@ -29,14 +42,12 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
             return;
         }
 
-        // Cari branch ID berdasarkan nama tempat rental yang dipilih       
         const selectedBranch = branches.find(branch => branch.name === tempatRental);
         if (!selectedBranch) {
             alert("Branch tidak ditemukan. Silakan pilih tempat rental yang valid.");
             return;
         }
 
-        // Panggil fungsi onSearch dari parent dengan parameter yang diperlukan
         const searchParams = {
             branchId: selectedBranch._id,
             jumlahPenumpang: parseInt(jumlahPenumpang),
@@ -48,16 +59,24 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
             tipeLayanan
         };
 
+        localStorage.setItem("bookingForm", JSON.stringify({
+            tipeLayanan,
+            tempatRental,
+            jumlahPenumpang,
+            tanggalMulai,
+            waktuMulai,
+            tanggalSelesai,
+            waktuSelesai
+        }));
+
         onSearch(searchParams);
     };
 
     return (
-        <section className="w-full bg-white font-poppins px-4 mt-[-20px] md:mt-[-15px] relative z-10" >
-            {/* Field Pemesanan Section */}
+        <section className="w-full bg-white font-poppins px-4 mt-[-20px] md:mt-[-15px] relative z-10">
             <div className="bg-white rounded-xl shadow-[4px_4px_20px_12px_rgba(0,0,0,0.1)] w-full max-w-[940px] mx-auto px-6 py-6 md:px-8 md:py-7 mb-10">
                 <h3 className="text-[20px] mb-4 text-black">Tipe Layanan:</h3>
-                {/* Radio Button Tipe Layanan */}
-                <div className="flex gap-8 mb-7 ">
+                <div className="flex gap-8 mb-7">
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="radio"
@@ -69,7 +88,6 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                         />
                         <span className="text-[16px] text-black">Dengan Sopir</span>
                     </label>
-
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="radio"
@@ -83,11 +101,8 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                     </label>
                 </div>
 
-                {/* Grid Form */}
                 <div className="text-sm text-black">
-                    {/* Baris 1: Tempat Rental & Jumlah Penumpang */}
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
-                        {/* Tempat Rental */}
                         <div>
                             <label className="block mb-1 text-[15px]">Tempat rental</label>
                             <div className="flex items-center gap-2 border-b border-gray-400 pb-1">
@@ -110,44 +125,30 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                             </div>
                         </div>
 
-                        {/* Jumlah Penumpang */}
                         <div className="md:col-span-1">
-                            <label className="block mb-1 text-[15px]">
-                                Jumlah penumpang
-                            </label>
+                            <label className="block mb-1 text-[15px]">Jumlah penumpang</label>
                             <div className="flex items-center gap-2 border-b border-gray-400 pb-1">
-                                <img
-                                    src={penumpang}
-                                    alt="Penumpang"
-                                    className="w-6 h-6 mt-1 mb-1"
-                                />
+                                <img src={penumpang} alt="Penumpang" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="number"
                                     min="1"
                                     placeholder="Berapa Orang?"
-                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-1px] ml-1 "
+                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-1px] ml-1"
                                     value={jumlahPenumpang}
                                     onChange={(e) => setJumlahPenumpang(e.target.value)}
                                 />
                             </div>
                         </div>
 
-                        {/* Kolom 3 - 5 dibiarkan kosong */}
                         <div className="hidden md:block"></div>
                         <div className="hidden md:block"></div>
                     </div>
 
-                    {/* Baris 2: Tanggal & Waktu serta Tombol Cari */}
                     <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-5">
-                        {/* Tanggal Mulai */}
                         <div>
                             <label className="block mb-1 text-[15px]">Tanggal mulai</label>
                             <div className="flex items-center gap-2 border-b border-gray-400 pb-1">
-                                <img
-                                    src={tanggal}
-                                    alt="tanggal mulai"
-                                    className="w-6 h-6 mt-1 mb-1"
-                                />
+                                <img src={tanggal} alt="tanggal mulai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="date"
                                     className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-1px]"
@@ -157,15 +158,10 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                             </div>
                         </div>
 
-                        {/* Waktu Mulai */}
                         <div>
                             <label className="block mb-1 text-[15px]">Waktu mulai</label>
                             <div className="flex items-center gap-2 border-b border-gray-400 pb-1">
-                                <img
-                                    src={jam}
-                                    alt="waktu mulai"
-                                    className="w-6 h-6 mt-1 mb-1"
-                                />
+                                <img src={jam} alt="waktu mulai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="time"
                                     className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-3px]"
@@ -175,17 +171,10 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                             </div>
                         </div>
 
-                        {/* Tanggal Selesai */}
                         <div>
-                            <label className="block mb-1 text-[15px]">
-                                Tanggal selesai
-                            </label>
+                            <label className="block mb-1 text-[15px]">Tanggal selesai</label>
                             <div className="flex items-center gap-2 border-b border-gray-400 pb-1">
-                                <img
-                                    src={tanggal}
-                                    alt="tanggal selesai"
-                                    className="w-6 h-6 mt-1 mb-1"
-                                />
+                                <img src={tanggal} alt="tanggal selesai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="date"
                                     className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-3px]"
@@ -195,15 +184,10 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                             </div>
                         </div>
 
-                        {/* Waktu Selesai */}
                         <div>
                             <label className="block mb-1 text-[15px]">Waktu selesai</label>
                             <div className="flex items-center gap-2 border-b border-gray-400 pb-1">
-                                <img
-                                    src={jam}
-                                    alt="waktu selesai"
-                                    className="w-6 h-6 mt-1 mb-1"
-                                />
+                                <img src={jam} alt="waktu selesai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="time"
                                     className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-3px]"
@@ -213,7 +197,6 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                             </div>
                         </div>
 
-                        {/* Tombol Cari */}
                         <div className="flex items-end justify-end">
                             <button
                                 onClick={handleCari}
@@ -225,8 +208,8 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                     </div>
                 </div>
             </div>
-        </section >
-    )
-}
+        </section>
+    );
+};
 
-export default BookingForm
+export default BookingForm;
