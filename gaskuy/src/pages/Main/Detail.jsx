@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
-import { FaTachometerAlt, FaGasPump } from 'react-icons/fa';
+import { FaTachometerAlt } from 'react-icons/fa';
 import { GiSteeringWheel } from "react-icons/gi";
 import SeatIcon from "../../assets/images/seat.png";
 import Layout from "../../components/Layout/Layout";
+import { LucideLuggage } from 'lucide-react';
 
 const Detail = () => {
   const location = useLocation();
@@ -92,7 +93,7 @@ const Detail = () => {
                   <img src={SeatIcon} alt="Seat" className="w-4 h-4" /> {car.seats} orang
                 </li>
                 <li className="flex items-center gap-2">
-                  <FaGasPump className="w-4 h-4" /> {car.fuelCapacity} liter
+                  <LucideLuggage className="w-4 h-4" /> {car.luggage} liter
                 </li>
               </ul>
             </div>

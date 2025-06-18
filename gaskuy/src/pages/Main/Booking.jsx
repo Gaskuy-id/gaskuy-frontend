@@ -113,7 +113,7 @@ const Booking = () => {
           imageSrc: car.mainImage,
           pricePerDay: car.ratePerHour,
           engineCapacity: car.engineCapacity,
-          fuelCapacity: car.fuelCapacity || "N/A",
+          luggage: car.luggage,
           transmission: car.transmission,
           seats: car.seats || car.seat, // Handle both properties
           city: car.city || tempatRental || "N/A"
@@ -235,7 +235,7 @@ const Booking = () => {
                     alt={car.title}
                     pricePerDay={car.pricePerDay}
                     engineCapacity={car.engineCapacity}
-                    fuelCapacity={car.fuelCapacity}
+                    luggage={car.luggage}
                     transmission={car.transmission}
                     seats={car.seats}
                   />

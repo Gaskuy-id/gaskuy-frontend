@@ -1,7 +1,8 @@
 import React from "react";
-import { FaTachometerAlt, FaGasPump } from "react-icons/fa";
+import { FaTachometerAlt } from "react-icons/fa";
 import { GiSteeringWheel } from "react-icons/gi";
 import SeatIcon from "../assets/images/seat.png";
+import { LucideLuggage } from "lucide-react";
 
 const CarInformation = ({
     title,
@@ -9,7 +10,7 @@ const CarInformation = ({
     alt,
     pricePerDay,
     engineCapacity,
-    fuelCapacity,
+    luggage,
     transmission,
     seats,
 }) => {
@@ -37,8 +38,8 @@ const CarInformation = ({
                     <span>{engineCapacity} CC</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                    <FaGasPump className="w-4 h-4" />
-                    <span>{fuelCapacity} liter</span>
+                    <LucideLuggage className="w-4 h-4" />
+                    <span>{luggage} liter</span>
                 </div>
                 <div className="flex items-center space-x-1">
                     <GiSteeringWheel className="w-4 h-4" />
