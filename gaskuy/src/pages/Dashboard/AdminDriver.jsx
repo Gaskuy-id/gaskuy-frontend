@@ -435,12 +435,12 @@ const AdminDriver = ({ selectedBranchId }) => {
         </div>
 
         {/* Tabel */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[350px] rounded-lg border border-gray-200">
+        <div className="overflow-x-auto overflow-y-auto max-h-[350px] rounded-lg">
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
                 {['Nama', 'Email', 'No Telp', 'Alamat', 'Status', 'Aksi'].map(h => (
-                  <th key={h} className="px-6 py-4">{h}</th>
+                  <th key={h} className="px-6 py-4 font-normal">{h}</th>
                 ))}
               </tr>
             </thead>
