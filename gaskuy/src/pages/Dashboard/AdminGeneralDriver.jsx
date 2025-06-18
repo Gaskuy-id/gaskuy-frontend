@@ -3,6 +3,60 @@ import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import API from "../../utils/api";
 
+// Helper function to format date to Indonesian format
+const formatToIndonesianDateTime = (dateString) => {
+  if (!dateString) return "-";
+  
+  try {
+    const date = new Date(dateString);
+    
+    // Format to Indonesian locale with timezone
+    const options = {
+      timeZone: 'Asia/Jakarta', // Indonesian timezone
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false // Use 24-hour format
+    };
+    
+    const formatter = new Intl.DateTimeFormat('id-ID', options);
+    const formatted = formatter.format(date);
+    
+    // The result will be in format: DD/MM/YYYY, HH:mm:ss
+    // We can customize this further if needed
+    return formatted.replace(',', ''); // Remove comma between date and time
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString; // Return original if formatting fails
+  }
+};
+
+// Alternative helper function for more customized format
+const formatToCustomIndonesianDateTime = (dateString) => {
+  if (!dateString) return "-";
+  
+  try {
+    const date = new Date(dateString);
+    
+    // Convert to Indonesian timezone
+    const jakartaDate = new Date(date.toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+    
+    const day = jakartaDate.getDate().toString().padStart(2, '0');
+    const month = (jakartaDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = jakartaDate.getFullYear();
+    const hours = jakartaDate.getHours().toString().padStart(2, '0');
+    const minutes = jakartaDate.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
 // Styles untuk badge status - Updated to match all possible statuses
 const statusStyles = {
   "Konfirmasi Pembayaran": "bg-yellow-100 text-yellow-800 border border-yellow-200",
@@ -13,45 +67,6 @@ const statusStyles = {
   "Konfirmasi Pembayaran Denda": "bg-purple-100 text-purple-800 border border-purple-200",
   "Konfirmasi Pengembalian": "bg-indigo-100 text-indigo-800 border border-indigo-200",
   "Selesai": "bg-emerald-100 text-emerald-800 border border-emerald-200",
-  
-  // Legacy statuses (compatibility)
-  "Proses Pengambilan": "bg-blue-100 text-blue-800 border border-blue-200",
-  "Dalam Proses": "bg-yellow-100 text-yellow-800 border border-yellow-200",
-  "Sudah Selesai": "bg-emerald-100 text-emerald-800 border border-emerald-200",
-};
-
-// Helper function to determine status from confirmations
-const getStatusFromConfirmations = (element) => {
-  const date = new Date();
-  const confirmations = element.confirmations;
-  console.log("Confirmations:", confirmations);
-  if (!confirmations ||confirmations.paymentPaid) {
-    return "Konfirmasi Pembayaran";
-  } 
-  else if (confirmations.paymentPaid === false) {
-    return "Dibatalkan";
-  } 
-  else if (confirmations.paymentPaid === true && confirmations.vehicleTaken !== true) {
-    return "Konfirmasi Pengambilan";
-  } 
-  else if (confirmations.vehicleTaken === true && date < new Date(element.finishedAt)) {
-    return "Kendaraan Digunakan";
-  } 
-  else if (confirmations.vehicleTaken === true && date > new Date(element.finishedAt) && confirmations.hasFine === undefined) {
-    return "Pengecekan Denda";
-  } 
-  else if (confirmations.hasFine === true && confirmations.finePaid !== true) {
-    return "Konfirmasi Pembayaran Denda";
-  } 
-  else if (confirmations.finePaid === true && confirmations.vehicleReturned !== true) {
-    return "Konfirmasi Pengembalian";
-  } 
-  else if (confirmations.vehicleReturned === true) {
-    return "Selesai";
-  }
-  
-  // Default fallback
-  return "Konfirmasi Pembayaran";
 };
 
 // Dummy summary metrics
@@ -81,6 +96,11 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
   const [transactions, setTransactions] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  // State untuk menyimpan jawaban dan konfirmasi untuk setiap transaksi
+  const [transactionAnswers, setTransactionAnswers] = useState({});
+  const [transactionConfirmed, setTransactionConfirmed] = useState({});
 
   // === Fetch data on mount ===
   useEffect(() => {
@@ -89,6 +109,7 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
       if (!selectedBranchId) return;
       
       try {
+        setLoading(true);
         const res = await API.get(`/cms/rentals?branchId=${selectedBranchId}`);
         console.log("API Response:", res.data.data);
         
@@ -104,20 +125,14 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
           refunds: 0,
         };
 
+        // Initialize state objects for answers and confirmations
+        const initialAnswers = {};
+        const initialConfirmed = {};
+
         res.data.data.forEach(element => {
-          const status = getStatusFromConfirmations(element);
-          
           // Calculate summary metrics
           summaryData.totalTransactions++;
           summaryData.income += element.amount || 0;
-          
-          if (status === "Selesai") {
-            summaryData.completed++;
-          } else if (status === "Dibatalkan") {
-            summaryData.cancelled++;
-          } else {
-            summaryData.inProcess++;
-          }
           
           if (element.penalty > 0) {
             summaryData.penalties++;
@@ -130,7 +145,6 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
             transactionId: element.transactionId,
             startDate: element.startedAt,
             endDate: element.finishedAt,
-            status: status,
             amount: element.amount || 0,
             penalty: element.penalty || 0,
             phone: element.ordererPhone,
@@ -139,15 +153,44 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
             driverName: element.driverId?.fullName || "-",
             driverPhone: element.driverId?.phoneNumber || "-",
             lastMaintenance: element.lastMaintenance || "-",
+            confirmations: element.confirmations || {} // Store original confirmations
           });
+
+          // Initialize answers based on current confirmations
+          initialAnswers[element._id] = {};
+          initialConfirmed[element._id] = {};
+
+          // Set initial answers based on confirmations
+          if (element.confirmations) {
+            if (element.confirmations.paymentPaid !== undefined) {
+              initialAnswers[element._id][0] = element.confirmations.paymentPaid ? 'yes' : 'no';
+              initialConfirmed[element._id][0] = true;
+            }
+            if (element.confirmations.vehicleTaken !== undefined) {
+              initialConfirmed[element._id][1] = element.confirmations.vehicleTaken;
+            }
+            if (element.confirmations.finePaid !== undefined) {
+              initialConfirmed[element._id][2] = element.confirmations.finePaid;
+            }
+            if (element.confirmations.vehicleReturned !== undefined) {
+              initialConfirmed[element._id][3] = element.confirmations.vehicleReturned;
+            }
+          }
         });
 
         setTransactions(newData);
+        setTransactionAnswers(initialAnswers);
+        setTransactionConfirmed(initialConfirmed);
         setSummary(summaryData);
+        
+        console.log("Initial Answers:", initialAnswers);
+        console.log("Initial Confirmed:", initialConfirmed);
       } catch (error) {
         console.error("Error fetching transactions:", error);
         // Use dummy data as fallback
         setSummary(DUMMY_SUMMARY);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -211,12 +254,142 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
   const toggleRow = (i) =>
     setExpandedRow(expandedRow === i ? null : i);
 
+  // Helper functions untuk mengelola state answers dan confirmed
+  const getTransactionAnswers = (transactionId) => {
+    return transactionAnswers[transactionId] || {};
+  };
+
+  const getTransactionConfirmed = (transactionId) => {
+    return transactionConfirmed[transactionId] || {};
+  };
+
+  const setAnswerForTransaction = (transactionId, questionIndex, answer) => {
+    setTransactionAnswers(prev => ({
+      ...prev,
+      [transactionId]: {
+        ...prev[transactionId],
+        [questionIndex]: answer
+      }
+    }));
+  };
+
+  const setConfirmedForTransaction = async (transactionId, questionIndex, status) => {
+    try {
+      const confirmationTypes = ["paymentPaid", "vehicleTaken", "finePaid", "vehicleReturned"];
+      const confirmationType = confirmationTypes[questionIndex];
+
+      console.log("Sending API request:", {
+        transactionId,
+        confirmationType,
+        confirmationValue: status
+      });
+
+      const result = await API.put(`/cms/rentals/${transactionId}`, {
+        confirmationType, 
+        confirmationValue: status
+      });
+      
+      console.log("API Confirmation Result:", result.data);
+      
+      // Update local state only after successful API call
+      setTransactionConfirmed(prev => ({
+        ...prev,
+        [transactionId]: {
+          ...prev[transactionId],
+          [questionIndex]: status
+        }
+      }));
+
+      // Update the transaction's confirmations in the transactions array
+      setTransactions(prev => prev.map(transaction => {
+        if (transaction.id === transactionId) {
+          return {
+            ...transaction,
+            confirmations: {
+              ...transaction.confirmations,
+              [confirmationType]: status
+            }
+          };
+        }
+        return transaction;
+      }));
+
+      console.log("State updated successfully");
+    } catch (error) {
+      console.error("Error updating confirmation:", error);
+      // Optionally show error message to user
+      alert("Gagal menyimpan konfirmasi. Silakan coba lagi.");
+    }
+  };
+
+  // Function to calculate dynamic status based on answers and confirmations
+  const calculateDynamicStatus = (transaction) => {
+    const answers = getTransactionAnswers(transaction.id);
+    const confirmed = getTransactionConfirmed(transaction.id);
+    
+    console.log("Calculating status for transaction:", transaction.id);
+    console.log("Answers:", answers);
+    console.log("Confirmed:", confirmed);
+    
+    // Status awal
+    if (!answers[0] || !confirmed[0]) {
+      return "Konfirmasi Pembayaran";
+    }
+    
+    // Jika customer belum bayar (jawaban "no" pada pertanyaan pertama)
+    if (answers[0] === 'no' && confirmed[0]) {
+      return "Dibatalkan";
+    }
+    
+    // Jika customer sudah bayar (jawaban "yes" pada pertanyaan pertama)
+    if (answers[0] === 'yes' && confirmed[0]) {
+      // Jika mobil belum diberikan
+      if (!confirmed[1]) {
+        return "Konfirmasi Pengambilan";
+      }
+      
+      // Jika mobil sudah diberikan
+      if (confirmed[1]) {
+        // Jika ada denda
+        if (transaction.penalty > 0) {
+          // Jika denda belum dikonfirmasi
+          if (!confirmed[2]) {
+            return "Konfirmasi Pembayaran Denda";
+          }
+          // Jika denda sudah dikonfirmasi, cek pengembalian mobil
+          if (confirmed[2]) {
+            if (!confirmed[3]) {
+              return "Konfirmasi Pengembalian";
+            }
+            // Jika mobil sudah dikembalikan
+            if (confirmed[3]) {
+              return "Selesai";
+            }
+          }
+        } else {
+          // Jika tidak ada denda, langsung cek pengembalian mobil
+          if (!confirmed[3]) {
+            return "Konfirmasi Pengembalian";
+          }
+          // Jika mobil sudah dikembalikan
+          if (confirmed[3]) {
+            return "Selesai";
+          }
+        }
+        
+        // Default status ketika mobil sudah diberikan tapi belum ada konfirmasi selanjutnya
+        return "Kendaraan Digunakan";
+      }
+    }
+    
+    return "Konfirmasi Pembayaran";
+  };
+
   // Komponen detail transaction
   const TransactionDetail = ({ t }) => {
-    // State untuk menyimpan jawaban setiap pertanyaan
-    const [answers, setAnswers] = useState({});
-    // State untuk menyimpan status konfirmasi setiap pertanyaan
-    const [confirmed, setConfirmed] = useState({});
+    // Ambil state dari parent component berdasarkan transaction ID
+    const answers = getTransactionAnswers(t.id);
+    const confirmed = getTransactionConfirmed(t.id);
 
     const fieldsLeft = [
       { label: "Total Bayar", value: `Rp ${t.amount.toLocaleString("id-ID")}` },
@@ -232,7 +405,6 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
     const baseQuestions = [
       { id: 0, text: "Apakah Customer Sudah Bayar?", type: "yesNo" },
       { id: 1, text: "Apakah Mobil Sudah Diberikan?", type: "confirmOnly" },
-      { id: 2, text: "Apakah Customer Membayar Denda?", type: "yesNo" },
       { id: 3, text: "Apakah Mobil Sudah Dikembalikan?", type: "confirmOnly" },
     ];
 
@@ -240,17 +412,26 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
     const getQuestions = () => {
       let questions = [...baseQuestions];
       
-      // Jika pertanyaan "Apakah Customer Membayar Denda?" dijawab "yes" dan dikonfirmasi
-      if (answers[2] === 'yes' && confirmed[2]) {
-        // Insert pertanyaan follow-up sebelum pertanyaan terakhir
-        questions.splice(3, 0, {
-          id: 4,
+      // Jika penalty > 0, tambahkan pertanyaan pembayaran denda sebelum pertanyaan terakhir
+      if (t.penalty > 0) {
+        questions.splice(2, 0, {
+          id: 2,
           text: "Apakah Customer Sudah membayar denda?",
           type: "confirmOnly"
         });
       }
       
       return questions;
+    };
+
+    // Fungsi untuk mengecek apakah pertanyaan pengembalian sudah bisa diakses
+    const canAccessReturnQuestion = () => {
+      // Jika tidak ada denda, bisa akses setelah mobil diberikan
+      if (t.penalty === 0) {
+        return confirmed[1]; // Setelah mobil diberikan
+      }
+      // Jika ada denda, bisa akses setelah denda dikonfirmasi
+      return confirmed[1] && confirmed[2]; // Setelah mobil diberikan dan denda dikonfirmasi
     };
 
     // Fungsi untuk mengecek apakah pertanyaan bisa diakses (tidak disabled)
@@ -263,46 +444,39 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
       // Pertanyaan pertama selalu bisa diakses
       if (questionIndex === 0) return true;
       
-      // Untuk pertanyaan lainnya, cek apakah pertanyaan sebelumnya sudah dikonfirmasi
-      const questions = getQuestions();
-      const currentQuestionIndex = questions.findIndex(q => q.id === questionIndex);
-      
-      if (currentQuestionIndex === 0) return true;
-      
-      // Cek semua pertanyaan sebelumnya sudah dikonfirmasi
-      for (let i = 0; i < currentQuestionIndex; i++) {
-        const prevQuestion = questions[i];
-        if (!confirmed[prevQuestion.id]) {
-          return false;
-        }
+      // Pertanyaan kedua (mobil diberikan) bisa diakses setelah pembayaran dikonfirmasi
+      if (questionIndex === 1) {
+        return answers[0] === 'yes' && confirmed[0];
       }
       
-      return true;
+      // Pertanyaan ketiga (pembayaran denda) bisa diakses setelah mobil diberikan
+      if (questionIndex === 2) {
+        return confirmed[1];
+      }
+      
+      // Pertanyaan keempat (pengembalian mobil) bisa diakses berdasarkan kondisi denda
+      if (questionIndex === 3) {
+        return canAccessReturnQuestion();
+      }
+      
+      return false;
     };
 
     const handleAnswerChange = (questionIndex, answer) => {
-      setAnswers(prev => ({
-        ...prev,
-        [questionIndex]: answer
-      }));
+      setAnswerForTransaction(t.id, questionIndex, answer);
     };
 
-    const handleConfirm = (questionIndex) => {
+    const handleConfirm = async (questionIndex) => {
       const question = getQuestions().find(q => q.id === questionIndex);
       
       if (question.type === 'confirmOnly') {
         // Untuk pertanyaan confirm only, langsung konfirmasi
-        setConfirmed(prev => ({
-          ...prev,
-          [questionIndex]: true
-        }));
+        await setConfirmedForTransaction(t.id, questionIndex, true);
       } else {
         // Untuk pertanyaan yes/no, hanya bisa konfirmasi jika sudah ada jawaban
         if (answers[questionIndex]) {
-          setConfirmed(prev => ({
-            ...prev,
-            [questionIndex]: true
-          }));
+          const confirmationValue = answers[questionIndex] === 'yes';
+          await setConfirmedForTransaction(t.id, questionIndex, confirmationValue);
           
           // Jika pertanyaan pertama dijawab "no" dan dikonfirmasi, batalkan semua pertanyaan lainnya
           if (questionIndex === 0 && answers[questionIndex] === 'no') {
@@ -316,9 +490,13 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
               }
             });
             
-            setConfirmed(prev => ({
+            // Update state confirmed untuk transaction ini
+            setTransactionConfirmed(prev => ({
               ...prev,
-              ...cancelledConfirmations
+              [t.id]: {
+                ...prev[t.id],
+                ...cancelledConfirmations
+              }
             }));
           }
         }
@@ -449,6 +627,17 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
     );
   };
   
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Icon icon="eos-icons:loading" width={40} height={40} className="animate-spin mx-auto mb-2" />
+          <p className="text-gray-500">Memuat data...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <>
       {/* Metrics */}
@@ -471,7 +660,7 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Cari transaksi..."
-              className="w-64 border rounded-lg pl-10 pr-4 py-2 focus:ring focus:ring-blue-200 focus:border-blue-500 outline-none"
+              className="w-64 border rounded-lg pl-10 pr-4 py-2 focus:ring focus:ring-blue-200 focus:border-green-500 outline-none"
             />
             <Icon icon="ic:outline-search" width={20} height={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
@@ -498,16 +687,16 @@ export default function AdminGeneralDriver({ selectedBranchId }) {
                     <td className="px-4 py-3 text-sm text-gray-800">{t.transactionId}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">
                       <div className="space-y-1">
-                        <div className="text-xs text-gray-600">Mulai: {t.startDate}</div>
-                        <div className="text-xs text-gray-600">Selesai: {t.endDate}</div>
+                        <div className="text-xs text-gray-600">Mulai: {formatToCustomIndonesianDateTime(t.startDate)}</div>
+                        <div className="text-xs text-gray-600">Selesai: {formatToCustomIndonesianDateTime(t.endDate)}</div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={clsx(
                         "px-3 py-1 text-xs rounded-full font-medium",
-                        statusStyles[t.status] || "bg-gray-100 text-gray-800 border border-gray-200"
+                        statusStyles[calculateDynamicStatus(t)] || "bg-gray-100 text-gray-800 border border-gray-200"
                       )}>
-                        {t.status}
+                        {calculateDynamicStatus(t)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">

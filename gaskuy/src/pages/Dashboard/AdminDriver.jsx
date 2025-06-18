@@ -25,41 +25,76 @@ const AdminDriver = ({ selectedBranchId }) => {
 
   const [drivers, setDrivers] = useState([]);
 
-  // API CALL - Get All Driver
+  // 🟥 Tambahkan state baru untuk menyimpan detail per driver
+  const [driverDetails, setDriverDetails] = useState({});
+
   const fetchDrivers = async () => {
     try {
       const res = await api.get(`/cms/users/role/driver`);
-      const newData = res.data.data.map((element) => ({
-        id: element._id,
-        name: element.fullName,
-        email: element.email,
-        phone: element.phoneNumber,
-        address: element.address,
-        status: element.driverInfo?.currentStatus,
-        details: element.details || [],
-      }));
+      let allDrivers = res.data.data.map((element) => {
+        const id = element._id;
 
-      setDrivers(newData);
-      console.log("Fetched drivers:", newData);
+        // 🟥 Dummy details sementara
+        const details = [
+        ];
+
+        // 🟥 Simpan details ke state driverDetails
+        setDriverDetails((prev) => ({ ...prev, [id]: details }));
+
+        return {
+          id,
+          name: element.fullName,
+          email: element.email,
+          phone: element.phoneNumber,
+          address: element.address,
+          status: element.driverInfo?.currentStatus,
+          branch: element.driverInfo?.branch?._id || element.driverInfo?.branch,
+          details: driverDetails
+        };
+      });
+
+        console.log("All drivers raw data:", allDrivers);
+
+        // Lakukan filtering di client side jika ada selectedBranchId
+        const filteredDrivers = selectedBranchId 
+          ? allDrivers.filter(driver => 
+              driver.branch === selectedBranchId || 
+              driver.branch?._id === selectedBranchId // Handle jika branch adalah object
+            )
+          :
+
+        console.log("Filtered drivers:", {
+          selectedBranchId,
+          filteredDrivers,
+          branchComparison: filteredDrivers.map(d => ({
+            id: d.id,
+            driverBranch: d.branch,
+            selectedBranch: selectedBranchId,
+            match: d.branch === selectedBranchId || d.branch?._id === selectedBranchId
+          }))
+        });
+
+      setDrivers(filteredDrivers);
     } catch (error) {
       console.error("Error fetching drivers:", error);
-      alert("Gagal memuat data driver.");
     }
   };
 
   useEffect(() => {
     fetchDrivers();
-  }, [selectedBranchId]); 
+  }, [selectedBranchId]);
 
   // Logic untuk menampilkan angka di card
   const totalDriver = drivers.length;
   const driverTersedia = drivers.filter(d => d.status === 'tersedia').length;
-  const driverTerpakai = drivers.filter(d => d.status === 'tidak tersedia').length;
+  const driverBekerja = drivers.filter(d => d.status === 'bekerja').length;
+  const driverTidakTersedia = drivers.filter(d => d.status === 'tidak tersedia').length;
 
   const stats = [
     { icon: 'mdi:account-multiple-outline', label: 'Total Driver', value: totalDriver },
     { icon: 'mdi:account-check-outline', label: 'Driver Tersedia', value: driverTersedia },
-    { icon: 'mdi:account-clock-outline', label: 'Driver Terpakai', value: driverTerpakai },
+    { icon: 'mdi:account-off-outline', label: 'Driver Tidak Tersedia', value: driverTidakTersedia },
+    { icon: 'mdi:account-clock-outline', label: 'Driver Bekerja', value: driverBekerja },
   ];
 
   const filtered = drivers
@@ -155,8 +190,38 @@ const AdminDriver = ({ selectedBranchId }) => {
   };
 
   const toggleDetail = (id) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+    const fetchDetails = async () => {
+      try {
+        const res = await api.get(`/cms/rentals?driverId=${id}`); 
+        console.log(res)
+        const rentals = res.data.data;
+
+        let details = rentals.map(rental => ({
+          renter: rental.ordererName,
+          vehicle: rental.vehicleId?.name || "Kendaraan tidak tersedia",
+          customerPhone: rental.ordererPhone,
+          start: rental.startedAt?.split("T")[0],
+          end: rental.finishedAt?.split("T")[0],
+          pickUp: rental.locationStart,
+          detailedStatus: (rental.confirmations==undefined) ? "Belum Aktif" : rental.confirmations.paymentPaid ? "Aktif" : rental.confirmations.vehicleTaken ? "Dalam Penjemputan" : rental.confirmations.vehicleReturned ? "Selesai" : "Sedang Berlangsung", // atau bisa dari rental.status jika tersedia
+        }));
+
+        console.log(details)
+        // setDriverDetails((prev) => ({ ...prev, [id]: details }));
+        setDriverDetails((prev) => ({ ...prev, [id]: details }));
+      } catch (error) {
+        console.error("Gagal mengambil detail driver:", error);
+      }
+    };
+
+    if (expandedId !== id) {
+      fetchDetails();
+      setExpandedId(id);
+    } else {
+      setExpandedId(null);
+    }
   };
+
 
   const handleEdit = (id) => {
     const d = drivers.find(d => d.id === id);
@@ -188,10 +253,10 @@ const AdminDriver = ({ selectedBranchId }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-0">
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 px-4 py-10">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative max-h-screen overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4 text-center">
               {editDriver ? 'Edit Supir' : 'Tambah Supir'}
             </h2>
@@ -259,6 +324,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                   <option value="">Pilih status</option>
                   <option value="tersedia">Tersedia</option> {/* Display capitalized, value is lowercase */}
                   <option value="tidak tersedia">Tidak Tersedia</option> {/* Display capitalized, value is lowercase */}
+                  <option value="bekerja">Bekerja</option> {/* Display capitalized, value is lowercase */}
                 </select>
               </div>
 
@@ -289,8 +355,8 @@ const AdminDriver = ({ selectedBranchId }) => {
       )}
 
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/30">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full relative shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 px-4 py-10">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full relative shadow-2xl max-h-screen overflow-y-auto">
             <h2 className="text-xl font-bold text-center mb-4 text-gray-900">Hapus Supir</h2>
             <p className="text-sm text-gray-700 text-center mb-4">Apakah Anda yakin untuk menghapus supir **{driverToDelete?.name}**?</p>
 
@@ -337,6 +403,7 @@ const AdminDriver = ({ selectedBranchId }) => {
             <option value="Semua">Semua Status</option>
             <option value="tersedia">Tersedia</option>
             <option value="tidak tersedia">Tidak Tersedia</option>
+            <option value="bekerja">Bekerja</option>
           </select>
 
           <div className="flex flex-1 justify-end items-center gap-2">
@@ -368,7 +435,7 @@ const AdminDriver = ({ selectedBranchId }) => {
         </div>
 
         {/* Tabel */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto max-h-[350px] rounded-lg border border-gray-200">
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
@@ -411,7 +478,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                     <tr>
                       <td colSpan={7} className="px-6 py-4 bg-gray-50">
                         <div className="rounded-lg p-4">
-                          {driver.details && driver.details.length > 0 ? (
+                          {driverDetails[driver.id] && driverDetails[driver.id].length > 0 ? (
                             <table className="min-w-full text-sm">
                               <thead>
                                 <tr className="bg-gray-100 text-left">
@@ -425,7 +492,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {driver.details.map((d, i) => (
+                                {driverDetails[driver.id].map((d, i) => (
                                   <tr key={i} className="border-t">
                                     <td className="px-4 py-2">{d.renter}</td>
                                     <td className="px-4 py-2">{d.vehicle}</td>

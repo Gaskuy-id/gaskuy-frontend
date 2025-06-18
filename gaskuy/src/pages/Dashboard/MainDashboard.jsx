@@ -6,8 +6,10 @@ import AdminCustomer from "./AdminCustomer";
 import AdminDriver from "./AdminDriver";
 import AdminGeneralDriver from "./AdminGeneralDriver";
 import api from "../../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const MainDashboard = () => {
+  const navigate = useNavigate();
   // Ambil branch dari query parameter URL
   const getBranchFromURL = () => {
     const params = new URLSearchParams(window.location.search);
@@ -16,7 +18,7 @@ const MainDashboard = () => {
 
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(getBranchFromURL);
-  const [selectedBranchId, setSelectedBranchId] = useState(null);
+  const [selectedBranchId, setSelectedBranchId] = useState(null); // Akan diatur di useEffect pertama
   const [activeContent, setActiveContent] = useState(() => {
     return localStorage.getItem("activeContent") || "dashboard";
   });
@@ -31,19 +33,21 @@ const MainDashboard = () => {
 
         const branchFromURL = getBranchFromURL();
         const found = data.find((b) => b.name === branchFromURL);
+
         if (found) {
           setSelectedBranch(found.name);
-          setSelectedBranchId(found._id);
-        } else {
+          setSelectedBranchId(found._id); // Menggunakan _id dari backend response
+        } else if (data.length > 0) { // Pastikan ada setidaknya satu cabang
           setSelectedBranch(data[0].name);
-          setSelectedBranchId(data[0]._id);
+          setSelectedBranchId(data[0]._id); // Menggunakan _id dari backend response
         }
       } catch (error) {
         console.error("Gagal mengambil data cabang:", error);
+        // Anda bisa menambahkan feedback UI di sini jika gagal mengambil cabang
       }
     };
     fetchBranches();
-  }, []);
+  }, []); // Efek ini hanya berjalan sekali saat komponen mount
 
   // Simpan selectedBranch di localStorage dan URL
   useEffect(() => {
@@ -59,8 +63,15 @@ const MainDashboard = () => {
 
   const renderContent = () => {
     const sharedProps = {
-      selectedBranchId,
+      selectedBranchId, // Prop ini diteruskan dan ada di dependency array useEffect komponen anak
     };
+
+    // Opsional: Tampilkan loading state jika selectedBranchId belum disetel
+    // ini penting jika pengambilan data cabang butuh waktu dan komponen anak tergantung pada selectedBranchId
+    if (!selectedBranchId && branches.length > 0) {
+        return <div className="text-center text-gray-500 mt-10">Memuat data cabang...</div>;
+    }
+
 
     switch (activeContent) {
       case "dashboard":
@@ -89,11 +100,14 @@ const MainDashboard = () => {
               const name = e.target.value;
               const found = branches.find((b) => b.name === name);
               setSelectedBranch(name);
-              setSelectedBranchId(found?.id || null);
+              // *** PERBAIKAN PENTING DI SINI ***
+              // Gunakan found?._id karena backend kemungkinan mengembalikan _id
+              setSelectedBranchId(found?._id || null);
             }}
           >
             {branches.map((branch) => (
-              <option key={branch.id} value={branch.name}>
+              // Gunakan branch._id sebagai key untuk konsistensi
+              <option key={branch._id} value={branch.name}>
                 {branch.name}
               </option>
             ))}
@@ -130,6 +144,18 @@ const MainDashboard = () => {
             active={activeContent === "vehicle"}
             onClick={() => setActiveContent("vehicle")}
           />
+
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              navigate("/login");
+            }}
+            className="mt-auto flex items-center py-2 px-4 rounded-lg transition-colors cursor-pointer hover:bg-red-700 text-white font-medium"
+          >
+            <Icon icon="solar:logout-2-bold" width="18" height="18" className="mr-3" />
+            Logout
+          </button>
         </nav>
       </aside>
 
@@ -143,11 +169,6 @@ const MainDashboard = () => {
             {activeContent === "driver" && "Supir"}
             {activeContent === "vehicle" && "Kendaraan"}
           </h1>
-          <div className="flex items-center space-x-4 text-black">
-            <Icon icon="basil:notification-outline" width="20" height="20" className="cursor-pointer hover:text-gray-800" />
-            <Icon icon="weui:setting-filled" width="20" height="20" className="cursor-pointer hover:text-gray-800" />
-            <Icon icon="gg:profile" width="24" height="24" className="cursor-pointer hover:text-gray-800" />
-          </div>
         </header>
 
         {/* Dynamic Content */}
