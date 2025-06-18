@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "../../components/Layout/Layout";
+import LayoutBooking from "../../components/Layout/LayoutBooking";
 import jalanan from "../../assets/images/jalanan.png";
-import keycar from "../../assets/images/keycar.png";
+import qr from "../../assets/images/qr.png";
 import { Icon } from "@iconify/react";
-import { motion } from "framer-motion";
 
 const PaymentPage = () => {
   const [paymentStatus, setPaymentStatus] = useState("pending");
   const navigate = useNavigate();
 
   return (
-    <Layout>
+    <LayoutBooking>
       <div className="min-h-screen flex flex-col items-center">
         {/* Progress */}
         <div className="mt-10 text-center">
@@ -68,76 +67,111 @@ const PaymentPage = () => {
         </div>
 
         {/* Payment Section */}
-        <motion.div
-          className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-[500px] flex flex-col items-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div
-            animate={{ rotate: paymentStatus === "paid" ? 360 : 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-4"
-          >
-            <Icon
-              icon={
-                paymentStatus === "paid"
-                  ? "ic:round-check-circle"
-                  : "mdi:clock-outline"
-              }
-              width={64}
-              height={64}
-              className={
-                paymentStatus === "paid"
-                  ? "text-green-500"
-                  : "text-yellow-500 animate-pulse"
-              }
-            />
-          </motion.div>
-
-          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">
-            {paymentStatus === "paid"
-              ? "Pembayaran Berhasil!"
-              : "Menunggu Pembayaran"}
+        <div className="w-full max-w-6xl px-4 mb-12"> 
+          <h2 className="text-center text-3xl font-bold mb-8 md:text-[30px] leading-tight">
+            <span>Pembayaran </span>
+            <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+              Pesanan
+            </span>
           </h2>
-          <p className="text-gray-600 mb-6 text-center">
-            {paymentStatus === "paid"
-              ? "Terima kasih! Pembayaran Anda sudah kami terima."
-              : "Silakan klik tombol di bawah untuk melakukan pembayaran."}
-          </p>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`px-6 py-3 rounded-full font-semibold shadow-md focus:outline-none transition-colors
-              ${
-                paymentStatus === "paid"
-                  ? "bg-gray-800 text-white hover:bg-gray-700"
-                  : "bg-gradient-to-r from-green-400 to-teal-500 text-white hover:from-green-500 hover:to-teal-600"
-              }`}
-            onClick={() =>
-              paymentStatus === "paid"
-                ? navigate("/book-success")
-                : setPaymentStatus("paid")
-            }
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Step 1 */}
+            <div className="border border-gray-300 rounded-2xl p-6 relative bg-white shadow-sm">
+              <div className="absolute top-4 right-4 bg-[#C7F6D1] text-black font-semibold px-4 py-1 rounded-lg">
+                Step 1
+              </div>
+              <p className="text-[22px] font-bold text-black mb-4 mt-[-6px]">
+                No. Rekening
+              </p>
+              <p className="text-[18.3px] font-semibold text-black mb-3">
+                127–812–8383 (BCA) – Muhammad Faqih Khawarizmi
+              </p>
+              <hr className="my-[16px] border-black" />
+              <div className="flex justify-between items-center">
+                <p className="text-[20px] font-bold mt-1">Jumlah Pembayaran</p>
+                <p className="text-lg font-bold text-[#00B496]">Rp. 300.000</p>
+              </div>
+              <p className="text-[8px] font-bold text-[#7D7878] mt-[-2px]">
+                *Sudah termasuk pajak
+              </p>
+              <div className="bg-[#E6F7F4] rounded-2xl flex items-center px-4 py-2 mt-5">
+                <Icon
+                  icon="fluent:payment-16-regular"
+                  className="text-xl mr-2 text-[#0ACF83]"
+                />
+                <span className="text-[12px] text-gray-700">
+                  Step 1: Lakukan pembayaran pada No. Rekening berikut.
+                </span>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="border border-gray-300 rounded-2xl p-6 relative bg-white shadow-sm">
+              <div className="absolute top-4 right-4 bg-[#C7F6D1] text-black font-semibold px-4 py-1 rounded-lg">
+                Step 2
+              </div>
+              <p className="text-[22px] font-bold text-black mb-4 mt-[-6px]">
+                Konfirmasi Pembayaran
+              </p>
+              <p className="text-[17.4px] text-black font-semibold">
+                Konfirmasi Pembayaran Dengan Menekan
+              </p>
+              <p className="text-[15.5px] text-black font-light mb-4">
+                Tombol Dibawah atau Scan QR Code Disamping
+              </p>
+              
+              {/* QR Code and Button Container */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                  <button
+                    className="bg-[#AAEEC4] hover:bg-black hover:text-white transition text-black font-bold py-2 px-6 rounded-2xl w-full mb-1 text-[12px]"
+                    onClick={() =>
+                      window.open(
+                        "https://web.whatsapp.com/send?phone=6281392610510&text=*%5BKONFIRMASI%20PEMBAYARAN%5D*%20%F0%9F%92%B8%E2%9C%85%0A%0AHalo%20Min%20Gaskuyy!%20%F0%9F%91%8B%F0%9F%98%84%0ASaya%20sudah%20melakukan%20pembayaran%20atas%20nama%20%5BNama%20Pelanggan%5D%20%F0%9F%A7%BE%0Adari%20Bank%20%5BNama%20Bank%20%E2%80%93%20No.%20Rek%5D%20%F0%9F%8F%A6%0AMohon%20bantuannya%20untuk%20konfirmasi%20ya%20%F0%9F%99%8F%0ATerima%20kasih%20banyak!%20%F0%9F%98%8A%E2%9C%A8",
+                        "_blank"
+                      )
+                    }
+                  >
+                    Konfirmasi via Whatsapp
+                  </button>
+                </div>
+                
+                {/* QR Code */}
+                <div className="ml-4 mt-[-68px] flex justify-center items-center">
+                  <img
+                    src={qr}
+                    alt="QR Code Whatsapp"
+                    className="w-[100px] h-[100px] object-contain"
+                  />
+                </div>
+              </div>
+              
+              <div className="bg-[#E6F7F4] rounded-2xl flex items-center px-4 py-2 mt-5">
+                <Icon
+                  icon="mdi:whatsapp"
+                  className="text-xl mr-2 ml-1 mt-[-1px] text-[#0ACF83]"
+                />
+                <span className="text-[12px] text-gray-700">
+                  Step 2: Lakukan konfirmasi pada admin Gasskuy.id
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Status Verifikasi */}
+          <div 
+            onClick={() => navigate('/book-success')}
+            className="group mt-10 bg-[#C7F6D1] hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer rounded-full py-2.5 text-center"
           >
-            {paymentStatus === "paid" ? "Lanjutkan" : "Bayar Sekarang"}
-          </motion.button>
-        </motion.div>
-
-        {/* Reminder */}
-        <div className="w-full flex justify-center px-4 max-w-[739px] mt-8">
-          <div className="flex items-center bg-[#E8F7F5] rounded-3xl p-4 w-full">
-            <img src={keycar} alt="KeyCar Logo" width="33" height="33" />
-            <p className="text-[#6F585A] font-normal text-[13px] ml-2">
-              Pastikan kamu menyelesaikan pembayaran sebelum batas waktu agar
-              pesanan tidak hangus.
-            </p>
+            <span className="font-semibold text-medium text-black group-hover:text-white cursor-pointer">
+              Verifikasi Status Konfirmasi
+            </span>
           </div>
         </div>
 
         {/* Background Illustration */}
-        <div className="flex justify-center mt-3">
+        <div className="flex justify-center mt-[-60px]">
           <img
             src={jalanan}
             alt="Payment Illustration"
@@ -145,7 +179,7 @@ const PaymentPage = () => {
           />
         </div>
       </div>
-    </Layout>
+    </LayoutBooking>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from "../../components/Layout/Layout";
+import LayoutBooking from "../../components/Layout/LayoutBooking";
 import jalanan from "../../assets/images/jalanan.png";
 import { Icon } from "@iconify/react";
 
@@ -20,7 +20,7 @@ const BookNoDriver = () => {
   const [paymentAmount, setPaymentAmount] = useState("Rp. 300.000");
 
   return (
-    <Layout>
+    <LayoutBooking>
       <div className="min-h-screen flex flex-col items-center">
         {/* Progress */}
         <div className="mt-10 text-center">
@@ -209,7 +209,7 @@ const BookNoDriver = () => {
             <img src={jalanan} alt="Login Illustration" className='w-full max-w-[1920px] h-auto' />
         </div>
       </div>
-    </Layout>
+    </LayoutBooking>
   )
 }
 
