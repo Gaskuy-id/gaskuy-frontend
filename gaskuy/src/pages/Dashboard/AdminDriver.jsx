@@ -25,7 +25,7 @@ const AdminDriver = ({ selectedBranchId }) => {
 
   const [drivers, setDrivers] = useState([]);
 
-  // 🟥 Tambahkan state baru untuk menyimpan detail per driver
+  // Tambahkan state baru untuk menyimpan detail per driver
   const [driverDetails, setDriverDetails] = useState({});
 
   const fetchDrivers = async () => {
@@ -34,11 +34,11 @@ const AdminDriver = ({ selectedBranchId }) => {
       let allDrivers = res.data.data.map((element) => {
         const id = element._id;
 
-        // 🟥 Dummy details sementara
+        // Dummy details sementara
         const details = [
         ];
 
-        // 🟥 Simpan details ke state driverDetails
+        // Simpan details ke state driverDetails
         setDriverDetails((prev) => ({ ...prev, [id]: details }));
 
         return {
