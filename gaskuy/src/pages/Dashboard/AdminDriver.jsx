@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import api from '../../utils/api';
-import API from '../../utils/api';
 
 const CardStat = ({ icon, label, value }) => (
   <div className="bg-white rounded-lg p-4 flex flex-col space-y-2">
@@ -88,12 +87,14 @@ const AdminDriver = ({ selectedBranchId }) => {
   // Logic untuk menampilkan angka di card
   const totalDriver = drivers.length;
   const driverTersedia = drivers.filter(d => d.status === 'tersedia').length;
-  const driverTerpakai = drivers.filter(d => d.status === 'tidak tersedia').length;
+  const driverBekerja = drivers.filter(d => d.status === 'bekerja').length;
+  const driverTidakTersedia = drivers.filter(d => d.status === 'tidak tersedia').length;
 
   const stats = [
     { icon: 'mdi:account-multiple-outline', label: 'Total Driver', value: totalDriver },
     { icon: 'mdi:account-check-outline', label: 'Driver Tersedia', value: driverTersedia },
-    { icon: 'mdi:account-clock-outline', label: 'Driver Terpakai', value: driverTerpakai },
+    { icon: 'mdi:account-off-outline', label: 'Driver Tidak Tersedia', value: driverTidakTersedia },
+    { icon: 'mdi:account-clock-outline', label: 'Driver Bekerja', value: driverBekerja },
   ];
 
   const filtered = drivers
@@ -208,7 +209,6 @@ const AdminDriver = ({ selectedBranchId }) => {
         console.log(details)
         // setDriverDetails((prev) => ({ ...prev, [id]: details }));
         setDriverDetails((prev) => ({ ...prev, [id]: details }));
-        console.log(details)
       } catch (error) {
         console.error("Gagal mengambil detail driver:", error);
       }
@@ -324,6 +324,7 @@ const AdminDriver = ({ selectedBranchId }) => {
                   <option value="">Pilih status</option>
                   <option value="tersedia">Tersedia</option> {/* Display capitalized, value is lowercase */}
                   <option value="tidak tersedia">Tidak Tersedia</option> {/* Display capitalized, value is lowercase */}
+                  <option value="bekerja">Bekerja</option> {/* Display capitalized, value is lowercase */}
                 </select>
               </div>
 
@@ -402,6 +403,7 @@ const AdminDriver = ({ selectedBranchId }) => {
             <option value="Semua">Semua Status</option>
             <option value="tersedia">Tersedia</option>
             <option value="tidak tersedia">Tidak Tersedia</option>
+            <option value="bekerja">Bekerja</option>
           </select>
 
           <div className="flex flex-1 justify-end items-center gap-2">
