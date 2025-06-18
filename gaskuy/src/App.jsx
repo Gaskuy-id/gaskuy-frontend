@@ -38,9 +38,7 @@ const App = () => {
 
           {/* Main Customer - protected for any logged-in user */}
           <Route path='/home' element={
-            <ProtectedRoute>
               <Home />
-            </ProtectedRoute>
           }/>
           <Route path='/booking' element={
             <ProtectedRoute>
@@ -109,7 +107,7 @@ const Root = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  if (!token) return <Navigate to="/login" />;
+  if (!token) return <Navigate to="/home" />;
 
   switch (role) {
     case 'admin':
