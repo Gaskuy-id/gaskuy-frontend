@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import api from '../../utils/api';
+import API from '../../utils/api';
 
 const CardStat = ({ icon, label, value }) => (
   <div className="bg-white rounded-lg p-4 flex flex-col space-y-2">
@@ -25,42 +26,54 @@ const AdminDriver = ({ selectedBranchId }) => {
 
   const [drivers, setDrivers] = useState([]);
 
-  // API CALL - Get All Driver
+  // 🟥 Tambahkan state baru untuk menyimpan detail per driver
+  const [driverDetails, setDriverDetails] = useState({});
+
   const fetchDrivers = async () => {
     try {
-      // Pertama, ambil semua driver terlebih dahulu
       const res = await api.get(`/cms/users/role/driver`);
-      let allDrivers = res.data.data.map((element) => ({
-        id: element._id,
-        name: element.fullName,
-        email: element.email,
-        phone: element.phoneNumber,
-        address: element.address,
-        status: element.driverInfo?.currentStatus,
-        branch: element.driverInfo?.branch?._id || element.driverInfo?.branch, // Handle baik object maupun string
-        details: element.details || [],
-      }));
+      let allDrivers = res.data.data.map((element) => {
+        const id = element._id;
 
-      console.log("All drivers raw data:", allDrivers);
+        // 🟥 Dummy details sementara
+        const details = [
+        ];
 
-      // Lakukan filtering di client side jika ada selectedBranchId
-      const filteredDrivers = selectedBranchId 
-        ? allDrivers.filter(driver => 
-            driver.branch === selectedBranchId || 
-            driver.branch?._id === selectedBranchId // Handle jika branch adalah object
-          )
-        :
+        // 🟥 Simpan details ke state driverDetails
+        setDriverDetails((prev) => ({ ...prev, [id]: details }));
 
-      console.log("Filtered drivers:", {
-        selectedBranchId,
-        filteredDrivers,
-        branchComparison: filteredDrivers.map(d => ({
-          id: d.id,
-          driverBranch: d.branch,
-          selectedBranch: selectedBranchId,
-          match: d.branch === selectedBranchId || d.branch?._id === selectedBranchId
-        }))
+        return {
+          id,
+          name: element.fullName,
+          email: element.email,
+          phone: element.phoneNumber,
+          address: element.address,
+          status: element.driverInfo?.currentStatus,
+          branch: element.driverInfo?.branch?._id || element.driverInfo?.branch,
+          details: driverDetails
+        };
       });
+
+        console.log("All drivers raw data:", allDrivers);
+
+        // Lakukan filtering di client side jika ada selectedBranchId
+        const filteredDrivers = selectedBranchId 
+          ? allDrivers.filter(driver => 
+              driver.branch === selectedBranchId || 
+              driver.branch?._id === selectedBranchId // Handle jika branch adalah object
+            )
+          :
+
+        console.log("Filtered drivers:", {
+          selectedBranchId,
+          filteredDrivers,
+          branchComparison: filteredDrivers.map(d => ({
+            id: d.id,
+            driverBranch: d.branch,
+            selectedBranch: selectedBranchId,
+            match: d.branch === selectedBranchId || d.branch?._id === selectedBranchId
+          }))
+        });
 
       setDrivers(filteredDrivers);
     } catch (error) {
@@ -176,8 +189,68 @@ const AdminDriver = ({ selectedBranchId }) => {
   };
 
   const toggleDetail = (id) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+    const fetchDetails = async () => {
+      try {
+        const res = await api.get(`/cms/rentals?driverId=${id}`); 
+        console.log(res)
+        const rentals = res.data.data;
+
+        let details = rentals.map(rental => ({
+          renter: rental.ordererName,
+          vehicle: rental.vehicleId?.name || "Kendaraan tidak tersedia",
+          customerPhone: rental.ordererPhone,
+          start: rental.startedAt?.split("T")[0],
+          end: rental.finishedAt?.split("T")[0],
+          pickUp: rental.locationStart,
+          detailedStatus: "selesai", // atau bisa dari rental.status jika tersedia
+        }));
+
+        details = [
+          {
+            renter: "Sewa Mobil A",
+            vehicle: "Toyota Avanza",
+            customerPhone: "081234567890",
+            start: "2025-06-10",
+            end: "2025-06-12",
+            pickUp: "Jakarta",
+            detailedStatus: "selesai"
+          },
+          {
+            renter: "Sewa Mobil B",
+            vehicle: "Honda Mobilio",
+            customerPhone: "089876543210",
+            start: "2025-06-02",
+            end: "2025-06-04",
+            pickUp: "Bandung",
+            detailedStatus: "dibatalkan"
+          },
+          {
+            renter: "Sewa Mobil C",
+            vehicle: "Daihatsu Xenia",
+            customerPhone: "082198765432",
+            start: "2025-05-25",
+            end: "2025-05-28",
+            pickUp: "Bekasi",
+            detailedStatus: "selesai"
+          }
+        ];
+        console.log(id)
+        // setDriverDetails((prev) => ({ ...prev, [id]: details }));
+        setDriverDetails((prev) => ({ ...prev, [id]: details }));
+        console.log(details)
+      } catch (error) {
+        console.error("Gagal mengambil detail driver:", error);
+      }
+    };
+
+    if (expandedId !== id) {
+      fetchDetails();
+      setExpandedId(id);
+    } else {
+      setExpandedId(null);
+    }
   };
+
 
   const handleEdit = (id) => {
     const d = drivers.find(d => d.id === id);
