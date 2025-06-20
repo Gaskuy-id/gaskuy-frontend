@@ -65,7 +65,7 @@ const Register = () => {
 
     // Register API Call
     try {
-      const res = await API.post("/auth/register", {
+      const res = await API.post("/auth/signup", {
         fullName: fullName,
         email: email,
         password: password,
