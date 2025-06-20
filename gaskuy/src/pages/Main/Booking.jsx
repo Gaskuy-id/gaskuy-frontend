@@ -112,7 +112,7 @@ const Booking = () => {
           title: car.name,
           imageSrc: car.mainImage,
           detailImage: car.detailImages,
-          pricePerDay: car.ratePerHour,
+          pricePerHour: car.ratePerHour,
           engineCapacity: car.engineCapacity,
           luggage: car.luggage,
           transmission: car.transmission,
@@ -231,11 +231,12 @@ const Booking = () => {
                   className="block"
                 >
                   <CarInformation
+                    id={car.id}
                     title={car.title}
                     imageSrc={car.imageSrc}
                     detailImage={car.detailImages}
                     alt={car.title}
-                    pricePerDay={car.pricePerDay}
+                    pricePerHour={car.pricePerHour}
                     engineCapacity={car.engineCapacity}
                     luggage={car.luggage}
                     transmission={car.transmission}

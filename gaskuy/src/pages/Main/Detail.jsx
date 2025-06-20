@@ -22,11 +22,8 @@ const Detail = () => {
       return;
     }
 
-    if (tipeLayanan === "dengan") {
-      navigate("/book-driver", { state: { car } });
-    } else if (tipeLayanan === "tanpa") {
-      navigate("/book-no-driver", { state: { car } });
-    }
+    const typeParam = tipeLayanan === "dengan" ? "driver" : "no-driver";
+    navigate(`/book/${typeParam}`, { state: { car, tipeLayanan } });
   };
 
   useEffect(() => {
@@ -83,7 +80,7 @@ const Detail = () => {
           <div className="flex-1 flex flex-col justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-3">{car.title}</h1>
-              <p className="text-xl font-semibold text-green-700 mb-6">Rp {car.pricePerDay}/jam</p>
+              <p className="text-xl font-semibold text-green-700 mb-6">Rp {car.pricePerHour}/jam</p>
 
               <h2 className="text-lg font-semibold mb-2">Spesifikasi:</h2>
               <ul className="space-y-3 mb-8 text-gray-700 text-lg">

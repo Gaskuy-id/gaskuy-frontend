@@ -8,7 +8,7 @@ const CarInformation = ({
     title,
     imageSrc,
     alt,
-    pricePerDay,
+    pricePerHour,
     engineCapacity,
     luggage,
     transmission,
@@ -28,7 +28,7 @@ const CarInformation = ({
 
             {/* Harga per jam */}
             <p className="text-lg font-semibold px-4 py-2">
-                Rp {pricePerDay}/jam
+                Rp {pricePerHour}/jam
             </p>
 
             {/* Spesifikasi */}
