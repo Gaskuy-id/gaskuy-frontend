@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "../../components/Layout/Layout";
+import LayoutBooking from "../../components/Layout/LayoutBooking";
 import jalanan from "../../assets/images/jalanan.png";
 import justcar from "../../assets/images/justcar.png";
 import keycar from "../../assets/images/keycar.png";
@@ -13,7 +13,7 @@ const BookSuccess = () => {
   const [codeConformation, setcodeConformation] = useState("ABC123");
 
   return (
-    <Layout>
+    <LayoutBooking>
       <div className="min-h-screen flex flex-col items-center">
         {/* Progress */}
         <div className="mt-10 text-center">
@@ -97,7 +97,7 @@ const BookSuccess = () => {
           />
         </div>
       </div>
-    </Layout>
+    </LayoutBooking>
   );
 };
 
