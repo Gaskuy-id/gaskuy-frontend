@@ -55,6 +55,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("bookingForm")
     setIsLoggedIn(false);
     setIsDropdownOpen(false);
     navigate("/login");
