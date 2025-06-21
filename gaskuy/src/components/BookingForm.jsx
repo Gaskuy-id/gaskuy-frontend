@@ -48,6 +48,13 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
             return;
         }
 
+        const mulai = new Date(`${tanggalMulai}T${waktuMulai}`);
+        const selesai = new Date(`${tanggalSelesai}T${waktuSelesai}`);
+        if (selesai <= mulai) {
+            alert("Tanggal/waktu selesai harus lebih besar dari tanggal/waktu mulai.");
+            return;
+        }
+
         const searchParams = {
             branchId: selectedBranch._id,
             jumlahPenumpang: parseInt(jumlahPenumpang),
@@ -151,7 +158,7 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                                 <img src={tanggal} alt="tanggal mulai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="date"
-                                    className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-1px]"
+                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-1px]"
                                     value={tanggalMulai}
                                     onChange={(e) => setTanggalMulai(e.target.value)}
                                 />
@@ -164,7 +171,7 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                                 <img src={jam} alt="waktu mulai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="time"
-                                    className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-3px]"
+                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-3px]"
                                     value={waktuMulai}
                                     onChange={(e) => setWaktuMulai(e.target.value)}
                                 />
@@ -177,7 +184,7 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                                 <img src={tanggal} alt="tanggal selesai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="date"
-                                    className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-3px]"
+                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-3px]"
                                     value={tanggalSelesai}
                                     onChange={(e) => setTanggalSelesai(e.target.value)}
                                 />
@@ -190,7 +197,7 @@ const BookingForm = ({ onTipeLayananChange, onSearch, branches, loadingBranches,
                                 <img src={jam} alt="waktu selesai" className="w-6 h-6 mt-1 mb-1" />
                                 <input
                                     type="time"
-                                    className="w-[80%] outline-none bg-transparent text-[15px] font-light mb-[-3px]"
+                                    className="w-full outline-none bg-transparent text-[15px] font-light mb-[-3px]"
                                     value={waktuSelesai}
                                     onChange={(e) => setWaktuSelesai(e.target.value)}
                                 />
