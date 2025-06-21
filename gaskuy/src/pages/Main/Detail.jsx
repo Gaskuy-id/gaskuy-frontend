@@ -97,14 +97,14 @@ const Detail = () => {
                   <LucideLuggage className="w-4 h-4" /> {car.luggage} liter
                 </li>
               </ul>
+              {/* Tombol Pesan Sekarang */}
+              <button 
+                onClick={handlePesanSekarang}
+                className="bg-[#335540] hover:bg-green-800 text-white py-2 px-3 rounded-full text-sm font-semibold w-80 h-10 mt-15">
+                PESAN SEKARANG
+              </button>
             </div>
 
-            {/* Tombol Pesan Sekarang */}
-            <button 
-              onClick={handlePesanSekarang}
-              className="bg-[#335540] hover:bg-green-800 text-white py-2 px-3 rounded-full text-sm font-semibold w-80 h-10">
-              PESAN SEKARANG
-            </button>
           </div>
         </div>
       </div>
