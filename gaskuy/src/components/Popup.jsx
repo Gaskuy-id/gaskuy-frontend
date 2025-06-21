@@ -16,9 +16,8 @@ export const Popup = ({isOpen, onClose, children}) => {
   if(!isOpen) return null
 
   return createPortal(
-    <div className="fixed flex w-screen h-screen top-0 left-0 items-center backdrop-blur-md place-content-center" onClick={onClose}>
-      <div className="fixed w-screen h-screen bg-black opacity-50 z-10"></div>
-      <div className="w-fit h-fit z-20" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
+      <div className="relative z-60" onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>,
