@@ -52,6 +52,7 @@ const History = () => {
             return: order.locationEnd,
             duration: getDuration(startDate, endDate),
             total: order.amount || 0,
+            cancel: order.cancelledAt
           };
         });
 
@@ -70,7 +71,7 @@ const History = () => {
 
     try {
       await api.post(`/rental/${id}/cancel`);
-      setOrders((prevOrders) => prevOrders.filter((order) => order._id !== id));
+      setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
       alert('Pesanan berhasil dibatalkan.');
     } catch (error) {
       console.error('Gagal membatalkan pesanan:', error);
@@ -94,7 +95,18 @@ const History = () => {
                 <p className="text-center text-gray-500">Belum ada riwayat transaksi.</p>
               ) : (
                 orders.map((order) => (
-                  <div key={order.id} className="border rounded-2xl p-4 shadow-md space-y-4">
+                  <div
+                    key={order.id}
+                    className={`border rounded-2xl p-4 shadow-md space-y-4 relative ${
+                      order.cancel ? 'opacity-50' : ''
+                    }`}
+                  >
+                    {order.cancel && (
+                      <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full z-10">
+                        Dibatalkan
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-12 gap-4 items-start">
                       <div className="col-span-12 md:col-span-3">
                         <img
@@ -161,6 +173,7 @@ const History = () => {
                         <button
                           onClick={() => handleCancel(order.id)}
                           className="px-4 py-1 border border-green-500 rounded-full text-sm hover:bg-gray-200"
+                          disabled={!!order.cancel}
                         >
                           Batalkan
                         </button>
