@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../../components/Layout/Layout';
-import api from '../../utils/api'; // Pastikan path-nya sesuai
+import api from '../../utils/api';
 
 const History = () => {
   const [orders, setOrders] = useState([]);
@@ -9,12 +9,10 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         const res = await api.get('/customer/history');
-        console.log(res)
         const result = res.data.data.map((order) => {
           const startDate = new Date(order.startedAt);
           const endDate = new Date(order.finishedAt);
 
-          // Format tanggal & jam
           const formatDate = (date) =>
             date.toLocaleDateString('id-ID', {
               day: '2-digit',
@@ -29,14 +27,12 @@ const History = () => {
               hour12: false,
             });
 
-          // Durasi dalam hari, jam, menit
           const getDuration = (start, end) => {
             const diffMs = end - start;
             const diffMinutes = Math.floor(diffMs / (1000 * 60));
             const days = Math.floor(diffMinutes / (60 * 24));
             const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
             const minutes = diffMinutes % 60;
-
             return `${days > 0 ? `${days}d ` : ''}${hours}h ${minutes}m`;
           };
 
@@ -67,6 +63,20 @@ const History = () => {
 
     fetchHistory();
   }, []);
+
+  const handleCancel = async (id) => {
+    const confirmCancel = window.confirm('Apakah kamu yakin ingin membatalkan pesanan ini?');
+    if (!confirmCancel) return;
+
+    try {
+      await api.post(`/rental/${id}/cancel`);
+      setOrders((prevOrders) => prevOrders.filter((order) => order._id !== id));
+      alert('Pesanan berhasil dibatalkan.');
+    } catch (error) {
+      console.error('Gagal membatalkan pesanan:', error);
+      alert('Gagal membatalkan pesanan. Silakan coba lagi.');
+    }
+  };
 
   return (
     <Layout>
@@ -126,18 +136,18 @@ const History = () => {
                           Kode Pemesanan: <span className="font-bold">{order.code}</span>
                         </p>
 
-                        <div className="grid grid-cols-2 gap-25 mt-2">
-                          <div>
+                        <div className="flex flex-col md:flex-row justify-between gap-8 mt-2">
+                          <div className="flex-1">
                             <p className="font-semibold">Data Pemesan</p>
                             <p>{order.name}</p>
                             <p>{order.phone}</p>
                             <p>{order.email}</p>
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="font-semibold whitespace-nowrap">Tempat Pengambilan</p>
-                            <p>{order.pickup}</p>
+                            <p className="whitespace-nowrap">{order.pickup}</p>
                             <p className="font-semibold mt-2 whitespace-nowrap">Tempat Pengembalian</p>
-                            <p>{order.return}</p>
+                            <p className="whitespace-nowrap overflow-auto">{order.return}</p>
                           </div>
                         </div>
                       </div>
@@ -148,7 +158,13 @@ const History = () => {
                         Total Pembayaran: <span className="font-bold">Rp. {order.total.toLocaleString('id-ID')}</span>
                       </div>
                       <div className="flex gap-2">
-                        <button className="px-4 py-1 border rounded-full text-sm hover:bg-gray-100">Batalkan</button>
+                        <button
+                          onClick={() => handleCancel(order.id)}
+                          className="px-4 py-1 border border-green-500 rounded-full text-sm hover:bg-gray-200"
+                        >
+                          Batalkan
+                        </button>
+                        <button className="px-4 py-1 bg-[#67c3f4] text-black rounded-full text-sm hover:bg-blue-600">Detail</button>
                         <button className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600">Review</button>
                       </div>
                     </div>
