@@ -20,29 +20,22 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await API.get("/users/profile");
-        const { data } = res 
-
-        if(data.image){
-          const image =`http://localhost:5000${data.image}`
-          setUser({...data, image: image})
-          setEditUser({...data, image: Array.from([image])});
-        } else {
-          setUser((prev) => ({...data, image: prev.image}))
-          setEditUser((prev) => ({...data, image: prev.image}));
-        }
-
+        const res = await API.get("/customer/profile");
+        const { data } = res.data;
+        
+        const imageUrl = data.image
+        ? `http://localhost:5000${data.image}`
+        : imagePlaceholder;
+        
+        setUser({ ...data, image: imageUrl });
+        setEditUser({ ...data, image: data.image ? [imageUrl] : [] });
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
-    }; 
+    };
 
     fetchProfile();
   }, []);
-
-  useEffect(() => {
-    console.log(user)
-  }, [user])
 
   const editProfile = async () => {
     try {
@@ -52,7 +45,7 @@ const Profile = () => {
       formData.append("phoneNumber", editUser.phoneNumber);
       formData.append("address", editUser.address);
       formData.append("image", editUser.image.length > 0 ? editUser.image[0] : null);
-      const res = await API.put("/users/edit", formData, {headers: {"Content-Type" : "multipart/form-data"}});
+      const res = await API.post("/customer/edit", formData, {headers: {"Content-Type" : "multipart/form-data"}});
       const newData = res.data.user
       const newImage = newData.image ? `http://localhost:5000${newData.image}` : imagePlaceholder
       setUser({...newData, image: newImage})
@@ -81,6 +74,7 @@ const Profile = () => {
                 isMultiple={false}
               />
             </div>
+            
             <CompactInput 
               value={editUser.fullName} 
               onChange={ ({target}) =>
