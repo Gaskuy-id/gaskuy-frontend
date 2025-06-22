@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import LayoutBooking from "../../components/Layout/LayoutBooking";
 import jalanan from "../../assets/images/jalanan.png";
 import justcar from "../../assets/images/justcar.png";
@@ -8,11 +8,22 @@ import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import Layout from "../../components/Layout/Layout";
 
-
 const BookSuccess = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [codeConformation, setcodeConformation] = useState("ABC123");
+  const [bookingCode, setBookingCode] = useState("......");
+
+  // Ambil transactionId saat pertama kali halaman dimuat
+  useEffect(() => {
+    const transactionId = location.state?.transactionId;
+    if (transactionId) {
+      setBookingCode(transactionId);
+    } else {
+      // Redirect jika tidak ada transactionId
+      navigate("/home");
+    }
+  }, [location.state, navigate]);
 
   return (
     <Layout>
@@ -62,7 +73,7 @@ const BookSuccess = () => {
               Kode Konfirmasi
             </p>
             <p className="text-[90px] text-black mb-2 font-bold">
-              {codeConformation}
+              {bookingCode}
             </p>
           </div>
 

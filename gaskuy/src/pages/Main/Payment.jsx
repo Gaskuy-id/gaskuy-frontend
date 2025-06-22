@@ -15,6 +15,7 @@ const PaymentPage = () => {
   const location = useLocation();
   const rentalId = location.state?.rentalId;
   const amount = location.state?.amount;
+  const transactionId = location.state?.transactionId;
 //   console.log(paymentAmount);
 
 //   useEffect(() => {
@@ -38,7 +39,11 @@ const PaymentPage = () => {
       setPaymentStatus(status);
 
       if (status === true) {
-        navigate('/book-success');
+        navigate('/book-success', {
+          state: {
+            transactionId: transactionId
+          }
+        });
       } else {
         setShowPopup(true); // munculkan popup
       }
@@ -144,7 +149,7 @@ const PaymentPage = () => {
                 <hr className="my-[16px] border-black" />
                 <div className="flex justify-between items-center">
                   <p className="text-[20px] font-bold mt-1">Jumlah Pembayaran</p>
-                  <p className="text-lg font-bold text-[#00B496]">Rp. {amount}</p>
+                  <p className="text-lg font-bold text-[#00B496]">Rp{amount.toLocaleString("id-ID")}</p>
                 </div>
                 <p className="text-[8px] font-bold text-[#7D7878] mt-[-2px]">
                   *Sudah termasuk pajak

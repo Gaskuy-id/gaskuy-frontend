@@ -91,7 +91,7 @@ const BookPage = () => {
     setDuration(calculateDuration(startTime, endTime));
     setDurationFullText(calculateDurationText(startDate, startTime, endDate, endTime));
     const total = calculateTotalPayment();
-    setPaymentAmount(`Rp. ${total.toLocaleString("id-ID")}`);
+    setPaymentAmount(`Rp${total.toLocaleString("id-ID")}`);
   }
     }, [startDate, startTime, endDate, endTime, car]);
 
@@ -125,6 +125,7 @@ const BookPage = () => {
           state: {
             rentalId: response.data.rental._id,
             amount: response.data.rental.amount,
+            transactionId: response.data.rental.transactionId,
           }
         });
       } catch (error) {
