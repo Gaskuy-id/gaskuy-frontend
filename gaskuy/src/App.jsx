@@ -19,6 +19,7 @@ import History from './pages/Main/History';
 import Profile from './pages/Main/Profile';
 import MainDashboard from './pages/Dashboard/MainDashboard';
 import DriverDashboard from './pages/Dashboard/Driver';
+import ForgotPassword from './pages/Auth/ForgotPassword'; 
 
 // Middleware
 import ProtectedRoute from './middleware/ProtectedRoute';
@@ -34,6 +35,7 @@ const App = () => {
           {/* Auth */}
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
 
           {/* Main Customer - protected for any logged-in user */}
           <Route path='/home' element={
