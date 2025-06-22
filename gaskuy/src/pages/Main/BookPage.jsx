@@ -117,11 +117,14 @@ const BookPage = () => {
         const response = await API.post(`/vehicles/${car.id}/checkout`, payload);
 
         console.log("Booking berhasil:", response.data);
-        console.log("ID Rental:", response.data.rental[0]._id);
+        console.log("ID Rental:", response.data.rental._id);
+
+        console.log(response)
 
         navigate('/payment', {
           state: {
-            rentalId: response.data.rental[0]._id,
+            rentalId: response.data.rental._id,
+            amount: response.data.rental.amount,
           }
         });
       } catch (error) {

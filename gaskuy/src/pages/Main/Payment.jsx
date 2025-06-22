@@ -14,28 +14,30 @@ const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const rentalId = location.state?.rentalId;
+  const amount = location.state?.amount;
+//   console.log(paymentAmount);
 
-  useEffect(() => {
+//   useEffect(() => {
 
-    {/* Fetch Transactions Amount */}
-    const fetchTransactions = async () => {
-      console.log(rentalId)
-      const res = await API.get(`/vehicles/${rentalId}/checkout`)
-      console.log(res)
-    };
+//     {/* Fetch Transactions Amount */}
+//     const fetchTransactions = async () => {
+//       console.log(rentalId)
+//       const res = await API.get(`/vehicles/${rentalId}/checkout`)
+//       console.log(res)
+//     };
 
-    fetchTransactions();
-  });
+//     fetchTransactions();
+//   });
 
   {/* Check Confirmation */}
   const handleConfirmation = async () => {
     try {
-      const res = await API.get('/rental/checkConfirmation', rentalId);
-
-      const status = res.data.data.confirmationValue;
+      const res = await API.post('/rental/checkConfirmation', {rentalId: `${rentalId}`});
+      
+      const status = res.data.data;
       setPaymentStatus(status);
 
-      if (status === 'paymentPaid') {
+      if (status === true) {
         navigate('/book-success');
       } else {
         setShowPopup(true); // munculkan popup
@@ -142,7 +144,7 @@ const PaymentPage = () => {
                 <hr className="my-[16px] border-black" />
                 <div className="flex justify-between items-center">
                   <p className="text-[20px] font-bold mt-1">Jumlah Pembayaran</p>
-                  <p className="text-lg font-bold text-[#00B496]">Rp. 300.000</p>
+                  <p className="text-lg font-bold text-[#00B496]">Rp. {amount}</p>
                 </div>
                 <p className="text-[8px] font-bold text-[#7D7878] mt-[-2px]">
                   *Sudah termasuk pajak
