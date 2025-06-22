@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../../components/Layout/Layout';
 import api from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
 
 const History = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [showReviewPopup, setShowReviewPopup] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
@@ -238,7 +240,15 @@ const History = () => {
                               </button>
 
                               <button
-                                onClick={() => window.location.href = `/payment/${order.id}`}
+                                onClick={() =>
+                                  navigate('/payment', {
+                                    state: {
+                                      rentalId: order.id,
+                                      amount: order.total,
+                                      transactionId: order.code,
+                                    },
+                                  })
+                                }
                                 className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600"
                               >
                                 Bayar
