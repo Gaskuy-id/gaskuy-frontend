@@ -17,68 +17,81 @@ const History = () => {
         const res = await api.get('/customer/history');
         const ordersRaw = res.data.data;
 
-        // Cek status pembayaran untuk setiap rentalId
-        const ordersWithPaymentStatus = await Promise.all(
-          ordersRaw.map(async (order) => {
-            const startDate = new Date(order.startedAt);
-            const endDate = new Date(order.finishedAt);
+    const ordersWithPaymentStatus = await Promise.all(
+      ordersRaw.map(async (order) => {
+        const startDate = new Date(order.startedAt);
+        const endDate = new Date(order.finishedAt);
 
-            const formatDate = (date) =>
-              date.toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-              });
+        const formatDate = (date) =>
+          date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          });
 
-            const formatTime = (date) =>
-              date.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              });
+        const formatTime = (date) =>
+          date.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          });
 
-            const getDuration = (start, end) => {
-              const diffMs = end - start;
-              const diffMinutes = Math.floor(diffMs / (1000 * 60));
-              const days = Math.floor(diffMinutes / (60 * 24));
-              const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
-              const minutes = diffMinutes % 60;
-              return `${days > 0 ? `${days}d ` : ''}${hours}h ${minutes}m`;
-            };
+        const getDuration = (start, end) => {
+          const diffMs = end - start;
+          const diffMinutes = Math.floor(diffMs / (1000 * 60));
+          const days = Math.floor(diffMinutes / (60 * 24));
+          const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
+          const minutes = diffMinutes % 60;
+          return `${days > 0 ? `${days}d ` : ''}${hours}h ${minutes}m`;
+        };
 
-            // Cek apakah sudah dibayar
-            let isPaid = false;
-            try {
-              const paymentRes = await api.post('/rental/checkConfirmation', {
-                rentalId: order._id,
-              });
-              isPaid = paymentRes.data?.data === true;
-            } catch (err) {
-              console.warn(`Gagal cek pembayaran untuk order ${order._id}`);
-            }
+        // Cek apakah sudah dibayar
+        let isPaid = false;
+        try {
+          const paymentRes = await api.post('/rental/checkConfirmation', {
+            rentalId: order._id,
+          });
+          isPaid = paymentRes.data?.data === true;
+        } catch (err) {
+          console.warn(`Gagal cek pembayaran untuk order ${order._id}`);
+        }
 
-            return {
-              id: order._id,
-              vehicle: order.vehicleId?.name || 'Nama kendaraan tidak ditemukan',
-              imageSrc: order.vehicleId?.mainImage || '/images/default.png',
-              startDate: formatDate(startDate),
-              startTime: formatTime(startDate),
-              endDate: formatDate(endDate),
-              endTime: formatTime(endDate),
-              code: order.transactionId,
-              name: order.ordererName,
-              phone: order.ordererPhone,
-              email: order.ordererEmail,
-              pickup: order.locationStart,
-              return: order.locationEnd,
-              duration: getDuration(startDate, endDate),
-              total: order.amount || 0,
-              cancel: order.cancelledAt,
-              reviewed: order.reviewed,
-              paid: isPaid, // hasil dari API checkConfirmation
-            };
-          })
-        );
+        // Cek apakah sudah direview (per vehicle ID)
+        let isReviewed = false;
+        try {
+          const reviewRes = await api.get(`/vehicle/${order.vehicleId?._id || ''}/review`);
+          const reviews = reviewRes.data?.data || [];
+
+          // Jika customerId dari review ada dan cocok dengan email pemesan, anggap sudah review
+          isReviewed = reviews.some(
+            (r) => r.customerId?.fullName?.toLowerCase() === order.name?.toLowerCase()
+          );
+        } catch (err) {
+          console.warn(`Gagal cek ulasan untuk vehicle ${order.vehicleId?._id}`);
+        }
+
+        return {
+          id: order._id,
+          vehicle: order.vehicleId?.name || 'Nama kendaraan tidak ditemukan',
+          imageSrc: order.vehicleId?.mainImage || '/images/default.png',
+          startDate: formatDate(startDate),
+          startTime: formatTime(startDate),
+          endDate: formatDate(endDate),
+          endTime: formatTime(endDate),
+          code: order.transactionId,
+          name: order.ordererName,
+          phone: order.ordererPhone,
+          email: order.ordererEmail,
+          pickup: order.locationStart,
+          return: order.locationEnd,
+          duration: getDuration(startDate, endDate),
+          total: order.amount || 0,
+          cancel: order.cancelledAt,
+          paid: isPaid,
+          reviewed: isReviewed, // hasil pengecekan dari GET /vehicle/:id/review
+        };
+      })
+    );
 
         setOrders(ordersWithPaymentStatus);
       } catch (error) {
@@ -233,7 +246,9 @@ const History = () => {
                             <>
                               <button
                                 onClick={() => handleCancel(order.id)}
-                                className="px-4 py-1 border border-green-500 rounded-full text-sm hover:bg-gray-200"
+                                className={`px-4 py-1 border border-green-500 rounded-full text-sm ${
+                                  order.cancel ? 'cursor-not-allowed bg-gray-200 text-gray-500' : 'hover:bg-gray-200'
+                                }`}
                                 disabled={!!order.cancel}
                               >
                                 Batalkan
@@ -241,6 +256,7 @@ const History = () => {
 
                               <button
                                 onClick={() =>
+                                  !order.cancel &&
                                   navigate('/payment', {
                                     state: {
                                       rentalId: order.id,
@@ -249,7 +265,12 @@ const History = () => {
                                     },
                                   })
                                 }
-                                className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600"
+                                className={`px-4 py-1 rounded-full text-sm ${
+                                  order.cancel
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-[#67F49F] text-black hover:bg-green-600'
+                                }`}
+                                disabled={!!order.cancel}
                               >
                                 Bayar
                               </button>
