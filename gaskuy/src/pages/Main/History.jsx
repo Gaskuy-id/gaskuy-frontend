@@ -13,55 +13,72 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         const res = await api.get('/customer/history');
-        const result = res.data.data.map((order) => {
-          const startDate = new Date(order.startedAt);
-          const endDate = new Date(order.finishedAt);
+        const ordersRaw = res.data.data;
 
-          const formatDate = (date) =>
-            date.toLocaleDateString('id-ID', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            });
+        // Cek status pembayaran untuk setiap rentalId
+        const ordersWithPaymentStatus = await Promise.all(
+          ordersRaw.map(async (order) => {
+            const startDate = new Date(order.startedAt);
+            const endDate = new Date(order.finishedAt);
 
-          const formatTime = (date) =>
-            date.toLocaleTimeString('id-ID', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            });
+            const formatDate = (date) =>
+              date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              });
 
-          const getDuration = (start, end) => {
-            const diffMs = end - start;
-            const diffMinutes = Math.floor(diffMs / (1000 * 60));
-            const days = Math.floor(diffMinutes / (60 * 24));
-            const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
-            const minutes = diffMinutes % 60;
-            return `${days > 0 ? `${days}d ` : ''}${hours}h ${minutes}m`;
-          };
+            const formatTime = (date) =>
+              date.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              });
 
-          return {
-            id: order._id,
-            vehicle: order.vehicleId?.name || 'Nama kendaraan tidak ditemukan',
-            imageSrc: order.vehicleId?.mainImage || '/images/default.png',
-            startDate: formatDate(startDate),
-            startTime: formatTime(startDate),
-            endDate: formatDate(endDate),
-            endTime: formatTime(endDate),
-            code: order.transactionId,
-            name: order.ordererName,
-            phone: order.ordererPhone,
-            email: order.ordererEmail,
-            pickup: order.locationStart,
-            return: order.locationEnd,
-            duration: getDuration(startDate, endDate),
-            total: order.amount || 0,
-            cancel: order.cancelledAt,
-            reviewed: order.reviewed
-          };
-        });
+            const getDuration = (start, end) => {
+              const diffMs = end - start;
+              const diffMinutes = Math.floor(diffMs / (1000 * 60));
+              const days = Math.floor(diffMinutes / (60 * 24));
+              const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
+              const minutes = diffMinutes % 60;
+              return `${days > 0 ? `${days}d ` : ''}${hours}h ${minutes}m`;
+            };
 
-        setOrders(result);
+            // Cek apakah sudah dibayar
+            let isPaid = false;
+            try {
+              const paymentRes = await api.post('/rental/checkConfirmation', {
+                rentalId: order._id,
+              });
+              isPaid = paymentRes.data?.data === true;
+            } catch (err) {
+              console.warn(`Gagal cek pembayaran untuk order ${order._id}`);
+            }
+
+            return {
+              id: order._id,
+              vehicle: order.vehicleId?.name || 'Nama kendaraan tidak ditemukan',
+              imageSrc: order.vehicleId?.mainImage || '/images/default.png',
+              startDate: formatDate(startDate),
+              startTime: formatTime(startDate),
+              endDate: formatDate(endDate),
+              endTime: formatTime(endDate),
+              code: order.transactionId,
+              name: order.ordererName,
+              phone: order.ordererPhone,
+              email: order.ordererEmail,
+              pickup: order.locationStart,
+              return: order.locationEnd,
+              duration: getDuration(startDate, endDate),
+              total: order.amount || 0,
+              cancel: order.cancelledAt,
+              reviewed: order.reviewed,
+              paid: isPaid, // hasil dari API checkConfirmation
+            };
+          })
+        );
+
+        setOrders(ordersWithPaymentStatus);
       } catch (error) {
         console.error('Gagal memuat riwayat:', error);
       }
@@ -209,33 +226,40 @@ const History = () => {
                       <div className="text-sm font-semibold bg-[#AAEEC5] px-4 py-2 rounded-full">
                         Total Pembayaran: <span className="font-bold">Rp. {order.total.toLocaleString('id-ID')}</span>
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleCancel(order.id)}
-                          className="px-4 py-1 border border-green-500 rounded-full text-sm hover:bg-gray-200"
-                          disabled={!!order.cancel}
-                        >
-                          Batalkan
-                        </button>
+                        <div className="flex gap-2">
+                          {!order.paid ? (
+                            <>
+                              <button
+                                onClick={() => handleCancel(order.id)}
+                                className="px-4 py-1 border border-green-500 rounded-full text-sm hover:bg-gray-200"
+                                disabled={!!order.cancel}
+                              >
+                                Batalkan
+                              </button>
 
-                        <button className="px-4 py-1 bg-[#67c3f4] text-black rounded-full text-sm hover:bg-blue-600">Detail</button>
-                        
-                        {order.reviewed ? (
-                          <button
-                            className="px-4 py-1 bg-gray-300 text-gray-600 rounded-full text-sm cursor-not-allowed"
-                            disabled
-                          >
-                            Sudah Diulas
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => openReviewPopup(order.id)}
-                            className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600"
-                          >
-                            Review
-                          </button>
-                        )}
-                      </div>
+                              <button
+                                onClick={() => window.location.href = `/payment/${order.id}`}
+                                className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600"
+                              >
+                                Bayar
+                              </button>
+                            </>
+                          ) : !order.reviewed ? (
+                            <button
+                              onClick={() => openReviewPopup(order.id)}
+                              className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600"
+                            >
+                              Review
+                            </button>
+                          ) : (
+                            <button
+                              className="px-4 py-1 bg-gray-300 text-gray-600 rounded-full text-sm cursor-not-allowed"
+                              disabled
+                            >
+                              Sudah Diulas
+                            </button>
+                          )}
+                        </div>
                     </div>
                   </div>
                 ))
