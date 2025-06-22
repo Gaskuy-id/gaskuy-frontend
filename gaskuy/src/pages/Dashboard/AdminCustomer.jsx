@@ -147,7 +147,7 @@ const AdminCustomer = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <table className="min-w-full bg-white rounded-lg shadow overflow-hidden">
             <thead className="bg-white">
               <tr className="bg-[#D9D9D9]/20">
