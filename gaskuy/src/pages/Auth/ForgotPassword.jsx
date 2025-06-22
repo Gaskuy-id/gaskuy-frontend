@@ -61,7 +61,7 @@ const ForgotPassword = () => {
         setError("Email tidak ditemukan dalam database.");
       }
       setIsVerifying(false);
-    }, 1000);
+    }, 250);
   };
 
   // Handle forgot password form submit with dummy data
