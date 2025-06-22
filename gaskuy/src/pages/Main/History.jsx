@@ -4,6 +4,10 @@ import api from '../../utils/api';
 
 const History = () => {
   const [orders, setOrders] = useState([]);
+  const [showReviewPopup, setShowReviewPopup] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState('');
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -52,7 +56,8 @@ const History = () => {
             return: order.locationEnd,
             duration: getDuration(startDate, endDate),
             total: order.amount || 0,
-            cancel: order.cancelledAt
+            cancel: order.cancelledAt,
+            reviewed: order.reviewed
           };
         });
 
@@ -76,6 +81,41 @@ const History = () => {
     } catch (error) {
       console.error('Gagal membatalkan pesanan:', error);
       alert('Gagal membatalkan pesanan. Silakan coba lagi.');
+    }
+  };
+
+  const openReviewPopup = (id) => {
+    setSelectedOrderId(id);
+    setShowReviewPopup(true);
+    setRating(0);
+    setReview('');
+  };
+
+  const closeReviewPopup = () => {
+    setShowReviewPopup(false);
+  };
+
+  const submitReview = async () => {
+    if (rating === 0 || review.trim() === '') {
+      alert('Mohon isi rating dan ulasan sebelum submit.');
+      return;
+    }
+
+    try {
+      await api.post(`/rental/${selectedOrderId}/review`, { rating, review });
+      alert('Ulasan berhasil dikirim!');
+
+      // tandai order sebagai sudah di-review
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === selectedOrderId ? { ...order, reviewed: true } : order
+        )
+      );
+
+      closeReviewPopup();
+    } catch (error) {
+      console.error('Gagal mengirim ulasan:', error);
+      alert('Gagal mengirim ulasan. Coba lagi.');
     }
   };
 
@@ -177,8 +217,24 @@ const History = () => {
                         >
                           Batalkan
                         </button>
+
                         <button className="px-4 py-1 bg-[#67c3f4] text-black rounded-full text-sm hover:bg-blue-600">Detail</button>
-                        <button className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600">Review</button>
+                        
+                        {order.reviewed ? (
+                          <button
+                            className="px-4 py-1 bg-gray-300 text-gray-600 rounded-full text-sm cursor-not-allowed"
+                            disabled
+                          >
+                            Sudah Diulas
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => openReviewPopup(order.id)}
+                            className="px-4 py-1 bg-[#67F49F] text-black rounded-full text-sm hover:bg-green-600"
+                          >
+                            Review
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -188,6 +244,55 @@ const History = () => {
           </div>
         </div>
       </section>
+
+      {showReviewPopup && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg relative">
+            <button
+              onClick={closeReviewPopup}
+              className="absolute top-2 right-4 text-xl font-medium"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-bold text-center mb-1">Beri Ulasan</h2>
+            <p className="text-sm text-center text-gray-600 mb-4">review dari anda sangat berharga bagi kami</p>
+
+            <div className="flex justify-center mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  onClick={() => setRating(star)}
+                  className={`text-3xl cursor-pointer ${star <= rating ? 'text-yellow-400' : 'text-gray-400'}`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+
+            <textarea
+              className="w-full p-4 rounded-md border border-gray-400 bg-[#ECFFE8] text-black"
+              rows={5}
+              placeholder="Tulis ulasanmu di sini..."
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+            ></textarea>
+
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={submitReview}
+                className={`px-6 py-2 rounded-xl text-white ${
+                  rating > 0 && review.trim() !== ''
+                    ? 'bg-[#2A7041] hover:bg-green-600'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+                disabled={rating === 0 || review.trim() === ''}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
