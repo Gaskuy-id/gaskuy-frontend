@@ -8,6 +8,7 @@ import Layout from "../../components/Layout/Layout";
 import profileDummy from "../../assets/images/templateprofile.jpg";
 import star from "../../assets/images/star.png";
 import { LucideLuggage } from "lucide-react";
+import api from "../../utils/api";
 
 const Detail = () => {
   const location = useLocation();
@@ -16,6 +17,7 @@ const Detail = () => {
   const tipeLayanan = location.state?.tipeLayanan;
   const [mainImage, setMainImage] = useState("");
   const [thumbnails, setThumbnails] = useState([]);
+  const [allReviews, setAllReviews] = useState([]);
   
   // Reviews state
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,124 +34,9 @@ const Detail = () => {
     if (isNaN(number)) return 'Rp 0';
     
     // Format with thousand separators
-    return `Rp.${number.toLocaleString('id-ID')}`;
+    return `Rp${number.toLocaleString('id-ID')}`;
   };
 
-  // Sample reviews data (you can replace this with actual data from your API)
-  const allReviews = [
-    {
-      id: 1,
-      name: "Faqih Diktator",
-      date: "2024-03-08",
-      rating: 5,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 2,
-      name: "Faqih Mustofa",
-      date: "2024-03-08",
-      rating: 4,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 3,
-      name: "Faqih Syah",
-      date: "2024-03-08",
-      rating: 1,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 4,
-      name: "Faqih Luthfi",
-      date: "2024-03-08",
-      rating: 2,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 5,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 5,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 6,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 4,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 7,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 4,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 8,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 4,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 9,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 4,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 10,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 3,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 11,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 3,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 12,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 3,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 13,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 2,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    },
-    {
-      id: 14,
-      name: "Ahmad Hidayat",
-      date: "2024-03-08",
-      rating: 1,
-      comment: "Sewa mobil di Gasskuy benarean simpel dan cepat! Cukup pesan lewat website, pilih mobil, dan langsung siap jalan tanpa ribet. Semuanya serba digital, jadi nggak perlu bolak-balik ngurus dokumen. Cocok banget buat yang butuh mobil dalam waktu singkat!",
-      avatar: profileDummy
-    }
-  ];
 
   const handlePesanSekarang = () => {
     if (!tipeLayanan) {
@@ -165,6 +52,7 @@ const Detail = () => {
     if (!car) {
       navigate("/booking");
     } else {
+      // Set gambar utama dan thumbnails
       setMainImage(car.imageSrc);
 
       const detailImages = car.detailImage || [];
@@ -173,6 +61,26 @@ const Detail = () => {
         ...detailImages.filter((img) => img !== car.imageSrc),
       ];
       setThumbnails(uniqueThumbnails);
+
+      // Ambil review dari API
+      const fetchReviews = async () => {
+        try {
+          const res = await api.get(`/vehicle/${car.id}/review`);
+          const reviewsFromAPI = res.data.data.map((item) => ({
+            id: item.id,
+            name: item.customerId?.fullName || "User",
+            date: item.reviewAddedAt,
+            rating: item.rating,
+            comment: item.review,
+            avatar: item.customerId?.image || profileDummy,
+          }));
+          setAllReviews(reviewsFromAPI);
+        } catch (error) {
+          console.error("Gagal mengambil data ulasan:", error);
+        }
+      };
+
+      fetchReviews();
     }
   }, [car, navigate]);
 

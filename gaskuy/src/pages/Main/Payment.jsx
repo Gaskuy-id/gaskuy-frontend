@@ -16,19 +16,6 @@ const PaymentPage = () => {
   const rentalId = location.state?.rentalId;
   const amount = location.state?.amount;
   const transactionId = location.state?.transactionId;
-//   console.log(paymentAmount);
-
-//   useEffect(() => {
-
-//     {/* Fetch Transactions Amount */}
-//     const fetchTransactions = async () => {
-//       console.log(rentalId)
-//       const res = await API.get(`/vehicles/${rentalId}/checkout`)
-//       console.log(res)
-//     };
-
-//     fetchTransactions();
-//   });
 
   {/* Check Confirmation */}
   const handleConfirmation = async () => {
