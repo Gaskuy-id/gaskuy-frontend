@@ -78,7 +78,6 @@ const PaymentPage = () => {
 
   return (
     <Layout>
-      <LayoutBooking>
         <div className="min-h-screen flex flex-col items-center">
           {/* Progress */}
           <div className="mt-10 text-center">
@@ -362,7 +361,6 @@ const PaymentPage = () => {
             />
           </div>
         </div>
-      </LayoutBooking>
     </Layout>
   );
 };

@@ -136,7 +136,6 @@ const BookPage = () => {
 
   return (
     <Layout> 
-      <LayoutBooking>
         <div className="min-h-screen flex flex-col items-center">
           <div className="mt-10 text-center">
             <h1 className="text-[52px] font-semibold mb-3">Detail Pemesanan</h1>
@@ -271,7 +270,6 @@ const BookPage = () => {
             <img src={jalanan} alt="Login Illustration" className='w-full max-w-[1920px] h-auto' />
           </div>
         </div>
-      </LayoutBooking>
     </Layout>
   );
 };

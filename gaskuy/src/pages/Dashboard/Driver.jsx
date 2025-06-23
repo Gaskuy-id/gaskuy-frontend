@@ -29,10 +29,10 @@ const formatTanggal = (tanggal) => {
 const getDetailedStatus = (rental) => {
   const c = rental.confirmations;
   if (!c) return "Belum Aktif";
-  if (c.paymentPaid) return "Aktif";
-  if (c.vehicleTaken) return "Dalam Penjemputan";
   if (c.vehicleReturned) return "Selesai";
-  return "Sedang Berlangsung";
+  if (c.vehicleTaken) return "Sedang Berlangsung";
+  if (c.paymentPaid) return "Aktif";
+  return "Undefined";
 };
 
 const Driver = () => {
