@@ -196,15 +196,30 @@ const AdminDriver = ({ selectedBranchId }) => {
         console.log(res)
         const rentals = res.data.data;
 
-        let details = rentals.map(rental => ({
+        let details = rentals.map(rental => {
+            let status = ""
+            if (rental.confirmations == undefined){
+                status = "Belum Aktif"
+            }
+            if (rental.confirmations?.paymentPaid){
+                status = "Aktif"
+            }
+            if (rental.confirmations?.vehicleTaken){
+                status = "Sedang Berlangsung"
+            }
+            if (rental.confirmations?.vehicleReturned){
+                status = "Selesai"
+            }
+        return {
           renter: rental.ordererName,
           vehicle: rental.vehicleId?.name || "Kendaraan tidak tersedia",
           customerPhone: rental.ordererPhone,
           start: rental.startedAt?.split("T")[0],
           end: rental.finishedAt?.split("T")[0],
           pickUp: rental.locationStart,
-          detailedStatus: (rental.confirmations==undefined) ? "Belum Aktif" : rental.confirmations.paymentPaid ? "Aktif" : rental.confirmations.vehicleTaken ? "Dalam Penjemputan" : rental.confirmations.vehicleReturned ? "Selesai" : "Sedang Berlangsung", // atau bisa dari rental.status jika tersedia
-        }));
+          detailedStatus: status,
+        }
+      });
 
         console.log(details)
         // setDriverDetails((prev) => ({ ...prev, [id]: details }));
