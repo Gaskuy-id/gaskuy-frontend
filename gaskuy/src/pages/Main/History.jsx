@@ -15,16 +15,6 @@ const History = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       setLoading(true);
-      const checkIsReviewed = async (vehicleId, customerName) => {
-        try {
-          const reviewRes = await api.get(`/vehicle/${vehicleId}/review`);
-          const reviews = reviewRes.data?.data || [];
-          return reviews.some((r) => !!r.reviewAddedAt);
-        } catch (err) {
-          console.warn(`Gagal cek ulasan untuk vehicle ${vehicleId}`);
-          return false;
-        }
-      };
 
       try {
         const res = await api.get('/customer/history');
@@ -68,11 +58,6 @@ const History = () => {
               console.warn(`Gagal cek pembayaran untuk order ${order._id}`);
             }
 
-            const isReviewed = await checkIsReviewed(
-              order.vehicleId?._id || '',
-              order.name
-            );
-
             return {
               id: order._id,
               vehicle: order.vehicleId?.name || 'Nama kendaraan tidak ditemukan',
@@ -91,7 +76,7 @@ const History = () => {
               total: order.amount || 0,
               cancel: order.cancelledAt,
               paid: isPaid,
-              reviewed: isReviewed,
+              reviewed: order.review !== undefined,
             };
           })
         );
