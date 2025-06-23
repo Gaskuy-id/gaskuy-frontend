@@ -11,6 +11,9 @@ const PaymentPage = () => {
   const [paymentStatus, setPaymentStatus] = useState();
   const [paymentAmount, setPaymentAmount] = useState();
   const [showPopup, setShowPopup] = useState(false);
+  const [showCancelledPopup, setShowCancelledPopup] = useState(false);
+  const [showSuccessCancelPopup, setShowSuccessCancelPopup] = useState(false);
+  const [showCancelConfirmPopup, setShowCancelConfirmPopup] = useState(false); // New state for confirmation popup
   const navigate = useNavigate();
   const location = useLocation();
   const rentalId = location.state?.rentalId;
@@ -34,7 +37,8 @@ const PaymentPage = () => {
       } else if (status === null) {
         setShowPopup(true); // munculkan popup
       } else {
-        console.log("Enggak bayar sampai akhir")
+        // Show cancellation popup when payment status is false
+        setShowCancelledPopup(true);
       }
     } catch (error) {
       console.error("Gagal verifikasi:", error);
@@ -42,18 +46,34 @@ const PaymentPage = () => {
     }
   };
 
-  const handleCancel = async (rentalId) => {
-    const confirmCancel = window.confirm('Apakah kamu yakin ingin membatalkan pesanan ini?');
-    if (!confirmCancel) return;
+  const handleCancelClick = () => {
+    setShowCancelConfirmPopup(true); // Show confirmation popup instead of window.confirm
+  };
 
+  const handleConfirmCancel = async () => {
     try {
       await API.post(`/rental/${rentalId}/cancel`);
-      alert('Pesanan berhasil dibatalkan.');
-      navigate('/')
+      setShowCancelConfirmPopup(false);
+      setShowSuccessCancelPopup(true);
     } catch (error) {
       console.error('Gagal membatalkan pesanan:', error);
+      setShowCancelConfirmPopup(false);
       alert('Gagal membatalkan pesanan. Silakan coba lagi.');
     }
+  };
+
+  const handleCancelConfirmPopupClose = () => {
+    setShowCancelConfirmPopup(false);
+  };
+
+  const handleCancelledPopupClose = () => {
+    setShowCancelledPopup(false);
+    navigate('/history');
+  };
+
+  const handleSuccessCancelPopupClose = () => {
+    setShowSuccessCancelPopup(false);
+    navigate('/history');
   };
 
   return (
@@ -219,13 +239,48 @@ const PaymentPage = () => {
 
               {/* Tombol Batalkan */}
               <button
-                onClick={() => handleCancel(rentalId)}
+                onClick={handleCancelClick}
                 className="bg-red-200 hover:bg-red-600 hover:text-white transition-colors duration-200 cursor-pointer rounded-full py-2.5 px-6 font-semibold text-red-700 w-full sm:w-auto"
               >
                 Batalkan Pesanan
               </button>
             </div>
 
+            {/* Popup for cancel confirmation */}
+            {showCancelConfirmPopup && (
+              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                  <div className="mb-4">
+                    <Icon
+                      icon="mdi:help-circle"
+                      className="text-4xl text-orange-500 mx-auto mb-2"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-4 text-black">
+                    Konfirmasi Pembatalan
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-6">
+                    Apakah kamu yakin ingin membatalkan pesanan ini?
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={handleCancelConfirmPopupClose}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-400 transition"
+                    >
+                      Tidak
+                    </button>
+                    <button
+                      onClick={handleConfirmCancel}
+                      className="px-4 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 transition"
+                    >
+                      Ya, Batalkan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Popup for pending confirmation */}
             {showPopup && (
               <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
                 <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
@@ -240,6 +295,58 @@ const PaymentPage = () => {
                     className="px-4 py-2 bg-[#AAEEC4] text-black font-semibold rounded-full hover:bg-black hover:text-white transition"
                   >
                     Tutup
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Popup for cancelled order by admin */}
+            {showCancelledPopup && (
+              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                  <div className="mb-4">
+                    <Icon
+                      icon="mdi:alert-circle"
+                      className="text-4xl text-red-500 mx-auto mb-2"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-4 text-black">
+                    Pemesanan Dibatalkan
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-6">
+                    Pemesanan dibatalkan oleh admin karena sudah masuk ke waktu booking namun belum dilakukan pembayaran.
+                  </p>
+                  <button
+                    onClick={handleCancelledPopupClose}
+                    className="px-4 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 transition"
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Popup for successful user cancellation */}
+            {showSuccessCancelPopup && (
+              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                  <div className="mb-4">
+                    <Icon
+                      icon="mdi:check-circle"
+                      className="text-4xl text-green-500 mx-auto mb-2"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-4 text-black">
+                    Berhasil Dibatalkan
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-6">
+                    Pesanan berhasil dibatalkan.
+                  </p>
+                  <button
+                    onClick={handleSuccessCancelPopupClose}
+                    className="px-4 py-2 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition"
+                  >
+                    OK
                   </button>
                 </div>
               </div>
