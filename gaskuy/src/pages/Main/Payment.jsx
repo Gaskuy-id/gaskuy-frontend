@@ -31,8 +31,10 @@ const PaymentPage = () => {
             transactionId: transactionId
           }
         });
-      } else {
+      } else if (status === null) {
         setShowPopup(true); // munculkan popup
+      } else {
+        console.log("Enggak bayar sampai akhir")
       }
     } catch (error) {
       console.error("Gagal verifikasi:", error);
