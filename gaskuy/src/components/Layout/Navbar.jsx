@@ -55,6 +55,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("bookingForm")
     setIsLoggedIn(false);
     setIsDropdownOpen(false);
     navigate("/login");
@@ -128,6 +129,9 @@ const Navbar = () => {
                   <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg">
                     <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
                       Edit Profile
+                    </Link>
+                    <Link to="/history" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                      History
                     </Link>
                     <button
                       onClick={handleLogout}

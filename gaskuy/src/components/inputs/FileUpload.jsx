@@ -78,19 +78,22 @@ const FileUpload = ({files, setFiles, isMultiple}) => {
       {files.length > 0 && (
         <div className="w-96 p-4 border border-gray-300">
           <h3 className="text-lg font-bold">Uploaded File</h3>
-          <ul>
-          {files.map((file, index) => (
-              <li key={index} className="relative">
-                <img src={filePreviews[index]} />
-                <p className="text-sm text-gray-700">{file.name}</p>
-                <ImCross 
-                  className="-top-2 -right-2 absolute bg-white p-1 rounded-full shadow-md cursor-pointer w-5 h-5"
-                  onClick={() => removeFile(index) } 
-                />
-              </li>
-            )
-          )}
-          </ul>
+            <ul className="space-y-4">
+              {files.map((file, index) => (
+                <li key={index} className="relative">
+                  <img
+                    src={filePreviews[index]}
+                    alt={`preview-${index}`}
+                    className="w-full h-40 object-contain border border-gray-200 rounded"
+                  />
+                  <p className="text-sm text-gray-700 mt-1">{file.name}</p>
+                  <ImCross 
+                    className="-top-2 -right-2 absolute bg-white p-1 rounded-full shadow-md cursor-pointer w-5 h-5"
+                    onClick={() => removeFile(index)} 
+                  />
+                </li>
+              ))}
+            </ul>
         </div>
       )}
     </div>

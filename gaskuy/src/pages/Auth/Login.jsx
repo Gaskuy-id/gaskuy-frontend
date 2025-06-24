@@ -39,7 +39,7 @@ const Login = () => {
 
     // Login API Call
     try {
-      const res = await API.post("/customer/auth/signin", {
+      const res = await API.post("/auth/signin", {
         email: email,
         password: password
       });

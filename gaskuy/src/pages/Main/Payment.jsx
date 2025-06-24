@@ -1,150 +1,366 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Layout from "../../components/Layout/Layout";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import LayoutBooking from "../../components/Layout/LayoutBooking";
 import jalanan from "../../assets/images/jalanan.png";
-import keycar from "../../assets/images/keycar.png";
+import qr from "../../assets/images/qr.png";
 import { Icon } from "@iconify/react";
-import { motion } from "framer-motion";
+import API from "../../utils/api";
+import Layout from "../../components/Layout/Layout";
 
 const PaymentPage = () => {
-  const [paymentStatus, setPaymentStatus] = useState("pending");
+  const [paymentStatus, setPaymentStatus] = useState();
+  const [paymentAmount, setPaymentAmount] = useState();
+  const [showPopup, setShowPopup] = useState(false);
+  const [showCancelledPopup, setShowCancelledPopup] = useState(false);
+  const [showSuccessCancelPopup, setShowSuccessCancelPopup] = useState(false);
+  const [showCancelConfirmPopup, setShowCancelConfirmPopup] = useState(false); // New state for confirmation popup
   const navigate = useNavigate();
+  const location = useLocation();
+  const rentalId = location.state?.rentalId;
+  const amount = location.state?.amount;
+  const transactionId = location.state?.transactionId;
+
+  {/* Check Confirmation */}
+  const handleConfirmation = async () => {
+    try {
+      const res = await API.post('/rental/checkConfirmation', {rentalId: `${rentalId}`});
+      
+      const status = res.data.data;
+      setPaymentStatus(status);
+
+      if (status === true) {
+        navigate('/book-success', {
+          state: {
+            transactionId: transactionId
+          }
+        });
+      } else if (status === null) {
+        setShowPopup(true); // munculkan popup
+      } else {
+        // Show cancellation popup when payment status is false
+        setShowCancelledPopup(true);
+      }
+    } catch (error) {
+      console.error("Gagal verifikasi:", error);
+      setShowPopup(true); // fallback jika gagal
+    }
+  };
+
+  const handleCancelClick = () => {
+    setShowCancelConfirmPopup(true); // Show confirmation popup instead of window.confirm
+  };
+
+  const handleConfirmCancel = async () => {
+    try {
+      await API.post(`/rental/${rentalId}/cancel`);
+      setShowCancelConfirmPopup(false);
+      setShowSuccessCancelPopup(true);
+    } catch (error) {
+      console.error('Gagal membatalkan pesanan:', error);
+      setShowCancelConfirmPopup(false);
+      alert('Gagal membatalkan pesanan. Silakan coba lagi.');
+    }
+  };
+
+  const handleCancelConfirmPopupClose = () => {
+    setShowCancelConfirmPopup(false);
+  };
+
+  const handleCancelledPopupClose = () => {
+    setShowCancelledPopup(false);
+    navigate('/history');
+  };
+
+  const handleSuccessCancelPopupClose = () => {
+    setShowSuccessCancelPopup(false);
+    navigate('/history');
+  };
 
   return (
     <Layout>
-      <div className="min-h-screen flex flex-col items-center">
-        {/* Progress */}
-        <div className="mt-10 text-center">
-          <h1 className="text-[52px] font-semibold mb-3">Pembayaran</h1>
-          <p className="text-[28px] font-normal mb-8">
-            Lengkapi pembayaranmu untuk melanjutkan!
-          </p>
-
-          <div className="flex items-center justify-center mb-10">
-            {/* Step 1 */}
-            <div className="flex items-center space-x-2">
-              <div className="w-[69px] h-[69px] rounded-full bg-[#59A618] text-[32px] font-semibold flex items-center justify-center">
-                1
-              </div>
-              <span className="text-[32px] font-semibold ml-4">Book</span>
-            </div>
-            {/* Line 1-2 */}
-            <div className="w-[265px] h-1 bg-[#59A618] mx-2" />
-            {/* Step 2 */}
-            <div className="flex items-center space-x-2">
-              <div
-                className={`w-[69px] h-[69px] rounded-full flex items-center justify-center text-[32px] font-semibold ${
-                  paymentStatus === "paid"
-                    ? "bg-[#59A618] text-black"
-                    : "border-4 border-[#59A618] text-black"
-                }`}
-              >
-                2
-              </div>
-              <span
-                className={`text-[32px] font-semibold ml-4 ${
-                  paymentStatus === "paid" ? "text-black" : "text-black"
-                }`}
-              >
-                Payment
-              </span>
-            </div>
-            {/* Line 2-3 */}
-            <div
-              className={`w-[265px] h-1 mx-2 ${
-                paymentStatus === "paid" ? "bg-[#59A618]" : "bg-gray-300"
-              }`}
-            />
-            {/* Step 3 */}
-            <div className="flex items-center space-x-2">
-              <div className="w-[69px] h-[69px] rounded-full border-4 border-gray-300 text-[32px] font-semibold flex items-center justify-center text-gray-300">
-                3
-              </div>
-              <span className="text-[32px] font-semibold ml-4 text-gray-300">
-                Done
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Payment Section */}
-        <motion.div
-          className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-[500px] flex flex-col items-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div
-            animate={{ rotate: paymentStatus === "paid" ? 360 : 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-4"
-          >
-            <Icon
-              icon={
-                paymentStatus === "paid"
-                  ? "ic:round-check-circle"
-                  : "mdi:clock-outline"
-              }
-              width={64}
-              height={64}
-              className={
-                paymentStatus === "paid"
-                  ? "text-green-500"
-                  : "text-yellow-500 animate-pulse"
-              }
-            />
-          </motion.div>
-
-          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">
-            {paymentStatus === "paid"
-              ? "Pembayaran Berhasil!"
-              : "Menunggu Pembayaran"}
-          </h2>
-          <p className="text-gray-600 mb-6 text-center">
-            {paymentStatus === "paid"
-              ? "Terima kasih! Pembayaran Anda sudah kami terima."
-              : "Silakan klik tombol di bawah untuk melakukan pembayaran."}
-          </p>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`px-6 py-3 rounded-full font-semibold shadow-md focus:outline-none transition-colors
-              ${
-                paymentStatus === "paid"
-                  ? "bg-gray-800 text-white hover:bg-gray-700"
-                  : "bg-gradient-to-r from-green-400 to-teal-500 text-white hover:from-green-500 hover:to-teal-600"
-              }`}
-            onClick={() =>
-              paymentStatus === "paid"
-                ? navigate("/book-success")
-                : setPaymentStatus("paid")
-            }
-          >
-            {paymentStatus === "paid" ? "Lanjutkan" : "Bayar Sekarang"}
-          </motion.button>
-        </motion.div>
-
-        {/* Reminder */}
-        <div className="w-full flex justify-center px-4 max-w-[739px] mt-8">
-          <div className="flex items-center bg-[#E8F7F5] rounded-3xl p-4 w-full">
-            <img src={keycar} alt="KeyCar Logo" width="33" height="33" />
-            <p className="text-[#6F585A] font-normal text-[13px] ml-2">
-              Pastikan kamu menyelesaikan pembayaran sebelum batas waktu agar
-              pesanan tidak hangus.
+        <div className="min-h-screen flex flex-col items-center">
+          {/* Progress */}
+          <div className="mt-10 text-center">
+            <h1 className="text-[52px] font-semibold mb-3">Pembayaran</h1>
+            <p className="text-[28px] font-normal mb-8">
+              Lengkapi pembayaranmu untuk melanjutkan!
             </p>
+
+            <div className="flex items-center justify-center mb-10">
+              {/* Step 1 */}
+              <div className="flex items-center space-x-2">
+                <div className="w-[69px] h-[69px] rounded-full bg-[#59A618] text-[32px] font-semibold flex items-center justify-center">
+                  1
+                </div>
+                <span className="text-[32px] font-semibold ml-4">Book</span>
+              </div>
+              {/* Line 1-2 */}
+              <div className="w-[265px] h-1 bg-[#59A618] mx-2" />
+              {/* Step 2 */}
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-[69px] h-[69px] rounded-full flex items-center justify-center text-[32px] font-semibold ${
+                    paymentStatus === "paid"
+                      ? "bg-[#59A618] text-black"
+                      : "border-4 border-[#59A618] text-black"
+                  }`}
+                >
+                  2
+                </div>
+                <span
+                  className={`text-[32px] font-semibold ml-4 ${
+                    paymentStatus === "paid" ? "text-black" : "text-black"
+                  }`}
+                >
+                  Payment
+                </span>
+              </div>
+              {/* Line 2-3 */}
+              <div
+                className={`w-[265px] h-1 mx-2 ${
+                  paymentStatus === "paid" ? "bg-[#59A618]" : "bg-gray-300"
+                }`}
+              />
+              {/* Step 3 */}
+              <div className="flex items-center space-x-2">
+                <div className="w-[69px] h-[69px] rounded-full border-4 border-gray-300 text-[32px] font-semibold flex items-center justify-center text-gray-300">
+                  3
+                </div>
+                <span className="text-[32px] font-semibold ml-4 text-gray-300">
+                  Done
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Section */}
+          <div className="w-full max-w-6xl px-4 mb-12"> 
+            <h2 className="text-center text-3xl font-bold mb-8 md:text-[30px] leading-tight">
+              <span>Pembayaran </span>
+              <span className="bg-[linear-gradient(to_bottom,transparent_50%,#AAEEC4_50%)] px-1">
+                Pesanan
+              </span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Step 1 */}
+              <div className="border border-gray-300 rounded-2xl p-6 relative bg-white shadow-sm">
+                <div className="absolute top-4 right-4 bg-[#C7F6D1] text-black font-semibold px-4 py-1 rounded-lg">
+                  Step 1
+                </div>
+                <p className="text-[22px] font-bold text-black mb-4 mt-[-6px]">
+                  No. Rekening
+                </p>
+                <p className="text-[18.3px] font-semibold text-black mb-3">
+                  127–812–8383 (BCA) – Muhammad Faqih Khawarizmi
+                </p>
+                <hr className="my-[16px] border-black" />
+                <div className="flex justify-between items-center">
+                  <p className="text-[20px] font-bold mt-1">Jumlah Pembayaran</p>
+                  <p className="text-lg font-bold text-[#00B496]">Rp{amount.toLocaleString("id-ID")}</p>
+                </div>
+                <p className="text-[8px] font-bold text-[#7D7878] mt-[-2px]">
+                  *Sudah termasuk pajak
+                </p>
+                <div className="bg-[#E6F7F4] rounded-2xl flex items-center px-4 py-2 mt-5">
+                  <Icon
+                    icon="fluent:payment-16-regular"
+                    className="text-xl mr-2 text-[#0ACF83]"
+                  />
+                  <span className="text-[12px] text-gray-700">
+                    Step 1: Lakukan pembayaran pada No. Rekening berikut.
+                  </span>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="border border-gray-300 rounded-2xl p-6 relative bg-white shadow-sm">
+                <div className="absolute top-4 right-4 bg-[#C7F6D1] text-black font-semibold px-4 py-1 rounded-lg">
+                  Step 2
+                </div>
+                <p className="text-[22px] font-bold text-black mb-4 mt-[-6px]">
+                  Konfirmasi Pembayaran
+                </p>
+                <p className="text-[17.4px] text-black font-semibold">
+                  Konfirmasi Pembayaran Dengan Menekan
+                </p>
+                <p className="text-[15.5px] text-black font-light mb-4">
+                  Tombol Dibawah atau Scan QR Code Disamping
+                </p>
+                
+                {/* QR Code and Button Container */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex-1">
+                    <button
+                      className="bg-[#AAEEC4] hover:bg-black hover:text-white transition text-black font-bold py-2 px-6 rounded-2xl w-full mb-1 text-[12px]"
+                      onClick={() =>
+                        window.open(
+                          "https://web.whatsapp.com/send?phone=6281392610510&text=*%5BKONFIRMASI%20PEMBAYARAN%5D*%20%F0%9F%92%B8%E2%9C%85%0A%0AHalo%20Min%20Gaskuyy!%20%F0%9F%91%8B%F0%9F%98%84%0ASaya%20sudah%20melakukan%20pembayaran%20atas%20nama%20%5BNama%20Pelanggan%5D%20%F0%9F%A7%BE%0Adari%20Bank%20%5BNama%20Bank%20%E2%80%93%20No.%20Rek%5D%20%F0%9F%8F%A6%0AMohon%20bantuannya%20untuk%20konfirmasi%20ya%20%F0%9F%99%8F%0ATerima%20kasih%20banyak!%20%F0%9F%98%8A%E2%9C%A8",
+                          "_blank"
+                        )
+                      }
+                    >
+                      Konfirmasi via Whatsapp
+                    </button>
+                  </div>
+                  
+                  {/* QR Code */}
+                  <div className="ml-4 mt-[-68px] flex justify-center items-center">
+                    <img
+                      src={qr}
+                      alt="QR Code Whatsapp"
+                      className="w-[100px] h-[100px] object-contain"
+                    />
+                  </div>
+                </div>
+                
+                <div className="bg-[#E6F7F4] rounded-2xl flex items-center px-4 py-2 mt-5">
+                  <Icon
+                    icon="mdi:whatsapp"
+                    className="text-xl mr-2 ml-1 mt-[-1px] text-[#0ACF83]"
+                  />
+                  <span className="text-[12px] text-gray-700">
+                    Step 2: Lakukan konfirmasi pada admin Gasskuy.id
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Status Verifikasi dan Batalkan */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+              {/* Tombol Verifikasi */}
+              <button
+                onClick={handleConfirmation}
+                className="bg-[#C7F6D1] hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer rounded-full py-2.5 px-6 font-semibold text-black w-full sm:w-[80%]"
+              >
+                Verifikasi Status Konfirmasi
+              </button>
+
+              {/* Tombol Batalkan */}
+              <button
+                onClick={handleCancelClick}
+                className="bg-red-200 hover:bg-red-600 hover:text-white transition-colors duration-200 cursor-pointer rounded-full py-2.5 px-6 font-semibold text-red-700 w-full sm:w-auto"
+              >
+                Batalkan Pesanan
+              </button>
+            </div>
+
+            {/* Popup for cancel confirmation */}
+            {showCancelConfirmPopup && (
+              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                  <div className="mb-4">
+                    <Icon
+                      icon="mdi:help-circle"
+                      className="text-4xl text-orange-500 mx-auto mb-2"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-4 text-black">
+                    Konfirmasi Pembatalan
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-6">
+                    Apakah kamu yakin ingin membatalkan pesanan ini?
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={handleCancelConfirmPopupClose}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-400 transition"
+                    >
+                      Tidak
+                    </button>
+                    <button
+                      onClick={handleConfirmCancel}
+                      className="px-4 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 transition"
+                    >
+                      Ya, Batalkan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Popup for pending confirmation */}
+            {showPopup && (
+              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                  <h3 className="text-lg font-semibold mb-4 text-black">
+                    Konfirmasi Belum Tersedia
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-6">
+                    Pembayaran kamu belum dikonfirmasi. Silakan coba lagi nanti atau hubungi admin.
+                  </p>
+                  <button
+                    onClick={() => setShowPopup(false)}
+                    className="px-4 py-2 bg-[#AAEEC4] text-black font-semibold rounded-full hover:bg-black hover:text-white transition"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Popup for cancelled order by admin */}
+            {showCancelledPopup && (
+              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                  <div className="mb-4">
+                    <Icon
+                      icon="mdi:alert-circle"
+                      className="text-4xl text-red-500 mx-auto mb-2"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-4 text-black">
+                    Pemesanan Dibatalkan
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-6">
+                    Pemesanan dibatalkan oleh admin karena sudah masuk ke waktu booking namun belum dilakukan pembayaran.
+                  </p>
+                  <button
+                    onClick={handleCancelledPopupClose}
+                    className="px-4 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 transition"
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Popup for successful user cancellation */}
+            {showSuccessCancelPopup && (
+              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-sm w-full">
+                  <div className="mb-4">
+                    <Icon
+                      icon="mdi:check-circle"
+                      className="text-4xl text-green-500 mx-auto mb-2"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-4 text-black">
+                    Berhasil Dibatalkan
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-6">
+                    Pesanan berhasil dibatalkan.
+                  </p>
+                  <button
+                    onClick={handleSuccessCancelPopupClose}
+                    className="px-4 py-2 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition"
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Background Illustration */}
+          <div className="flex justify-center mt-[-60px]">
+            <img
+              src={jalanan}
+              alt="Payment Illustration"
+              className="w-full max-w-[1920px] h-auto"
+            />
           </div>
         </div>
-
-        {/* Background Illustration */}
-        <div className="flex justify-center mt-3">
-          <img
-            src={jalanan}
-            alt="Payment Illustration"
-            className="w-full max-w-[1920px] h-auto"
-          />
-        </div>
-      </div>
     </Layout>
   );
 };

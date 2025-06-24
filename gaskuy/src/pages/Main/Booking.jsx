@@ -111,9 +111,10 @@ const Booking = () => {
           id: car._id,
           title: car.name,
           imageSrc: car.mainImage,
-          pricePerDay: car.ratePerHour,
+          detailImage: car.detailImages,
+          pricePerHour: car.ratePerHour,
           engineCapacity: car.engineCapacity,
-          fuelCapacity: car.fuelCapacity || "N/A",
+          luggage: car.luggage,
           transmission: car.transmission,
           seats: car.seats || car.seat, // Handle both properties
           city: car.city || tempatRental || "N/A"
@@ -230,12 +231,14 @@ const Booking = () => {
                   className="block"
                 >
                   <CarInformation
+                    id={car.id}
                     title={car.title}
                     imageSrc={car.imageSrc}
+                    detailImage={car.detailImages}
                     alt={car.title}
-                    pricePerDay={car.pricePerDay}
+                    pricePerHour={car.pricePerHour}
                     engineCapacity={car.engineCapacity}
-                    fuelCapacity={car.fuelCapacity}
+                    luggage={car.luggage}
                     transmission={car.transmission}
                     seats={car.seats}
                   />

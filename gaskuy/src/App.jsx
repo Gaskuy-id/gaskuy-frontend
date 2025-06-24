@@ -12,14 +12,14 @@ import Register from "./pages/Auth/Register";
 import Home from './pages/Main/Home';
 import Booking from './pages/Main/Booking';
 import Detail from './pages/Main/Detail';
-import BookNoDriver from './pages/Main/BookNoDriver';
-import BookDriver from './pages/Main/BookDriver';
+import BookPage from './pages/Main/BookPage'
 import BookSuccess from './pages/Main/BookSuccess';
 import Payment from './pages/Main/Payment';
 import History from './pages/Main/History';
 import Profile from './pages/Main/Profile';
 import MainDashboard from './pages/Dashboard/MainDashboard';
 import DriverDashboard from './pages/Dashboard/Driver';
+import ForgotPassword from './pages/Auth/ForgotPassword'; 
 
 // Middleware
 import ProtectedRoute from './middleware/ProtectedRoute';
@@ -35,12 +35,11 @@ const App = () => {
           {/* Auth */}
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
 
           {/* Main Customer - protected for any logged-in user */}
           <Route path='/home' element={
-            <ProtectedRoute>
               <Home />
-            </ProtectedRoute>
           }/>
           <Route path='/booking' element={
             <ProtectedRoute>
@@ -52,14 +51,9 @@ const App = () => {
               <Detail />
             </ProtectedRoute>
           }/>
-          <Route path='/book-no-driver' element={
+          <Route path='/book/:type' element={
             <ProtectedRoute>
-              <BookNoDriver />
-            </ProtectedRoute>
-          }/>
-          <Route path='/book-driver' element={
-            <ProtectedRoute>
-              <BookDriver />
+              <BookPage />
             </ProtectedRoute>
           }/>
           <Route path='/book-success' element={
@@ -109,7 +103,7 @@ const Root = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  if (!token) return <Navigate to="/login" />;
+  if (!token) return <Navigate to="/home" />;
 
   switch (role) {
     case 'admin':

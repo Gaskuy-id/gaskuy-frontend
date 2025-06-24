@@ -25,7 +25,7 @@ const AdminDriver = ({ selectedBranchId }) => {
 
   const [drivers, setDrivers] = useState([]);
 
-  // 🟥 Tambahkan state baru untuk menyimpan detail per driver
+  // Tambahkan state baru untuk menyimpan detail per driver
   const [driverDetails, setDriverDetails] = useState({});
 
   const fetchDrivers = async () => {
@@ -34,11 +34,11 @@ const AdminDriver = ({ selectedBranchId }) => {
       let allDrivers = res.data.data.map((element) => {
         const id = element._id;
 
-        // 🟥 Dummy details sementara
+        // Dummy details sementara
         const details = [
         ];
 
-        // 🟥 Simpan details ke state driverDetails
+        // Simpan details ke state driverDetails
         setDriverDetails((prev) => ({ ...prev, [id]: details }));
 
         return {
@@ -196,15 +196,30 @@ const AdminDriver = ({ selectedBranchId }) => {
         console.log(res)
         const rentals = res.data.data;
 
-        let details = rentals.map(rental => ({
+        let details = rentals.map(rental => {
+            let status = ""
+            if (rental.confirmations == undefined){
+                status = "Belum Aktif"
+            }
+            if (rental.confirmations?.paymentPaid){
+                status = "Aktif"
+            }
+            if (rental.confirmations?.vehicleTaken){
+                status = "Sedang Berlangsung"
+            }
+            if (rental.confirmations?.vehicleReturned){
+                status = "Selesai"
+            }
+        return {
           renter: rental.ordererName,
           vehicle: rental.vehicleId?.name || "Kendaraan tidak tersedia",
           customerPhone: rental.ordererPhone,
           start: rental.startedAt?.split("T")[0],
           end: rental.finishedAt?.split("T")[0],
           pickUp: rental.locationStart,
-          detailedStatus: (rental.confirmations==undefined) ? "Belum Aktif" : rental.confirmations.paymentPaid ? "Aktif" : rental.confirmations.vehicleTaken ? "Dalam Penjemputan" : rental.confirmations.vehicleReturned ? "Selesai" : "Sedang Berlangsung", // atau bisa dari rental.status jika tersedia
-        }));
+          detailedStatus: status,
+        }
+      });
 
         console.log(details)
         // setDriverDetails((prev) => ({ ...prev, [id]: details }));
@@ -435,12 +450,12 @@ const AdminDriver = ({ selectedBranchId }) => {
         </div>
 
         {/* Tabel */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[350px] rounded-lg border border-gray-200">
+        <div className="overflow-x-auto overflow-y-auto max-h-[350px] rounded-lg">
           <table className="min-w-full text-sm">
             <thead className="bg-[#D9D9D9]/20 text-left">
               <tr>
                 {['Nama', 'Email', 'No Telp', 'Alamat', 'Status', 'Aksi'].map(h => (
-                  <th key={h} className="px-6 py-4">{h}</th>
+                  <th key={h} className="px-6 py-4 font-normal">{h}</th>
                 ))}
               </tr>
             </thead>

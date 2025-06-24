@@ -46,14 +46,17 @@ const AdminCustomer = () => {
           users.map(async (user) => {
             try {
               const rentalRes = await api.get(`/cms/rentals?customerId=${user._id}`);
-              const rentals = rentalRes.data.data.map((r) => ({
-                id: r.transactionId,
-                vehicle: r.vehicleId?.name || 'Tidak tersedia',
-                driver: r.driverId?.fullName || 'Tidak tersedia',
-                start: formatTanggal(r.startedAt),
-                end: formatTanggal(r.finishedAt),
-                price: `Rp${r.amount.toLocaleString('id-ID')}`,
-              }));
+              const rentals = rentalRes.data.data
+                .filter((r) => !r.cancelledAt)
+                .map((r) => ({
+                  id: r.transactionId,
+                  vehicle: r.vehicleId?.name || 'Tidak tersedia',
+                  driver: r.driverId?.fullName || 'Tidak tersedia',
+                  start: formatTanggal(r.startedAt),
+                  end: formatTanggal(r.finishedAt),
+                  price: `Rp${r.amount.toLocaleString('id-ID')}`,
+                  cancel: r.cancelledAt,
+                }));
               return {
                 ...user,
                 details: rentals,
@@ -144,7 +147,7 @@ const AdminCustomer = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <table className="min-w-full bg-white rounded-lg shadow overflow-hidden">
             <thead className="bg-white">
               <tr className="bg-[#D9D9D9]/20">
@@ -185,44 +188,44 @@ const AdminCustomer = () => {
                     </td>
                   </tr>
 
-                  {String(expandedId) === String(v._id) && (
-                    <tr>
-                      <td colSpan={7} className="px-6 py-4 bg-gray-50">
-                        <div className="rounded-lg p-4">
-                          {errorDetails ? (
-                            <div className="text-red-500 text-sm">{errorDetails}</div>
-                          ) : v.details.length > 0 ? (
-                            <table className="min-w-full text-sm">
-                              <thead>
-                                <tr className="bg-gray-100 text-left">
-                                  <th className="px-4 py-2 font-normal">ID Transaksi</th>
-                                  <th className="px-4 py-2 font-normal">Kendaraan</th>
-                                  <th className="px-4 py-2 font-normal">Nama Driver</th>
-                                  <th className="px-4 py-2 font-normal">Tanggal Sewa</th>
-                                  <th className="px-4 py-2 font-normal">Tanggal Kembali</th>
-                                  <th className="px-4 py-2 font-normal">Harga</th>
+                {String(expandedId) === String(v._id) && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 bg-gray-50">
+                      <div className="rounded-lg p-4 max-h-64 overflow-y-auto">
+                        {errorDetails ? (
+                          <div className="text-red-500 text-sm">{errorDetails}</div>
+                        ) : v.details.length > 0 ? (
+                          <table className="min-w-full text-sm">
+                            <thead>
+                              <tr className="bg-gray-100 text-left">
+                                <th className="px-4 py-2 font-normal">ID Transaksi</th>
+                                <th className="px-4 py-2 font-normal">Kendaraan</th>
+                                <th className="px-4 py-2 font-normal">Nama Driver</th>
+                                <th className="px-4 py-2 font-normal">Tanggal Sewa</th>
+                                <th className="px-4 py-2 font-normal">Tanggal Kembali</th>
+                                <th className="px-4 py-2 font-normal">Harga</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {v.details.map((d, i) => (
+                                <tr key={i} className="border-t">
+                                  <td className="px-4 py-2">{d.id}</td>
+                                  <td className="px-4 py-2">{d.vehicle}</td>
+                                  <td className="px-4 py-2">{d.driver}</td>
+                                  <td className="px-4 py-2">{d.start}</td>
+                                  <td className="px-4 py-2">{d.end}</td>
+                                  <td className="px-4 py-2">{d.price}</td>
                                 </tr>
-                              </thead>
-                              <tbody>
-                                {v.details.map((d, i) => (
-                                  <tr key={i} className="border-t">
-                                    <td className="px-4 py-2">{d.id}</td>
-                                    <td className="px-4 py-2">{d.vehicle}</td>
-                                    <td className="px-4 py-2">{d.driver}</td>
-                                    <td className="px-4 py-2">{d.start}</td>
-                                    <td className="px-4 py-2">{d.end}</td>
-                                    <td className="px-4 py-2">{d.price}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          ) : (
-                            <div className="text-gray-500 text-sm">Tidak ada detail transaksi.</div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <div className="text-gray-500 text-sm">Tidak ada detail transaksi.</div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
                 </React.Fragment>
               ))}
               {filtered.length === 0 && (
